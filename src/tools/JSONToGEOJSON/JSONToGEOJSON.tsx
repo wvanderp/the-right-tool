@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
+import JSONToGEOJSONConverter from './JSONToGEOJSONConverter';
 
 /**
  * This tool converts JSON data to GEOJSON format.
@@ -25,47 +26,31 @@ export default function JSONToGEOJSON() : React.ReactElement {
             return;
         }
 
-    const data = JSON.parse(json);
-        const features = data.map((item: any) => {
-        const properties = Object.keys(item).reduce((acc, key) => {
-            if (key !== latitudeKey && key !== longitudeKey) {
-            acc[key] = item[key];
-            }
-            return acc;
-        }, {});
-        return {
-            type: 'Feature',
-            geometry: {
-            type: 'Point',
-            coordinates: [parseFloat(item[longitudeKey]), parseFloat(item[latitudeKey])]
-            },
-            properties
-        };
-        });
-        setGeojson(JSON.stringify({
-        type: 'FeatureCollection',
-        features
-        }, null, 2));
-    };   
+        const data = JSONToGEOJSONConverter(JSON.parse(json), latitudeKey, longitudeKey);
+
+        if (data) {
+            setGeojson(data);
+        }
+    };
     
     return (
-        <div>
-        <h1>JSON to GEOJSON</h1>
-        <label>
-            JSON Data:
-            <textarea value={json} onChange={(e) => setJson(e.target.value)} />
-        </label>
-        <label>
-            Latitude Key:
-            <input value={latitudeKey} onChange={(e) => setLatitudeKey(e.target.value)} />
-        </label>
-        <label>
-            Longitude Key:
-            <input value={longitudeKey} onChange={(e) => setLongitudeKey(e.target.value)} />
-        </label>
-        <button onClick={convert}>Convert</button>
-        {parseError && <div style={{color: "red"}}>{parseError}</div>}
-        <pre>{geojson}</pre>
-        </div>
+        <div className="flex flex-col items-center space-y-4">
+            <h1 className="text-2xl font-bold">JSON to GEOJSON</h1>
+            <label className="flex flex-col">
+                JSON Data:
+                <textarea className="border-2 border-gray-200 rounded p-2" value={json} onChange={(e) => setJson(e.target.value)} />
+            </label>
+            <label className="flex flex-col">
+                Latitude Key:
+                <input className="border-2 border-gray-200 rounded p-2" value={latitudeKey} onChange={(e) => setLatitudeKey(e.target.value)} />
+            </label>
+            <label className="flex flex-col">
+                Longitude Key:
+                <input className="border-2 border-gray-200 rounded p-2" value={longitudeKey} onChange={(e) => setLongitudeKey(e.target.value)} />
+            </label>
+            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={convert}>Convert</button>
+            {parseError && <div className="text-red-500">{parseError}</div>}
+            {geojson && <pre className="border-2 border-gray-200 rounded p-2">{geojson}</pre>}
+      </div>
     );
-    }
+}
