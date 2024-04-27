@@ -12,6 +12,8 @@ import Menu from './pageComponents/Menu';
 import Footer from './pageComponents/Footer';
 import HomePage from './HomePage';
 
+import packageJson from '../package.json';
+
 
 
 const tools: ToolComponent[] = [
@@ -34,7 +36,10 @@ const router = createBrowserRouter(
       path: meta.route,
       element: React.createElement(component),
     }))
-  ]
+  ],
+  {
+    basename: `/${packageJson.name}/`
+  }
 );
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

@@ -1,4 +1,4 @@
-# The Right Tool
+# The right tool
 
 `Why use the wrong tool when you can use the right one?`
 

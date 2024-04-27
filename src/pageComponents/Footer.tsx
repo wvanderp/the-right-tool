@@ -1,4 +1,5 @@
 import packageJson from '../../package.json';
+import githubLogo from '../../static/github-mark-white.svg';
 
 export default function Footer() {
     const repoUrl = packageJson.repository.url
@@ -17,7 +18,7 @@ export default function Footer() {
                 Why use the wrong tool when you can use the right one?
             </p>
             <a href={repoUrl} className="ml-4">
-                <img src="../../static/github-mark-white.svg" alt="GitHub" width="24" height="24" style={{ fill: 'white' }}/>
+                <img src={githubLogo} alt="GitHub" width="24" height="24" style={{ fill: 'white' }}/>
             </a>
         </footer>
     );

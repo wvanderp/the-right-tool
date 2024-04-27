@@ -5,7 +5,7 @@ export default function HomePage() {
 
     return (
         <div className="flex flex-col items-center justify-center h-screen px-4 sm:px-0 text-center w-full lg:w-3/4 mx-auto">
-            <h1 className="text-4xl font-bold">Welcome to The Right Tool</h1>
+            <h1 className="text-4xl font-bold">Welcome to The right tool</h1>
             <p className="text-md mt-2 max-w-2xl">
                 Why use the wrong tool when you can use the right one?
             </p>
