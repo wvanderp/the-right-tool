@@ -8,8 +8,9 @@ import JSONToGEOJSON from './tools/JSONToGEOJSON/JSONToGEOJSON';
 
 import './main.css';
 import { ToolComponent } from './types/ToolComponent';
-import Menu from './pageComonents/Menu';
-import Footer from './pageComonents/Footer';
+import Menu from './pageComponents/Menu';
+import Footer from './pageComponents/Footer';
+import HomePage from './HomePage';
 
 
 
@@ -27,7 +28,7 @@ const router = createBrowserRouter(
   [
     {
       path: '/',
-      element: (<h1 className="text-3xl font-bold underline">Home</h1>)
+      element: (<HomePage />)
     },
     ...tools.map(({ meta, component }) => ({
       path: meta.route,

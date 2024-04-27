@@ -1,8 +1,14 @@
 {
-  "name": "tools",
+  "name": "the-right-tool",
+  "tagline": "Why use the wrong tool when you can use the right one?",
+  "description": "a curated collection of powerful yet user-friendly tools, why settle for anything less than perfect results?",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wvanderp/The-Right-Tool"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
