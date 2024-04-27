@@ -1,3 +1,7 @@
+import toPrettyJSON from '../../utils/toPrettyJSON';
+
+import jp from 'jsonpath';
+
 /***
  * JSONToGEOJSONConverter
  * convert JSON data to GEOJSON format
@@ -14,25 +18,58 @@ export default function JSONToGEOJSONConverter(data: unknown, latitudeJsonPath: 
         throw new Error('Data should be an array');
     }
 
+    const QueryType = queryIdentifier(latitudeJsonPath);
+
+    if (QueryType === 'invalid') {
+        throw new Error('Invalid query');
+    }
+
     // convert the json
     const features = data.map((item: any) => {
+        const latitude = parseFloat(QueryType === 'string' ? item[latitudeJsonPath] : jp.query(item, latitudeJsonPath)[0]);
+        const longitude = parseFloat(QueryType === 'string' ? item[longitudeJsonPath] : jp.query(item, longitudeJsonPath)[0]);
+
         const properties = Object.keys(item).reduce((acc, key) => {
             if (key !== latitudeJsonPath && key !== longitudeJsonPath) {
                 acc[key] = item[key];
             }
             return acc;
         }, {});
+
         return {
             type: 'Feature',
             geometry: {
                 type: 'Point',
-                coordinates: [parseFloat(item[longitudeJsonPath]), parseFloat(item[latitudeJsonPath])]
+                coordinates: [longitude, latitude]
             },
             properties
         };
     });
-    return JSON.stringify({
+    
+    return toPrettyJSON({
         type: 'FeatureCollection',
         features
-    }, null, 2);
+    });
+}
+
+export type QueryType = 'string' | 'JSONPath' | 'invalid';
+
+/***
+ * identify the type of the query
+ *
+ * @param query query to identify
+ * @returns the type of the query
+ */
+export function queryIdentifier(query: string): QueryType {
+    // check if the query is a JSONPath
+    if (query.startsWith('$')) {
+        return 'JSONPath';
+    }
+
+    // check if the query is a string
+    if (query.length === 0) {
+        return 'invalid';
+    }
+
+    return 'string';
 }
