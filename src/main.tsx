@@ -36,10 +36,7 @@ const router = createBrowserRouter(
       path: meta.route,
       element: React.createElement(component),
     }))
-  ],
-  {
-    basename: `/${packageJson.name}/`
-  }
+  ]
 );
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

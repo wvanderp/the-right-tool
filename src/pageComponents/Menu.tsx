@@ -1,5 +1,4 @@
 import { ToolComponent } from '../types/ToolComponent';
-import packageJson from '../../package.json';
 
 export default function Menu(props: { tools: ToolComponent[] }) {
     const currentPath = document.location.pathname;
@@ -12,7 +11,7 @@ export default function Menu(props: { tools: ToolComponent[] }) {
             <ul className="space-y-2">
                 {props.tools.map(({ meta }) => (
                     <li key={meta.route} className={`p-2 rounded hover:bg-gray-600 ${currentPath === meta.route ? 'bg-yellow-500' : 'bg-gray-900'} hover:text-yellow-300`}>
-                        <a href={`/${packageJson.name}${meta.route}`} className={`${currentPath === meta.route ? 'text-white' : 'text-yellow-500'}`}>{meta.name}</a>
+                        <a href={`${meta.route}`} className={`${currentPath === meta.route ? 'text-white' : 'text-yellow-500'}`}>{meta.name}</a>
                     </li>
                 ))}
             </ul>

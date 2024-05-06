@@ -21,17 +21,8 @@ jobs:
     - name: npm run build
       run: npm run build
 
-    - name: push changes to remote
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+    - name: npm run lint
+      run: npm run lint
 
-
-    - name: git add
-      run: git add -f dist && git commit -m "Initial build subtree commit"
-
-    - name: git push
-      run: |
-        git subtree split --prefix dist -b gh-pages
-        git push -f origin gh-pages:gh-pages
-        git branch -D gh-pages
+    - name: npm run test
+      run: npm run test
