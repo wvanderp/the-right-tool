@@ -10,9 +10,11 @@ export default function Menu(props: { tools: ToolComponent[] }) {
             </a>
             <ul className="space-y-2">
                 {props.tools.map(({ meta }) => (
-                    <li key={meta.route} className={`p-2 rounded hover:bg-gray-600 ${currentPath === meta.route ? 'bg-yellow-500' : 'bg-gray-900'} hover:text-yellow-300`}>
-                        <a href={`${meta.route}`} className={`${currentPath === meta.route ? 'text-white' : 'text-yellow-500'}`}>{meta.name}</a>
-                    </li>
+                    <a href={`${meta.route}`} className={`${currentPath === meta.route ? 'text-white' : 'text-yellow-500'}`}>
+                        <li key={meta.route} className={`p-2 rounded hover:bg-gray-600 ${currentPath === meta.route ? 'bg-yellow-500' : 'bg-gray-900'} hover:text-yellow-300`}>
+                            {meta.name}
+                        </li>
+                    </a>
                 ))}
             </ul>
         </nav>

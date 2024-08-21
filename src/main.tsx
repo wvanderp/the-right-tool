@@ -4,15 +4,16 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import JSONToGEOJSON from './tools/JSONToGEOJSON/JSONToGEOJSON';
 
 import './main.css';
+
 import { ToolComponent } from './types/ToolComponent';
 import Menu from './pageComponents/Menu';
 import Footer from './pageComponents/Footer';
 import HomePage from './HomePage';
 
-import packageJson from '../package.json';
+import JSONToGEOJSON from './tools/JSONToGEOJSON/JSONToGEOJSON';
+import HandlebarsTemplate from './tools/Handlebars/HandlebarsTemplate';
 
 
 
@@ -23,6 +24,13 @@ const tools: ToolComponent[] = [
       route: '/json-to-geojson'
     },
     component: JSONToGEOJSON
+  },
+  {
+    meta: {
+      name: 'Handlebars Template',
+      route: '/handlebars'
+    },
+    component: HandlebarsTemplate
   }
 ]
 

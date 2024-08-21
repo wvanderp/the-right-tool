@@ -23,6 +23,7 @@ export default function JSONToGEOJSON() : React.ReactElement {
             JSON.parse(json);
             setParseError('');
         } catch (e) {
+            // @ts-expect-error -- We don't know the type of e but if it string like then we can put on the screen
             setParseError(e.message);
             return;
         }
@@ -48,6 +49,14 @@ export default function JSONToGEOJSON() : React.ReactElement {
     return (
         <div className="flex flex-col items-center w-full">
             <h1 className="text-2xl font-bold">JSON to GEOJSON</h1>
+            <p>
+                This tool converts JSON data to GEOJSON format.'
+                It takes JSON data and the keys of the latitude and longitude fields.
+                And then moves all the keys to the properties field and creates a GEOJSON object.
+                The tool returns GEOJSON data based on the JSON data.
+
+                The latitude and longitude keys can be either a string or a <a href="https://en.wikipedia.org/wiki/JSONPath">JSONPath</a>
+            </p>
             <div className="flex">
                 <label className="flex flex-col">
                     Latitude Key:
@@ -71,7 +80,6 @@ export default function JSONToGEOJSON() : React.ReactElement {
             <button className="bg-blue-500 text-white p-2 rounded m-4" onClick={convert}>Convert</button>
 
             {geojson && <pre className="border-2 border-gray-200 rounded p-2">{geojson}</pre>}
-            
       </div>
     );
 }
