@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { DistributionItem } from './types';
 import { DistributionCalculator } from './distributionLogic';
+import { EditableField } from './components/EditableField';
 
 export default function WeightedDistribution(): React.ReactElement {
     const [totalAmount, setTotalAmount] = useState<number>(1000);
@@ -60,6 +61,21 @@ export default function WeightedDistribution(): React.ReactElement {
         setItems(newItems);
     };
 
+    const handleWeightEdit = (index: number, value: string) => {
+        const numValue = Number(value);
+        if (!isNaN(numValue)) {
+            updateWeight(index, numValue);
+        }
+    };
+
+    const handleValueEdit = (index: number, value: string) => {
+        const numValue = Number(value);
+        if (!isNaN(numValue)) {
+            const percentage = (numValue / totalAmount) * 100;
+            updateWeight(index, percentage);
+        }
+    };
+
     const totalPercentage = items.reduce((sum, item) => sum + item.weight, 0);
     const isValid = Math.round(totalPercentage) === 100;
 
@@ -96,7 +112,8 @@ export default function WeightedDistribution(): React.ReactElement {
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => toggleLock(index)}
-                                    className={`px-2 py-1 rounded ${
+                                    className={`px-2 py-1 rounded hover:bg-gray-300
+                                        ${
                                         item.locked 
                                             ? 'bg-yellow-500 text-white' 
                                             : 'bg-gray-200'
@@ -106,9 +123,9 @@ export default function WeightedDistribution(): React.ReactElement {
                                 </button>
                                 <button
                                     onClick={() => removeItem(index)}
-                                    className="px-2 py-1 bg-red-500 text-white rounded"
+                                    className="px-2 py-1 rounded bg-gray-200 hover:bg-red-500 text-red-700"
                                 >
-                                    Remove
+                                    🗑️
                                 </button>
                             </div>
                         </div>
@@ -123,12 +140,24 @@ export default function WeightedDistribution(): React.ReactElement {
                                 disabled={item.locked}
                                 className={`flex-grow ${item.locked ? 'opacity-50' : ''}`}
                             />
-                            <span className="w-24">
-                                {item.weight.toFixed(1)}%
-                            </span>
-                            <span className="w-32 text-right">
-                                {item.value?.toFixed(2)}
-                            </span>
+                            <div className="w-24">
+                                <EditableField
+                                    value={item.weight}
+                                    onChange={(value) => handleWeightEdit(index, value)}
+                                    suffix="%"
+                                    step="0.1"
+                                    max={calculateAvailablePercentage(index)}
+                                />
+                            </div>
+                            <div className="w-32">
+                                <EditableField
+                                    value={item.value || 0}
+                                    onChange={(value) => handleValueEdit(index, value)}
+                                    step="0.01"
+                                    align="right"
+                                    max={totalAmount}
+                                />
+                            </div>
                         </div>
                     </div>
                 ))}
@@ -136,7 +165,7 @@ export default function WeightedDistribution(): React.ReactElement {
 
             <button
                 onClick={addItem}
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
             >
                 Add Item
             </button>
