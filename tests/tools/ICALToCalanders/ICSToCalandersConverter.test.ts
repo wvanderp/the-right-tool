@@ -1,21 +1,16 @@
-import  ICALToCalendersConverter  from '../../../src/tools/ICALToCalenders/ICALToCalendersConverter';
+import { describe, it, expect } from 'vitest';
+
+import fs from 'fs';
+import path from 'path';
+
+import ICALToCalendersConverter from '../../../src/tools/ICALToCalenders/ICALToCalendersConverter';
+
+const icalFolder = path.join(__dirname, 'icals');
 
 describe('ICSToCalandersConverter', () => {
 
     it('Should support the most basic case', () => {
-        const ICAL = `BEGIN:VCALENDAR
-        VERSION:2.0
-        PRODID:-//hacksw/handcal//NONSGML v1.0//EN
-        BEGIN:VEVENT
-        UID:uid1@example.com
-        DTSTAMP:19970714T170000Z
-        ORGANIZER;CN=John Doe:MAILTO:john.doe@example.com
-        DTSTART:19970714T170000Z
-        DTEND:19970715T040000Z
-        SUMMARY:Bastille Day Party
-        GEO:48.85299;2.36885
-        END:VEVENT
-        END:VCALENDAR`;
+        const ICAL = fs.readFileSync(path.join(icalFolder, 'basic.ics'), 'utf-8');
 
         const result = ICALToCalendersConverter(ICAL);
 

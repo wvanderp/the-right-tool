@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest';
 import JSONToGEOJSONConverter, { queryIdentifier } from '../../../src/tools/JSONToGEOJSON/JSONToGEOJSONConverter';
 import toPrettyJSON from '../../../src/utils/toPrettyJSON';
 
