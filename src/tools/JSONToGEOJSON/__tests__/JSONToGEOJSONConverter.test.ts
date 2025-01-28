@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest';
-import JSONToGEOJSONConverter, { queryIdentifier } from '../../../src/tools/JSONToGEOJSON/JSONToGEOJSONConverter';
-import toPrettyJSON from '../../../src/utils/toPrettyJSON';
+import JSONToGEOJSONConverter, { queryIdentifier } from '../JSONToGEOJSONConverter';
+import toPrettyJSON from '../../../utils/toPrettyJSON';
 
 
 describe('queryIdentifier', () => {
@@ -117,7 +117,7 @@ describe('JSONToGEOJSONConverter', () => {
         expect(() => JSONToGEOJSONConverter(undefined, 'latitude', 'longitude')).toThrow('Data should be an array');
         expect(() => JSONToGEOJSONConverter(true, 'latitude', 'longitude')).toThrow('Data should be an array');
         expect(() => JSONToGEOJSONConverter(false, 'latitude', 'longitude')).toThrow('Data should be an array');
-        expect(() => JSONToGEOJSONConverter(() => {}, 'latitude', 'longitude')).toThrow('Data should be an array');
+        expect(() => JSONToGEOJSONConverter(() => { }, 'latitude', 'longitude')).toThrow('Data should be an array');
     });
 
     test('Should support json path as the key', () => {
@@ -132,7 +132,7 @@ describe('JSONToGEOJSONConverter', () => {
         ];
 
         const result = JSONToGEOJSONConverter(data, '$.location.latitude', '$.location.longitude');
-        
+
         expect(result).toBe(toPrettyJSON({
             type: 'FeatureCollection',
             features: [
@@ -147,7 +147,7 @@ describe('JSONToGEOJSONConverter', () => {
                             latitude: 10,
                             longitude: 20
                         },
-                        name: 'test',   
+                        name: 'test',
                     }
                 }
             ]

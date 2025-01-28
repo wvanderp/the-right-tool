@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 
-import ICALToCalendersConverter from '../../../src/tools/ICALToCalenders/ICALToCalendersConverter';
+import ICALToCalendersConverter from '../ICALToCalendersConverter';
 
 const icalFolder = path.join(__dirname, 'icals');
 

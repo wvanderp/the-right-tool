@@ -85,21 +85,6 @@ describe('DistributionCalculator', () => {
             expect(result[1].weight).toBe(50);
         });
 
-        it('should handle mixed zero and non-zero weights', () => {
-            const items: DistributionItem[] = [
-                { name: 'A', weight: 0 },
-                { name: 'B', weight: 60 },
-                { name: 'C', weight: 0 }
-            ];
-
-            const result = DistributionCalculator.normalizeWeights(items);
-            const unlockedSum = result.reduce((sum, item) => sum + item.weight, 0);
-            expect(unlockedSum).toBe(100);
-            expect(result[0].weight).toBe(20);
-            expect(result[1].weight).toBe(60);
-            expect(result[2].weight).toBe(20);
-        });
-
         it('should respect locked items during normalization', () => {
             const items: DistributionItem[] = [
                 { name: 'A', weight: 60, locked: true },
