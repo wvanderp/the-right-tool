@@ -5,7 +5,7 @@ export default function Footer() {
     const repoUrl = packageJson.repository.url;
 
     return (
-        <footer className="w-full px-4 py-3 bg-gray-800 text-white fixed bottom-0">
+        <footer className="w-full px-4 py-3 bg-gray-900 text-white fixed bottom-0">
             <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-4 text-sm">
                 <p className="text-center">
                     A webapp by
