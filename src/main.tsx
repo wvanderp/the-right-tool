@@ -14,6 +14,7 @@ import HomePage from './HomePage';
 
 import JSONToGEOJSON from './tools/JSONToGEOJSON/JSONToGEOJSON';
 import HandlebarsTemplate from './tools/Handlebars/HandlebarsTemplate';
+import WeightedDistribution from './tools/WeightedDistribution/WeightedDistribution';
 
 
 
@@ -31,6 +32,13 @@ const tools: ToolComponent[] = [
       route: '/handlebars'
     },
     component: HandlebarsTemplate
+  },
+  {
+    meta: {
+      name: 'Weighted Distribution',
+      route: '/weighted-distribution'
+    },
+    component: WeightedDistribution
   }
 ]
 

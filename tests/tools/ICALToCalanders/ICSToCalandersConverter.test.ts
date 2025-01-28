@@ -7,7 +7,7 @@ import ICALToCalendersConverter from '../../../src/tools/ICALToCalenders/ICALToC
 
 const icalFolder = path.join(__dirname, 'icals');
 
-describe('ICSToCalandersConverter', () => {
+describe('ICSToCalendersConverter', () => {
 
     it('Should support the most basic case', () => {
         const ICAL = fs.readFileSync(path.join(icalFolder, 'basic.ics'), 'utf-8');
