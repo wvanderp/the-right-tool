@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { DistributionItem } from './types';
 import { DistributionCalculator } from './distributionLogic';
 import { EditableField } from './components/EditableField';
+import ToolPage from '../../components/ToolPage';
+import ToolDescription from '../../components/ToolDescription';
 
 export default function WeightedDistribution(): React.ReactElement {
     const [totalAmount, setTotalAmount] = useState<number>(1000);
@@ -80,8 +82,14 @@ export default function WeightedDistribution(): React.ReactElement {
     const isValid = Math.round(totalPercentage) === 100;
 
     return (
-        <div className="flex flex-col items-center w-full max-w-2xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-6">Weighted Distribution</h1>
+        <ToolPage title="Weighted Distribution">
+            <ToolDescription>
+                This tool helps you distribute a total amount across multiple items using percentage-based weights. 
+                Each item can be assigned a percentage of the total, and you can lock specific items to preserve 
+                their allocation while automatically redistributing the remaining percentage among unlocked items. 
+                Simply enter a total amount, add items, and adjust their weights using sliders or direct input. 
+                The tool ensures the total always equals 100% and provides real-time validation feedback.
+            </ToolDescription>
             
             {!isValid && (
                 <div className="w-full mb-4 p-2 bg-red-100 text-red-700 rounded">
@@ -169,6 +177,6 @@ export default function WeightedDistribution(): React.ReactElement {
             >
                 Add Item
             </button>
-        </div>
+        </ToolPage>
     );
 }

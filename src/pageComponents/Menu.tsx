@@ -4,14 +4,21 @@ export default function Menu(props: { tools: ToolComponent[] }) {
     const currentPath = document.location.pathname;
 
     return (
-        <nav className="w-1/8 p-4 mr-8 bg-gray-800 text-white h-screen">
-            <a href="/">
-                <h1 className="text-3xl font-normal mb-4">The right tool</h1>
+        <nav className="w-64 p-6 mr-8 bg-gray-900 text-white h-screen border-r border-gray-700">
+            <a href="/" className="block">
+                <h1 className="text-2xl font-medium mb-8 text-white hover:text-yellow-400">
+                    The right tool
+                </h1>
             </a>
-            <ul className="space-y-2">
+            <ul className="space-y-0.5">
                 {props.tools.map(({ meta }) => (
-                    <a key={meta.name} href={`${meta.route}`} className={`${currentPath === meta.route ? 'text-white' : 'text-yellow-500'}`}>
-                        <li key={meta.route} className={`p-2 rounded hover:bg-gray-600 ${currentPath === meta.route ? 'bg-yellow-500' : 'bg-gray-900'} hover:text-yellow-300`}>
+                    <a key={meta.name} href={`${meta.route}`}>
+                        <li key={meta.route} 
+                            className={`px-4 py-3 border-l-2 
+                                ${currentPath === meta.route 
+                                    ? 'border-yellow-400 bg-gray-800 text-yellow-400 font-medium' 
+                                    : 'border-transparent text-gray-400 hover:bg-gray-800/50 hover:text-white hover:border-gray-600'
+                                }`}>
                             {meta.name}
                         </li>
                     </a>
