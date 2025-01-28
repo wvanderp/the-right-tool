@@ -42,14 +42,28 @@ export class DistributionCalculator {
             }));
         }
 
-        // Distribute remaining percentage evenly among unlocked items (except skipIndex)
-        const equalShare = remainingPercentage / (unlockedItems.length || 1);
+        // Calculate total weight of unlocked items
+        const unlockedTotal = unlockedItems.reduce((sum, item) => sum + item.weight, 0);
 
+        // If all unlocked items have 0 weight, distribute evenly
+        if (unlockedTotal === 0) {
+            const equalShare = remainingPercentage / unlockedItems.length;
+            return items.map((item, index) => {
+                if (item.locked || index === skipIndex) return item;
+                return {
+                    ...item,
+                    weight: Math.round(equalShare * 10) / 10
+                };
+            });
+        }
+
+        // Scale weights proportionally
         return items.map((item, index) => {
             if (item.locked || index === skipIndex) return item;
+            const scaledWeight = (item.weight / unlockedTotal) * remainingPercentage;
             return {
                 ...item,
-                weight: Math.round(equalShare * 10) / 10
+                weight: Math.round(scaledWeight * 10) / 10
             };
         });
     }

@@ -15,7 +15,7 @@ describe('DistributionCalculator', () => {
             };
 
             const result = DistributionCalculator.calculate(config);
-            
+
             expect(result[0].value).toBe(500);
             expect(result[1].value).toBe(300);
             expect(result[2].value).toBe(200);
@@ -163,6 +163,35 @@ describe('DistributionCalculator', () => {
             expect(result[1].weight).toBe(20); // Equal share of remaining 60%
             expect(result[2].weight).toBe(20); // Equal share of remaining 60%
             expect(result[3].weight).toBe(20); // Equal share of remaining 60%
+        });
+
+        it('should scale weights proportionally', () => {
+            const items: DistributionItem[] = [
+                { name: 'A', weight: 90 },
+                { name: 'B', weight: 5 },
+                { name: 'C', weight: 5 }
+            ];
+
+            const result = DistributionCalculator.normalizeWeights(items);
+            expect(result[0].weight).toBe(90);
+            expect(result[1].weight).toBe(5);
+            expect(result[2].weight).toBe(5);
+        });
+
+        it('should scale weights proportionally with locked items', () => {
+            const items: DistributionItem[] = [
+                { name: 'A', weight: 90 },
+                { name: 'B', weight: 5 },
+                { name: 'C', weight: 5 },
+                { name: 'D', weight: 40, locked: true }
+            ];
+
+            const result = DistributionCalculator.normalizeWeights(items);
+            // Remaining 60% should be distributed proportionally
+            expect(result[0].weight).toBe(54); // 90% of 60
+            expect(result[1].weight).toBe(3);  // 5% of 60
+            expect(result[2].weight).toBe(3);  // 5% of 60
+            expect(result[3].weight).toBe(40); // locked value unchanged
         });
     });
 });
