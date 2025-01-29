@@ -1,16 +1,51 @@
-import React, { useState } from 'react';
-import { DistributionItem } from './types';
+import React, { useState, useEffect } from 'react';
 import { DistributionCalculator } from './distributionLogic';
 import { EditableField } from './components/EditableField';
 import ToolPage from '../../components/ToolPage';
 import ToolDescription from '../../components/ToolDescription';
+import { StateManagementPopup } from './components/StateManagementPopup';
 
-export default function WeightedDistribution(): React.ReactElement {
-    const [totalAmount, setTotalAmount] = useState<number>(1000);
-    const [items, setItems] = useState<DistributionItem[]>([
+const DEFAULT_STATE = {
+    totalAmount: 1000,
+    items: [
         { name: 'Item 1', weight: 50, locked: false },
         { name: 'Item 2', weight: 50, locked: false }
-    ]);
+    ]
+};
+
+function loadInitialState() {
+    const savedState = localStorage.getItem('weightedDistributionState');
+    if (savedState) {
+        try {
+            return JSON.parse(savedState);
+        } catch (e) {
+            console.error('Failed to load saved state:', e);
+        }
+    }
+    return DEFAULT_STATE;
+}
+
+export default function WeightedDistribution(): React.ReactElement {
+    const [totalAmount, setTotalAmount] = useState(() => loadInitialState().totalAmount);
+    const [items, setItems] = useState(() => loadInitialState().items);
+    const [isStatePopupOpen, setIsStatePopupOpen] = useState(false);
+    
+    useEffect(() => {
+        localStorage.setItem('weightedDistributionState', JSON.stringify({
+            totalAmount,
+            items
+        }));
+    }, [totalAmount, items]);
+
+    const handleLoadState = (stateJson: string) => {
+        try {
+            const { totalAmount: newAmount, items: newItems } = JSON.parse(stateJson);
+            setTotalAmount(newAmount);
+            setItems(newItems);
+        } catch (e) {
+            console.error('Failed to load state:', e);
+        }
+    };
 
     const distributedItems = DistributionCalculator.calculate({
         totalAmount,
@@ -83,6 +118,16 @@ export default function WeightedDistribution(): React.ReactElement {
 
     return (
         <ToolPage title="Weighted Distribution">
+            <div className="absolute top-4 right-4">
+                <button
+                    onClick={() => setIsStatePopupOpen(true)}
+                    className="p-2 text-gray-400 hover:bg-gray-200 rounded"
+                    title="Import/Export State"
+                >
+                    ☁
+                </button>
+            </div>
+
             <ToolDescription>
                 This tool helps you distribute a total amount across multiple items using percentage-based weights. 
                 Each item can be assigned a percentage of the total, and you can lock specific items to preserve 
@@ -177,6 +222,13 @@ export default function WeightedDistribution(): React.ReactElement {
             >
                 Add Item
             </button>
+
+            <StateManagementPopup
+                isOpen={isStatePopupOpen}
+                onClose={() => setIsStatePopupOpen(false)}
+                onLoadState={handleLoadState}
+                currentState={JSON.stringify({ totalAmount, items }, null, 2)}
+            />
         </ToolPage>
     );
 }
