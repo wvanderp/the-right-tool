@@ -121,7 +121,7 @@ export default function WeightedDistribution(): React.ReactElement {
             <div className="absolute top-4 right-4">
                 <button
                     onClick={() => setIsStatePopupOpen(true)}
-                    className="p-2 text-gray-400 hover:bg-gray-200 rounded"
+                    className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors duration-200"
                     title="Import/Export State"
                 >
                     ☁
@@ -137,46 +137,49 @@ export default function WeightedDistribution(): React.ReactElement {
             </ToolDescription>
             
             {!isValid && (
-                <div className="w-full mb-4 p-2 bg-red-100 text-red-700 rounded">
+                <div className="w-full mb-6 p-3 bg-red-50 text-red-600 rounded-lg border border-red-200">
                     Total percentage must equal 100% (currently: {totalPercentage.toFixed(1)}%)
                 </div>
             )}
             
-            <div className="w-full mb-6">
-                <label className="block mb-2">Total Amount</label>
+            <div className="w-full mb-8">
+                <label className="block mb-2 text-gray-700 font-medium">Total Amount</label>
                 <input
                     type="number"
                     value={totalAmount}
                     onChange={(e) => setTotalAmount(Number(e.target.value))}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 
+                    focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-all duration-200"
                 />
             </div>
 
             <div className="w-full space-y-4">
                 {distributedItems.map((item, index) => (
-                    <div key={index} className="flex flex-col p-4 border rounded">
-                        <div className="flex justify-between mb-2">
+                    <div key={index} className="flex flex-col p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+                        <div className="flex justify-between mb-3">
                             <input
                                 type="text"
                                 value={item.name}
                                 onChange={(e) => updateName(index, e.target.value)}
-                                className="p-1 border rounded"
+                                className="p-2 border border-gray-300 rounded-lg focus:ring-2 
+                                focus:ring-yellow-600/20 focus:border-yellow-600 outline-none 
+                                transition-all duration-200"
                             />
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => toggleLock(index)}
-                                    className={`px-2 py-1 rounded hover:bg-gray-300
-                                        ${
-                                        item.locked 
-                                            ? 'bg-yellow-500 text-white' 
-                                            : 'bg-gray-200'
-                                    }`}
+                                    className={`px-3 py-2 rounded-lg transition-all duration-200
+                                        ${item.locked 
+                                            ? 'bg-yellow-600 text-white hover:bg-yellow-700' 
+                                            : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                                        }`}
                                 >
                                     {item.locked ? '🔒' : '🔓'}
                                 </button>
                                 <button
                                     onClick={() => removeItem(index)}
-                                    className="px-2 py-1 rounded bg-gray-200 hover:bg-red-500 text-red-700"
+                                    className="px-3 py-2 rounded-lg bg-gray-100 hover:bg-red-100 
+                                    text-gray-700 hover:text-red-600 transition-all duration-200"
                                 >
                                     🗑️
                                 </button>
@@ -191,7 +194,7 @@ export default function WeightedDistribution(): React.ReactElement {
                                 value={item.weight}
                                 onChange={(e) => updateWeight(index, Number(e.target.value))}
                                 disabled={item.locked}
-                                className={`flex-grow ${item.locked ? 'opacity-50' : ''}`}
+                                className={`flex-grow accent-yellow-600 ${item.locked ? 'opacity-50' : ''}`}
                             />
                             <div className="w-24">
                                 <EditableField
@@ -218,7 +221,8 @@ export default function WeightedDistribution(): React.ReactElement {
 
             <button
                 onClick={addItem}
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+                className="mt-6 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 
+                transition-all duration-200 font-medium"
             >
                 Add Item
             </button>

@@ -56,50 +56,60 @@ export default function JSONToGEOJSON() : React.ReactElement {
                 And then moves all the keys to the properties field and creates a GEOJSON object.
                 The tool returns GEOJSON data based on the JSON data.
 
-                The latitude and longitude keys can be either a string or a <a href="https://en.wikipedia.org/wiki/JSONPath" className="text-blue-600 hover:text-blue-800 underline">JSONPath</a>
+                The latitude and longitude keys can be either a string or a <a href="https://en.wikipedia.org/wiki/JSONPath" 
+                className="text-yellow-600 hover:text-yellow-700 hover:underline transition-colors duration-200">JSONPath</a>
             </ToolDescription>
 
-            <div className="space-y-6 max-w-4xl">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-8 max-w-4xl w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <label className="block">
-                        <span className="block text-sm font-medium text-gray-700 mb-1">Latitude Key:</span>
+                        <span className="block text-sm font-medium text-gray-700 mb-2">Latitude Key:</span>
                         <input 
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500" 
+                            className="w-full border border-gray-300 rounded-lg px-4 py-2.5
+                            focus:ring-2 focus:ring-yellow-600/20 focus:border-yellow-600 
+                            outline-none transition-all duration-200" 
                             value={latitudeKey} 
                             onChange={(e) => setLatitudeKey(e.target.value)} 
                         />
-                        <p className="mt-1 text-sm text-gray-500">{queryIdentifier(latitudeKey)}</p>
+                        <p className="mt-2 text-sm text-gray-500">{queryIdentifier(latitudeKey)}</p>
                     </label>
                     <label className="block">
-                        <span className="block text-sm font-medium text-gray-700 mb-1">Longitude Key:</span>
+                        <span className="block text-sm font-medium text-gray-700 mb-2">Longitude Key:</span>
                         <input 
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500" 
+                            className="w-full border border-gray-300 rounded-lg px-4 py-2.5
+                            focus:ring-2 focus:ring-yellow-600/20 focus:border-yellow-600 
+                            outline-none transition-all duration-200" 
                             value={longitudeKey} 
                             onChange={(e) => setLongitudeKey(e.target.value)} 
                         />
-                        <p className="mt-1 text-sm text-gray-500">{queryIdentifier(longitudeKey)}</p>
+                        <p className="mt-2 text-sm text-gray-500">{queryIdentifier(longitudeKey)}</p>
                     </label>
                 </div>
 
                 <div>
                     <label className="block">
-                        <span className="block text-sm font-medium text-gray-700 mb-1">JSON Data:</span>
+                        <span className="block text-sm font-medium text-gray-700 mb-2">JSON Data:</span>
                         <textarea 
-                            className="w-full h-48 border border-gray-300 rounded-md px-3 py-2 font-mono text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" 
+                            className="w-full h-48 border border-gray-300 rounded-lg px-4 py-3 
+                            font-mono text-sm focus:ring-2 focus:ring-yellow-600/20 
+                            focus:border-yellow-600 outline-none transition-all duration-200" 
                             value={json} 
-                            onChange={(e) => setJson(e.target.value)} 
+                            onChange={(e) => setJson(e.target.value)}
+                            spellCheck="false"
                         />
                     </label>
                 </div>
 
                 {parseError && (
-                    <div className="bg-red-50 border-l-4 border-red-400 p-4">
-                        <p className="text-red-700">{parseError}</p>
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <p className="text-red-600 font-mono text-sm">{parseError}</p>
                     </div>
                 )}
 
                 <button 
-                    className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
+                    className="w-full md:w-auto px-6 py-2.5 bg-yellow-600 text-white rounded-lg 
+                    hover:bg-yellow-700 transition-all duration-200 font-medium
+                    hover:shadow-sm active:scale-[0.98]" 
                     onClick={convert}
                 >
                     Convert
@@ -107,8 +117,9 @@ export default function JSONToGEOJSON() : React.ReactElement {
 
                 {geojson && (
                     <div className="mt-4">
-                        <h3 className="text-sm font-medium text-gray-700 mb-2">Result:</h3>
-                        <pre className="bg-gray-50 border border-gray-200 rounded-md p-4 overflow-auto font-mono text-sm">
+                        <h3 className="text-sm font-medium text-gray-700 mb-3">Result:</h3>
+                        <pre className="bg-gray-50 border border-gray-200 rounded-lg p-4 
+                        overflow-auto font-mono text-sm">
                             {geojson}
                         </pre>
                     </div>

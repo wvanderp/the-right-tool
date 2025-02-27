@@ -52,7 +52,7 @@ export function EditableField({
 
     return (
         <span 
-            className={`cursor-pointer hover:bg-gray-100 px-2 py-1 rounded ${
+            className={`cursor-pointer hover:bg-gray-50 px-2 py-1.5 rounded transition-colors duration-200 ${
                 align === 'right' ? 'text-right' : ''
             }`}
             onClick={handleStartEditing}
@@ -65,13 +65,18 @@ export function EditableField({
                     onKeyDown={handleKeyDown}
                     onBlur={handleBlur}
                     autoFocus
-                    className={`w-full ${align === 'right' ? 'text-right' : ''}`}
+                    className={`w-full border border-gray-300 rounded px-2 py-1 
+                    focus:ring-2 focus:ring-yellow-600/20 focus:border-yellow-600 
+                    outline-none transition-all duration-200
+                    ${align === 'right' ? 'text-right' : ''}`}
                     step={step}
                     min={min}
                     max={max}
                 />
             ) : (
-                `${value.toFixed(suffix === '%' ? 1 : 2)}${suffix}`
+                <span className="text-gray-700">
+                    {`${value.toFixed(suffix === '%' ? 1 : 2)}${suffix}`}
+                </span>
             )}
         </span>
     );

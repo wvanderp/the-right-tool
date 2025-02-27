@@ -6,8 +6,8 @@ interface ToolDescriptionProps {
 
 export default function ToolDescription({ children }: ToolDescriptionProps): React.ReactElement {
     return (
-        <div className="border-2 border-gray-200 rounded-lg p-6 mb-8 w-full">
-            <p className="text-gray-700 leading-relaxed">
+        <div className="border border-gray-200 rounded-lg p-6 mb-8 w-full bg-gray-50">
+            <p className="text-gray-600 leading-relaxed text-base tracking-wide">
                 {children}
             </p>
         </div>

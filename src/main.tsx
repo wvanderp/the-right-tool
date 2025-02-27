@@ -64,9 +64,15 @@ const router = createBrowserRouter(
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <div className="flex">
-      <Menu tools={tools} />
-      <RouterProvider router={router} />
+    <div className="flex flex-col min-h-screen bg-white">
+      <div className="flex flex-col md:flex-row flex-grow">
+        <Menu tools={tools} />
+        <main className="flex-1 px-4 md:px-6 lg:px-8 pt-20 md:pt-6">
+          <div className="max-w-6xl mx-auto">
+            <RouterProvider router={router} />
+          </div>
+        </main>
+      </div>
       <Footer />
     </div>
   </React.StrictMode>
