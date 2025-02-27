@@ -15,7 +15,7 @@ import HomePage from './HomePage';
 import JSONToGEOJSON from './tools/JSONToGEOJSON/JSONToGEOJSON';
 import HandlebarsTemplate from './tools/Handlebars/HandlebarsTemplate';
 import WeightedDistribution from './tools/WeightedDistribution/WeightedDistribution';
-
+import ICALToCalendars from './tools/ICALToCalendars/ICALToCalendarsConverter.tsx';
 
 
 const tools: ToolComponent[] = [
@@ -39,8 +39,15 @@ const tools: ToolComponent[] = [
       route: '/weighted-distribution'
     },
     component: WeightedDistribution
+  },
+  {
+    meta: {
+      name: 'ICS to Calendar',
+      route: '/ics-to-calendar'
+    },
+    component: ICALToCalendars
   }
-]
+];
 
 const router = createBrowserRouter(
   [
@@ -62,5 +69,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <RouterProvider router={router} />
       <Footer />
     </div>
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);
