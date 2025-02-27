@@ -49,11 +49,11 @@ export default function HandlebarsTemplate() : React.ReactElement {
     }
     
     return (
-        <ToolPage title="Handlebars Template">
+        <ToolPage title="Handlebars Template Generator">
             <ToolDescription>
-                This tool takes a JSON object, some arbitrary JavaScript code, and a Handlebars template.
-                It sets up Handlebars with the "plugins" from the JS code and then renders the template with the JSON data.
-                The tool returns the rendered template as a string.
+                Transform your data using the power of Handlebars templating. Add custom JavaScript helpers 
+                to extend functionality, then combine your JSON data with your template to generate the final output. 
+                Perfect for generating formatted text, HTML, or any text-based content.
             </ToolDescription>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-8">
@@ -66,10 +66,11 @@ export default function HandlebarsTemplate() : React.ReactElement {
                         value={json} 
                         onChange={(e) => setJson(e.target.value)} 
                         spellCheck="false"
+                        placeholder="Paste your JSON data here..."
                     />
                 </label>
                 <label className="flex flex-col">
-                    <span className="font-medium mb-2 text-gray-700">JavaScript:</span>
+                    <span className="font-medium mb-2 text-gray-700">Custom Helpers (JavaScript):</span>
                     <textarea 
                         className="border border-gray-300 rounded-lg p-4 h-[300px] w-full font-mono text-sm
                         focus:ring-2 focus:ring-yellow-600/20 focus:border-yellow-600 
@@ -77,10 +78,14 @@ export default function HandlebarsTemplate() : React.ReactElement {
                         value={javascript} 
                         onChange={(e) => setJavascript(e.target.value)} 
                         spellCheck="false"
+                        placeholder="// Define custom Handlebars helpers here
+Handlebars.registerHelper('uppercase', function(str) {
+    return str.toUpperCase();
+});"
                     />
                 </label>
                 <label className="flex flex-col">
-                    <span className="font-medium mb-2 text-gray-700">Handlebars Template:</span>
+                    <span className="font-medium mb-2 text-gray-700">Template:</span>
                     <textarea 
                         className="border border-gray-300 rounded-lg p-4 h-[300px] w-full font-mono text-sm
                         focus:ring-2 focus:ring-yellow-600/20 focus:border-yellow-600 
@@ -88,6 +93,10 @@ export default function HandlebarsTemplate() : React.ReactElement {
                         value={template} 
                         onChange={(e) => setTemplate(e.target.value)} 
                         spellCheck="false"
+                        placeholder="Enter your Handlebars template here...
+Example: {{#each items}}
+  - {{uppercase name}}
+{{/each}}"
                     />
                 </label>
             </div>
@@ -106,14 +115,17 @@ export default function HandlebarsTemplate() : React.ReactElement {
                 hover:shadow-sm active:scale-[0.98]" 
                 onClick={convert}
             >
-                Convert
+                Generate Output →
             </button>
 
             {output && (
-                <pre className="border border-gray-200 rounded-lg p-4 w-full mt-8 font-mono text-sm 
-                bg-gray-50 overflow-x-auto">
-                    {output}
-                </pre>
+                <div className="mt-8 w-full">
+                    <h3 className="text-sm font-medium text-gray-700 mb-3">Generated Output:</h3>
+                    <pre className="border border-gray-200 rounded-lg p-4 w-full font-mono text-sm 
+                    bg-gray-50 overflow-x-auto">
+                        {output}
+                    </pre>
+                </div>
             )}
         </ToolPage>
     );

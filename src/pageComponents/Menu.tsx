@@ -12,7 +12,7 @@ export default function Menu(props: { tools: ToolComponent[] }) {
                 hover:bg-gray-800 hover:scale-105 active:scale-95 flex items-center justify-center
                 transition-all duration-200 border border-gray-700"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                aria-label="Toggle menu"
+                aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
             >
                 {isMenuOpen ? '✕' : '☰'}
             </button>
@@ -26,12 +26,15 @@ export default function Menu(props: { tools: ToolComponent[] }) {
                 <a href="/" className="block mt-8 md:mt-0">
                     <h1 className="text-2xl font-medium mb-8 text-white hover:text-yellow-600
                         transition-colors duration-200 tracking-wide">
-                        The right tool
+                        The Right Tool
                     </h1>
                 </a>
-                <ul className="space-y-1.5">
+                <ul className="space-y-1.5" role="list">
                     {props.tools.map(({ meta }) => (
-                        <a key={meta.name} href={`${meta.route}`} onClick={() => setIsMenuOpen(false)}>
+                        <a key={meta.name} 
+                           href={`${meta.route}`} 
+                           onClick={() => setIsMenuOpen(false)}
+                           aria-current={currentPath === meta.route ? 'page' : undefined}>
                             <li 
                                 className={`px-4 py-3 rounded-lg border-l-2 transition-all duration-200
                                     tracking-wide leading-relaxed

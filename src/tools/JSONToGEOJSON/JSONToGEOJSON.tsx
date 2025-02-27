@@ -49,46 +49,44 @@ export default function JSONToGEOJSON() : React.ReactElement {
     };
     
     return (
-        <ToolPage title="JSON to GEOJSON">
+        <ToolPage title="JSON to GeoJSON Converter">
             <ToolDescription>
-                This tool converts JSON data to GEOJSON format.
-                It takes JSON data and the keys of the latitude and longitude fields.
-                And then moves all the keys to the properties field and creates a GEOJSON object.
-                The tool returns GEOJSON data based on the JSON data.
-
-                The latitude and longitude keys can be either a string or a <a href="https://en.wikipedia.org/wiki/JSONPath" 
-                className="text-yellow-600 hover:text-yellow-700 hover:underline transition-colors duration-200">JSONPath</a>
+                Transform your JSON data containing coordinates into GeoJSON format — perfect for mapping applications. 
+                Simply specify which fields contain your latitude and longitude data, and we'll handle the conversion. 
+                You can use simple field names (like "lat") or JSONPath expressions (like "$.coordinates.lat") to access nested data.
             </ToolDescription>
 
             <div className="space-y-8 max-w-4xl w-full">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <label className="block">
-                        <span className="block text-sm font-medium text-gray-700 mb-2">Latitude Key:</span>
+                        <span className="block text-sm font-medium text-gray-700 mb-2">Latitude Field:</span>
                         <input 
                             className="w-full border border-gray-300 rounded-lg px-4 py-2.5
                             focus:ring-2 focus:ring-yellow-600/20 focus:border-yellow-600 
                             outline-none transition-all duration-200" 
                             value={latitudeKey} 
                             onChange={(e) => setLatitudeKey(e.target.value)} 
+                            placeholder="e.g. lat or $.coordinates.latitude"
                         />
-                        <p className="mt-2 text-sm text-gray-500">{queryIdentifier(latitudeKey)}</p>
+                        <p className="mt-2 text-sm text-gray-500">Field type: {queryIdentifier(latitudeKey)}</p>
                     </label>
                     <label className="block">
-                        <span className="block text-sm font-medium text-gray-700 mb-2">Longitude Key:</span>
+                        <span className="block text-sm font-medium text-gray-700 mb-2">Longitude Field:</span>
                         <input 
                             className="w-full border border-gray-300 rounded-lg px-4 py-2.5
                             focus:ring-2 focus:ring-yellow-600/20 focus:border-yellow-600 
                             outline-none transition-all duration-200" 
                             value={longitudeKey} 
                             onChange={(e) => setLongitudeKey(e.target.value)} 
+                            placeholder="e.g. lng or $.coordinates.longitude"
                         />
-                        <p className="mt-2 text-sm text-gray-500">{queryIdentifier(longitudeKey)}</p>
+                        <p className="mt-2 text-sm text-gray-500">Field type: {queryIdentifier(longitudeKey)}</p>
                     </label>
                 </div>
 
                 <div>
                     <label className="block">
-                        <span className="block text-sm font-medium text-gray-700 mb-2">JSON Data:</span>
+                        <span className="block text-sm font-medium text-gray-700 mb-2">Your JSON Data:</span>
                         <textarea 
                             className="w-full h-48 border border-gray-300 rounded-lg px-4 py-3 
                             font-mono text-sm focus:ring-2 focus:ring-yellow-600/20 
@@ -96,6 +94,7 @@ export default function JSONToGEOJSON() : React.ReactElement {
                             value={json} 
                             onChange={(e) => setJson(e.target.value)}
                             spellCheck="false"
+                            placeholder="Paste your JSON data here..."
                         />
                     </label>
                 </div>
@@ -112,12 +111,12 @@ export default function JSONToGEOJSON() : React.ReactElement {
                     hover:shadow-sm active:scale-[0.98]" 
                     onClick={convert}
                 >
-                    Convert
+                    Convert to GeoJSON →
                 </button>
 
                 {geojson && (
                     <div className="mt-4">
-                        <h3 className="text-sm font-medium text-gray-700 mb-3">Result:</h3>
+                        <h3 className="text-sm font-medium text-gray-700 mb-3">GeoJSON Result:</h3>
                         <pre className="bg-gray-50 border border-gray-200 rounded-lg p-4 
                         overflow-auto font-mono text-sm">
                             {geojson}

@@ -117,39 +117,42 @@ export default function WeightedDistribution(): React.ReactElement {
     const isValid = Math.round(totalPercentage) === 100;
 
     return (
-        <ToolPage title="Weighted Distribution">
+        <ToolPage title="Weight Distribution Calculator">
             <div className="absolute top-4 right-4">
                 <button
                     onClick={() => setIsStatePopupOpen(true)}
                     className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-                    title="Import/Export State"
+                    title="Save or Load Your Configuration"
                 >
                     ☁
                 </button>
             </div>
 
             <ToolDescription>
-                This tool helps you distribute a total amount across multiple items using percentage-based weights. 
-                Each item can be assigned a percentage of the total, and you can lock specific items to preserve 
-                their allocation while automatically redistributing the remaining percentage among unlocked items. 
-                Simply enter a total amount, add items, and adjust their weights using sliders or direct input. 
-                The tool ensures the total always equals 100% and provides real-time validation feedback.
+                Easily distribute values across multiple items using percentages. Perfect for budget allocation, 
+                resource planning, or any scenario where you need to split a total amount proportionally. 
+                Features include:
+                • Lock specific values to preserve their allocation
+                • Real-time recalculation of remaining percentages
+                • Save and load your configurations
+                • Precise control with both slider and direct input
             </ToolDescription>
             
             {!isValid && (
                 <div className="w-full mb-6 p-3 bg-red-50 text-red-600 rounded-lg border border-red-200">
-                    Total percentage must equal 100% (currently: {totalPercentage.toFixed(1)}%)
+                    Percentages must add up to 100% (currently: {totalPercentage.toFixed(1)}%)
                 </div>
             )}
             
             <div className="w-full mb-8">
-                <label className="block mb-2 text-gray-700 font-medium">Total Amount</label>
+                <label className="block mb-2 text-gray-700 font-medium">Total Amount to Distribute</label>
                 <input
                     type="number"
                     value={totalAmount}
                     onChange={(e) => setTotalAmount(Number(e.target.value))}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 
                     focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-all duration-200"
+                    placeholder="Enter the total amount to distribute..."
                 />
             </div>
 
@@ -164,6 +167,7 @@ export default function WeightedDistribution(): React.ReactElement {
                                 className="p-2 border border-gray-300 rounded-lg focus:ring-2 
                                 focus:ring-yellow-600/20 focus:border-yellow-600 outline-none 
                                 transition-all duration-200"
+                                placeholder="Enter item name..."
                             />
                             <div className="flex gap-2">
                                 <button
@@ -173,6 +177,7 @@ export default function WeightedDistribution(): React.ReactElement {
                                             ? 'bg-yellow-600 text-white hover:bg-yellow-700' 
                                             : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                                         }`}
+                                    title={item.locked ? "Unlock this value" : "Lock this value"}
                                 >
                                     {item.locked ? '🔒' : '🔓'}
                                 </button>
@@ -180,6 +185,7 @@ export default function WeightedDistribution(): React.ReactElement {
                                     onClick={() => removeItem(index)}
                                     className="px-3 py-2 rounded-lg bg-gray-100 hover:bg-red-100 
                                     text-gray-700 hover:text-red-600 transition-all duration-200"
+                                    title="Remove this item"
                                 >
                                     🗑️
                                 </button>
@@ -195,6 +201,7 @@ export default function WeightedDistribution(): React.ReactElement {
                                 onChange={(e) => updateWeight(index, Number(e.target.value))}
                                 disabled={item.locked}
                                 className={`flex-grow accent-yellow-600 ${item.locked ? 'opacity-50' : ''}`}
+                                title={item.locked ? "Unlock to adjust" : "Drag to adjust percentage"}
                             />
                             <div className="w-24">
                                 <EditableField
@@ -224,7 +231,7 @@ export default function WeightedDistribution(): React.ReactElement {
                 className="mt-6 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 
                 transition-all duration-200 font-medium"
             >
-                Add Item
+                Add New Item +
             </button>
 
             <StateManagementPopup
