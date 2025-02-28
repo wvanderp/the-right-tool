@@ -1,8 +1,16 @@
+import { useEffect } from 'react';
 import packageJson from '../package.json';
 import logo from '../static/temp-logo.svg'; 
 
 export default function HomePage() {
     const repoLink = packageJson.repository.url;
+
+    // Update the document title when the component mounts
+    useEffect(() => {
+        document.title = 'The Right Tool';
+        
+        // No need for cleanup since we want to keep this title as default
+    }, []);
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8 py-16 text-center w-full max-w-7xl mx-auto">

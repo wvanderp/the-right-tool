@@ -25,7 +25,7 @@ export default function JSONToGEOJSONConverter(data: unknown, latitudeJsonPath: 
     }
 
     // convert the json
-    const features = data.map((item: any) => {
+    const features = data.map((item: unknown) => {
         const latitude = parseFloat(QueryType === 'string' ? item[latitudeJsonPath] : jp.query(item, latitudeJsonPath)[0]);
         const longitude = parseFloat(QueryType === 'string' ? item[longitudeJsonPath] : jp.query(item, longitudeJsonPath)[0]);
 

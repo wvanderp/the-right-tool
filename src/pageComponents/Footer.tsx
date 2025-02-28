@@ -5,7 +5,7 @@ export default function Footer() {
     const repoUrl = packageJson.repository.url;
 
     return (
-        <footer className="w-full px-4 py-3 bg-gray-900 border-t border-gray-700">
+        <footer className="w-full px-4 py-3 bg-gray-900">
             <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-sm">
                 <p className="text-center text-gray-300">
                     Built with ❤️ by
@@ -17,7 +17,7 @@ export default function Footer() {
                     </a>
                     &copy; {new Date().getFullYear()}
                 </p>
-                <p className="text-center sm:border-l border-gray-700 sm:pl-4 hidden sm:block text-gray-400">
+                <p className="text-center sm:border-l sm:pl-4 hidden sm:block text-gray-400">
                     Why use the wrong tool when you can use the right one?
                 </p>
                 <a href={repoUrl} 

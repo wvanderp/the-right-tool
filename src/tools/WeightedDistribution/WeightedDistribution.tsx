@@ -117,7 +117,7 @@ export default function WeightedDistribution(): React.ReactElement {
     const isValid = Math.round(totalPercentage) === 100;
 
     return (
-        <ToolPage title="Weight Distribution Calculator">
+        <ToolPage title="Weighted Distribution Calculator">
             <div className="absolute top-4 right-4">
                 <button
                     onClick={() => setIsStatePopupOpen(true)}

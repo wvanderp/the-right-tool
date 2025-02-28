@@ -29,22 +29,22 @@ const tools: ToolComponent[] = [
   },
   {
     meta: {
-      name: 'Handlebars Template',
-      route: '/handlebars'
+      name: 'Handlebars Template Generator',
+      route: '/handlebars-templater'
     },
     component: HandlebarsTemplate
   },
   {
     meta: {
-      name: 'Weighted Distribution',
-      route: '/weighted-distribution'
+      name: 'Weighted Distribution Calculator',
+      route: '/weighted-distribution-calculator'
     },
     component: WeightedDistribution
   },
   {
     meta: {
-      name: 'ICS to Calendar',
-      route: '/ics-to-calendar'
+      name: 'Calendar Event Converter',
+      route: '/calendar-event-converter'
     },
     component: ICALToCalendars
   },
