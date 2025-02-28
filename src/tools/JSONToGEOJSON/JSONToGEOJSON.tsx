@@ -1,24 +1,25 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import JSONToGEOJSONConverter, { queryIdentifier } from './JSONToGEOJSONConverter';
 import ToolDescription from '../../components/ToolDescription';
 import ToolPage from '../../components/ToolPage';
+import { FiCopy, FiCheck } from 'react-icons/fi';
 
 /**
  * This tool converts JSON data to GEOJSON format.
- * it takes JSON data and the keys of the latitude and longitude fields.
- * and then moves all the keys to the properties field and creates a GEOJSON object.
+ * It takes JSON data and the keys of the latitude and longitude fields,
+ * then moves all the keys to the properties field and creates a GEOJSON object.
  * @returns GEOJSON data based on the JSON data.
  */
-export default function JSONToGEOJSON() : React.ReactElement {
-    // inputs
+export default function JSONToGEOJSON(): React.ReactElement {
+    // Input state
     const [json, setJson] = useState('');
     const [latitudeKey, setLatitudeKey] = useState('');
     const [longitudeKey, setLongitudeKey] = useState('');
 
-    // output
+    // Output state
     const [geojson, setGeojson] = useState('');
     const [parseError, setParseError] = useState('');
+    const [copySuccess, setCopySuccess] = useState(false);
 
     const convert = () => {
         try {
@@ -35,8 +36,7 @@ export default function JSONToGEOJSON() : React.ReactElement {
             return;
         }
 
-
-        if(queryIdentifier(latitudeKey) === 'invalid' || queryIdentifier(longitudeKey) === 'invalid') {
+        if (queryIdentifier(latitudeKey) === 'invalid' || queryIdentifier(longitudeKey) === 'invalid') {
             setParseError('Invalid Latitude or Longitude key');
             return;
         }
@@ -47,12 +47,26 @@ export default function JSONToGEOJSON() : React.ReactElement {
             setGeojson(data);
         }
     };
-    
+
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(geojson)
+            .then(() => {
+                setCopySuccess(true);
+                // Reset the success message after 2 seconds
+                setTimeout(() => {
+                    setCopySuccess(false);
+                }, 2000);
+            })
+            .catch(() => {
+                setCopySuccess(false);
+            });
+    };
+
     return (
         <ToolPage title="JSON to GeoJSON Converter">
             <ToolDescription>
-                Transform your JSON data containing coordinates into GeoJSON format — perfect for mapping applications. 
-                Simply specify which fields contain your latitude and longitude data, and we'll handle the conversion. 
+                Transform your JSON data containing coordinates into GeoJSON format — perfect for mapping applications.
+                Simply specify which fields contain your latitude and longitude data, and we'll handle the conversion.
                 You can use simple field names (like "lat") or JSONPath expressions (like "$.coordinates.lat") to access nested data.
             </ToolDescription>
 
@@ -60,24 +74,24 @@ export default function JSONToGEOJSON() : React.ReactElement {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <label className="block">
                         <span className="block text-sm font-medium text-gray-700 mb-2">Latitude Field:</span>
-                        <input 
+                        <input
                             className="w-full border border-gray-300 rounded-lg px-4 py-2.5
                             focus:ring-2 focus:ring-yellow-600/20 focus:border-yellow-600 
-                            outline-none transition-all duration-200" 
-                            value={latitudeKey} 
-                            onChange={(e) => setLatitudeKey(e.target.value)} 
+                            outline-none transition-all duration-200"
+                            value={latitudeKey}
+                            onChange={(e) => setLatitudeKey(e.target.value)}
                             placeholder="e.g. lat or $.coordinates.latitude"
                         />
                         <p className="mt-2 text-sm text-gray-500">Field type: {queryIdentifier(latitudeKey)}</p>
                     </label>
                     <label className="block">
                         <span className="block text-sm font-medium text-gray-700 mb-2">Longitude Field:</span>
-                        <input 
+                        <input
                             className="w-full border border-gray-300 rounded-lg px-4 py-2.5
                             focus:ring-2 focus:ring-yellow-600/20 focus:border-yellow-600 
-                            outline-none transition-all duration-200" 
-                            value={longitudeKey} 
-                            onChange={(e) => setLongitudeKey(e.target.value)} 
+                            outline-none transition-all duration-200"
+                            value={longitudeKey}
+                            onChange={(e) => setLongitudeKey(e.target.value)}
                             placeholder="e.g. lng or $.coordinates.longitude"
                         />
                         <p className="mt-2 text-sm text-gray-500">Field type: {queryIdentifier(longitudeKey)}</p>
@@ -87,11 +101,11 @@ export default function JSONToGEOJSON() : React.ReactElement {
                 <div>
                     <label className="block">
                         <span className="block text-sm font-medium text-gray-700 mb-2">Your JSON Data:</span>
-                        <textarea 
+                        <textarea
                             className="w-full h-48 border border-gray-300 rounded-lg px-4 py-3 
                             font-mono text-sm focus:ring-2 focus:ring-yellow-600/20 
-                            focus:border-yellow-600 outline-none transition-all duration-200" 
-                            value={json} 
+                            focus:border-yellow-600 outline-none transition-all duration-200"
+                            value={json}
                             onChange={(e) => setJson(e.target.value)}
                             spellCheck="false"
                             placeholder="Paste your JSON data here..."
@@ -105,18 +119,38 @@ export default function JSONToGEOJSON() : React.ReactElement {
                     </div>
                 )}
 
-                <button 
-                    className="w-full md:w-auto px-6 py-2.5 bg-yellow-600 text-white rounded-lg 
+                <button
+                    className="px-6 py-2.5 bg-yellow-600 text-white rounded-lg 
                     hover:bg-yellow-700 transition-all duration-200 font-medium
-                    hover:shadow-sm active:scale-[0.98]" 
+                    hover:opacity-90 active:scale-[0.98]"
                     onClick={convert}
                 >
-                    Convert to GeoJSON →
+                    Convert to GeoJSON
                 </button>
 
                 {geojson && (
                     <div className="mt-4">
-                        <h3 className="text-sm font-medium text-gray-700 mb-3">GeoJSON Result:</h3>
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-sm font-medium text-gray-700">GeoJSON Result:</h3>
+                            <button
+                                className="flex items-center space-x-2 px-3 py-1.5 text-sm bg-gray-100 
+                                text-gray-700 rounded-md hover:bg-gray-200 transition-colors duration-200"
+                                onClick={copyToClipboard}
+                                title="Copy to clipboard"
+                            >
+                                {copySuccess ? (
+                                    <>
+                                        <span>Copied!</span>
+                                        <FiCheck className="h-4 w-4" />
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>Copy</span>
+                                        <FiCopy className="h-4 w-4" />
+                                    </>
+                                )}
+                            </button>
+                        </div>
                         <pre className="bg-gray-50 border border-gray-200 rounded-lg p-4 
                         overflow-auto font-mono text-sm">
                             {geojson}
