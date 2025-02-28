@@ -16,6 +16,7 @@ import JSONToGEOJSON from './tools/JSONToGEOJSON/JSONToGEOJSON';
 import HandlebarsTemplate from './tools/Handlebars/HandlebarsTemplate';
 import WeightedDistribution from './tools/WeightedDistribution/WeightedDistribution';
 import ICALToCalendars from './tools/ICALToCalendars/ICALToCalendarsConverter.tsx';
+import DayList from './tools/DayList/DayList';
 
 
 const tools: ToolComponent[] = [
@@ -46,6 +47,13 @@ const tools: ToolComponent[] = [
       route: '/ics-to-calendar'
     },
     component: ICALToCalendars
+  },
+  {
+    meta: {
+      name: 'Day List Generator',
+      route: '/day-list'
+    },
+    component: DayList
   }
 ];
 

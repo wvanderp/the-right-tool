@@ -1,27 +1,55 @@
-# Day list
+# Day List Generator
 
-Sometimes you need a list of days of a certain type. This tool will help you generate that list.
+Sometimes you need a list of specific days matching certain patterns. This tool helps you generate that list by filtering dates within a range based on criteria like day of the week or day of the month.
 
-for example, you can generate a Saturdays in a year.
-or every 20th of the month in a year.
+For example, you can generate:
+- All Saturdays in a year
+- Every 15th of the month in a year
+- All Sundays that fall on the 1st of a month
+
+## Features
+
+- Select any date range
+- Filter by day of week (Sunday, Monday, etc.)
+- Filter by specific days of the month (1st, 15th, last day, etc.)
+- Multiple output formats (YYYY-MM-DD, MM/DD/YYYY, etc.)
+- Custom separators (newline, comma, etc.)
+- Multiple language support for formatted dates
+- Copy to clipboard functionality
 
 ## History
 
-I needed a list of all the Saturdays in a year for a project. 
+I needed a list of all the Saturdays in a year for a project, and creating it manually was tedious. This tool automates the process and makes it flexible for various date patterns.
 
 ## Decisions
 
+The implementation focuses on:
 
-## Future improvements
+- Simple, intuitive interface for everyday users
+- Flexible filtering options combining multiple criteria
+- Client-side processing for speed and privacy
+- Output customization for different needs
+- Persistent settings using localStorage
 
-we should start by having all the days in a certain range and then we can start applying filters to that list. like filtering by day of the week or by the day of the month.
+## Future Improvements
 
-filters can include:
+Future enhancements could include:
 
-- day of the week
-- day numbers of the month
-- day numbers of the year
-- week numbers of the year
-- week numbers of the month
+### Additional Filters
+- Day numbers of the year (e.g., 1st day, 100th day)
+- Week numbers of the year
+- Week numbers of the month
+- Specific months
+- Working days vs. weekends
+- Holidays (would require holiday calendar integration)
 
-an other thing we can customize is the output format. like the date format or the separator between the dates or the language of the names of the days and months.
+### Output Enhancements
+- More date format options
+- Save output as file (CSV, TXT)
+- Calendar visualization
+- Support for custom repeating patterns
+- Date range templates (next month, this quarter, etc.)
+
+### Technical Improvements
+- More comprehensive test coverage
+- Performance optimizations for very large date ranges
