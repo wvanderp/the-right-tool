@@ -1,76 +1,78 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import './main.css';
+import "./main.css";
 
-import { ToolComponent } from './types/ToolComponent';
-import Menu from './pageComponents/Menu';
-import Footer from './pageComponents/Footer';
-import HomePage from './HomePage';
+import { ToolComponent } from "./types/ToolComponent";
+import Menu from "./pageComponents/Menu";
+import Footer from "./pageComponents/Footer";
+import HomePage from "./HomePage";
 
-import JSONToGEOJSON from './tools/JSONToGEOJSON/JSONToGEOJSON';
-import HandlebarsTemplate from './tools/Handlebars/HandlebarsTemplate';
-import WeightedDistribution from './tools/WeightedDistribution/WeightedDistribution';
-import ICALToCalendars from './tools/ICALToCalendars/ICALToCalendarsConverter.tsx';
-import DayList from './tools/DayList/DayList';
-
+import JSONToGEOJSON from "./tools/JSONToGEOJSON/JSONToGEOJSON";
+import HandlebarsTemplate from "./tools/Handlebars/HandlebarsTemplate";
+import WeightedDistribution from "./tools/WeightedDistribution/WeightedDistribution";
+import ICALToCalendars from "./tools/ICALToCalendars/ICALToCalendarsConverter.tsx";
+import DayList from "./tools/DayList/DayList";
+import ExifExtractor from "./tools/ExifExtractor/ExifExtractor.tsx";
 
 const tools: ToolComponent[] = [
   {
     meta: {
-      name: 'JSON to GEOJSON',
-      route: '/json-to-geojson'
+      name: "JSON to GEOJSON",
+      route: "/json-to-geojson",
     },
-    component: JSONToGEOJSON
+    component: JSONToGEOJSON,
   },
   {
     meta: {
-      name: 'Handlebars Template Generator',
-      route: '/handlebars-templater'
+      name: "Handlebars Template Generator",
+      route: "/handlebars-templater",
     },
-    component: HandlebarsTemplate
+    component: HandlebarsTemplate,
   },
   {
     meta: {
-      name: 'Weighted Distribution Calculator',
-      route: '/weighted-distribution-calculator'
+      name: "Weighted Distribution Calculator",
+      route: "/weighted-distribution-calculator",
     },
-    component: WeightedDistribution
+    component: WeightedDistribution,
   },
   {
     meta: {
-      name: 'Calendar Event Converter',
-      route: '/calendar-event-converter'
+      name: "Calendar Event Converter",
+      route: "/calendar-event-converter",
     },
-    component: ICALToCalendars
+    component: ICALToCalendars,
   },
   {
     meta: {
-      name: 'Day List Generator',
-      route: '/day-list'
+      name: "Day List Generator",
+      route: "/day-list",
     },
-    component: DayList
-  }
+    component: DayList,
+  },
+  {
+    meta: {
+      name: "EXIF Data Extractor",
+      route: "/exif-data-extractor",
+    },
+    component: ExifExtractor,
+  },
 ];
 
-const router = createBrowserRouter(
-  [
-    {
-      path: '/',
-      element: (<HomePage />)
-    },
-    ...tools.map(({ meta, component }) => ({
-      path: meta.route,
-      element: React.createElement(component),
-    }))
-  ]
-);
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <HomePage />,
+  },
+  ...tools.map(({ meta, component }) => ({
+    path: meta.route,
+    element: React.createElement(component),
+  })),
+]);
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <div className="flex flex-col min-h-screen bg-white">
       <div className="flex flex-col md:flex-row flex-grow">

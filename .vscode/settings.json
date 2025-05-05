@@ -1,0 +1,21 @@
+{
+  "editor.formatOnSave": true,
+  "github.copilot.chat.codeGeneration.instructions": [
+    {
+      "file": "docs/.copilot.md"
+    },
+    {
+      "file": "docs/manifesto.md"
+    },
+    {
+      "file": "docs/STYLE_GUIDE.md"
+    },
+    {
+      "file": "docs/adding-a-tool.md"
+    },
+    {
+      "file": "README.md"
+    }
+  ],
+  "cSpell.words": ["Exif", "exiftool", "ICAL", "uswriting"]
+}

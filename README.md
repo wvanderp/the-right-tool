@@ -6,10 +6,11 @@ Welcome to The Right Tool (therighttool.dev), your go-to destination for effortl
 
 ## Available Tools
 
-- **ICS to Calendars**: Convert ICS calendar files to Google Calendar events
-- **JSON to GeoJSON**: Transform regular JSON data into GeoJSON format
-- **Weighted Distribution**: Distribute values across multiple items using percentage-based weights
-- **Handlebars**: Template rendering tool
+- **ICS to Calendars**: Convert ICS calendar files to Google Calendar events.
+- **JSON to GeoJSON**: Transform regular JSON data into GeoJSON format.
+- **Weighted Distribution**: Distribute values across multiple items using percentage-based weights.
+- **Handlebars**: Template rendering tool.
+- **Exif Extractor**: Extract EXIF metadata from image files directly in your browser.
 
 ## Contributing
 
