@@ -56,10 +56,6 @@
       "versions": "",
       "reason": "airbnb-eslint"
     },
-    "eslint-plugin-react-hooks": {
-      "versions": "5.1.0",
-      "reason": "eslint"
-    },
     "eslint-plugin-react-refresh": {
       "versions": "",
       "reason": "eslint"
