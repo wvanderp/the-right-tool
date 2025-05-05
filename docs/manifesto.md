@@ -15,7 +15,7 @@ We build for the doers, the thinkers, and the problem solvers. Our tools are cra
 ### Our Principles
 
 1. **Simplicity and Power**  
-   Our tools are easy to use yet capable of handling complex tasks when needed.
+   Every tool should have one main purpose, making it easy to use and focused. However, hidden away behind a small button, there can be an infinite wealth of smaller tools and advanced features that make the main tool even more useful. Our tools are easy to use yet capable of handling complex tasks when needed.
 
 2. **Reliability**  
    Each tool is well-tested to ensure consistent and accurate results.
@@ -25,6 +25,8 @@ We build for the doers, the thinkers, and the problem solvers. Our tools are cra
 
 4. **Responsiveness**  
    Tools should update automatically when input changes, provided the calculation is not computationally expensive and the output is deterministic.
+
+   Users should rarely have to push any buttons—most tools should respond instantly to input changes, making the experience as seamless and efficient as possible.
 
 5. **No Ads, No Waiting, No Gimmicks**  
    We don’t track you or fill our pages with ads. Our tools do their jobs instantly, so you can get back to yours.

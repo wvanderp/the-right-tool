@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import ToolPage from "../../components/ToolPage";
 import ToolDescription from "../../components/ToolDescription";
 import { extractExifDataFromFile, ExifData } from "./exifExtractorLogic";
+
 import ExifSummary from "./ExifSummary";
+import HandlebarsOutput from "./HandlebarsOutput";
 
 export default function ExifExtractor() {
   const [result, setResult] = useState<ExifData | null>(null);
@@ -80,7 +82,16 @@ export default function ExifExtractor() {
 
           {/* Summary appears right under file input on the same column */}
           {result && (
-            <ExifSummary exif={result} imageFile={selectedFile ?? undefined} />
+            <>
+              <ExifSummary
+                exif={result}
+                imageFile={selectedFile ?? undefined}
+              />
+              {/* Handlebars custom output tool */}
+              <div className="mt-4">
+                <HandlebarsOutput exif={result} />
+              </div>
+            </>
           )}
         </div>
 
