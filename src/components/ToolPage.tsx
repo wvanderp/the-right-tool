@@ -10,7 +10,7 @@ export default function ToolPage({ title, children }: ToolPageProps): React.Reac
     useEffect(() => {
         // Set the document title to include the site name
         document.title = `${title} | The Right Tool`;
-        
+
         // Restore the original title when the component unmounts
         return () => {
             document.title = 'The Right Tool';
@@ -18,7 +18,7 @@ export default function ToolPage({ title, children }: ToolPageProps): React.Reac
     }, [title]);
 
     return (
-        <div className="flex flex-col items-center w-full p-6 max-w-7xl mx-auto">
+        <div className="flex flex-col items-center w-full p-6">
             <h1 className="text-3xl font-bold mb-6">{title}</h1>
             {children}
         </div>

@@ -40,7 +40,7 @@ export default function ICALToCalendars(): React.ReactElement {
     return (
         <ToolPage title="Calendar Event Converter">
             <ToolDescription>
-                Convert your calendar events from ICS files into Google Calendar events with one click. 
+                Convert your calendar events from ICS files into Google Calendar events with one click.
                 Perfect for importing events from email invites, conference schedules, or any calendar that exports to ICS format.
             </ToolDescription>
 
@@ -48,19 +48,19 @@ export default function ICALToCalendars(): React.ReactElement {
                 <div className="flex items-center justify-center w-full">
                     <label className="flex flex-col items-center justify-center w-full h-32 
                         border-2 border-gray-200 border-dashed rounded-lg cursor-pointer 
-                        bg-gray-50 hover:bg-gray-100 transition-all duration-200">
+                        bg-gray-50 hover:bg-gray-100 transition-custom">
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                             <svg className="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
                             </svg>
                             <p className="mb-2 text-sm text-gray-600">
                                 <span className="font-medium">Drop your ICS file here</span> or click to browse
                             </p>
                             <p className="text-xs text-gray-500">Supports any standard .ics calendar file</p>
                         </div>
-                        <input 
-                            type="file" 
-                            className="hidden" 
+                        <input
+                            type="file"
+                            className="hidden"
                             accept=".ics"
                             onChange={handleFileUpload}
                         />
@@ -80,8 +80,7 @@ export default function ICALToCalendars(): React.ReactElement {
                             {events.map((event, index) => (
                                 <div
                                     key={index}
-                                    className="p-6 bg-white border border-gray-200 rounded-lg 
-                                    hover:border-yellow-600/20 hover:shadow-sm transition-all duration-200"
+                                    className="card hover:border-yellow-600/20"
                                 >
                                     <div className="flex flex-col space-y-3">
                                         <h3 className="text-lg font-medium text-gray-900">{event.summary}</h3>
@@ -102,10 +101,7 @@ export default function ICALToCalendars(): React.ReactElement {
                                             href={generateCalendarLinks([event])[0]}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="mt-2 inline-flex items-center px-4 py-2 bg-yellow-600 
-                                            text-white text-sm font-medium rounded-lg hover:bg-yellow-700 
-                                            transition-all duration-200 focus:outline-none focus:ring-2 
-                                            focus:ring-yellow-600/20 active:scale-[0.98]"
+                                            className="btn-primary mt-2 inline-flex items-center"
                                         >
                                             Add to Google Calendar →
                                         </a>

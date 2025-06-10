@@ -54,7 +54,7 @@ export default function HandlebarsOutput({ exif }: HandlebarsOutputProps) {
           </ToolDescription>
           <div className="flex flex-col gap-2 mt-2">
             <textarea
-              className="w-full p-2 border border-gray-300 rounded font-mono text-sm focus:ring-yellow-500 focus:border-yellow-500 mb-2"
+              className="w-full p-2 border border-gray-300 rounded font-mono text-sm focus:ring-2 focus:ring-yellow-600/20 focus:border-yellow-600 mb-2"
               rows={4}
               value={template}
               onChange={(e) => setTemplate(e.target.value)}

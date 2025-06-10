@@ -17,16 +17,16 @@ export default function DayList(): React.ReactElement {
     const [filters, setFilters] = useState<FilterType[]>([]);
     const [dayOfWeekFilter, setDayOfWeekFilter] = useState<number[]>([]);
     const [dayOfMonthFilter, setDayOfMonthFilter] = useState<number[]>([]);
-    
+
     // Output formatting
     const [outputFormat, setOutputFormat] = useState<OutputFormat>('YYYY-MM-DD');
     const [separator, setSeparator] = useState<string>('\n');
     const [locale, setLocale] = useState<string>('en-US');
-    
+
     // Generated output
     const [result, setResult] = useState<string>('');
     const [copySuccess, setCopySuccess] = useState<boolean>(false);
-    
+
     // Load from localStorage if available
     useEffect(() => {
         const savedState = localStorage.getItem('dayListState');
@@ -115,7 +115,7 @@ export default function DayList(): React.ReactElement {
         const days = value.split(',')
             .map(day => parseInt(day.trim(), 10))
             .filter(day => !isNaN(day) && day >= 1 && day <= 31);
-        
+
         setDayOfMonthFilter(days);
     };
 
@@ -133,8 +133,8 @@ export default function DayList(): React.ReactElement {
     return (
         <ToolPage title="Day List Generator">
             <ToolDescription>
-                Generate a list of dates based on specific criteria. Need all Saturdays in a year? 
-                Every 15th of the month? This tool helps you create custom date lists with flexible filtering 
+                Generate a list of dates based on specific criteria. Need all Saturdays in a year?
+                Every 15th of the month? This tool helps you create custom date lists with flexible filtering
                 and formatting options. Perfect for planning, scheduling, or any task requiring specific date patterns.
             </ToolDescription>
 
@@ -150,7 +150,7 @@ export default function DayList(): React.ReactElement {
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 
-                            focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-all duration-200"
+                            focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-custom"
                         />
                     </div>
                     <div>
@@ -162,7 +162,7 @@ export default function DayList(): React.ReactElement {
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 
-                            focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-all duration-200"
+                            focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-custom"
                         />
                     </div>
                 </div>
@@ -176,22 +176,22 @@ export default function DayList(): React.ReactElement {
                 {/* Filters */}
                 <div className="space-y-4">
                     <h3 className="font-medium text-gray-700">Filters</h3>
-                    
+
                     <div className="flex flex-wrap gap-3">
                         <button
-                            className={`px-4 py-2 rounded-lg transition-all duration-200
-                            ${filters.includes('dayOfWeek') 
-                                ? 'bg-yellow-600 text-white hover:bg-yellow-700' 
-                                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                            className={`px-4 py-2 rounded-lg transition-custom
+                            ${filters.includes('dayOfWeek')
+                                    ? 'bg-yellow-600 text-white hover:bg-yellow-700'
+                                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
                             onClick={() => toggleFilter('dayOfWeek')}
                         >
                             Day of Week
                         </button>
                         <button
-                            className={`px-4 py-2 rounded-lg transition-all duration-200
-                            ${filters.includes('dayOfMonth') 
-                                ? 'bg-yellow-600 text-white hover:bg-yellow-700' 
-                                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                            className={`px-4 py-2 rounded-lg transition-custom
+                            ${filters.includes('dayOfMonth')
+                                    ? 'bg-yellow-600 text-white hover:bg-yellow-700'
+                                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
                             onClick={() => toggleFilter('dayOfMonth')}
                         >
                             Day of Month
@@ -207,10 +207,10 @@ export default function DayList(): React.ReactElement {
                                     <button
                                         key={day}
                                         onClick={() => toggleDayOfWeek(day)}
-                                        className={`px-3 py-2 rounded-lg transition-all duration-200
-                                        ${dayOfWeekFilter.includes(day) 
-                                            ? 'bg-yellow-600 text-white hover:bg-yellow-700' 
-                                            : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                                        className={`px-3 py-2 rounded-lg transition-custom
+                                        ${dayOfWeekFilter.includes(day)
+                                                ? 'bg-yellow-600 text-white hover:bg-yellow-700'
+                                                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
                                     >
                                         {getDayName(day)}
                                     </button>
@@ -231,7 +231,7 @@ export default function DayList(): React.ReactElement {
                                 onChange={handleDayOfMonthChange}
                                 placeholder="e.g., 1, 15, 30"
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 
-                                focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-all duration-200"
+                                focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-custom"
                             />
                         </div>
                     )}
@@ -240,7 +240,7 @@ export default function DayList(): React.ReactElement {
                 {/* Output Format */}
                 <div className="space-y-4">
                     <h3 className="font-medium text-gray-700">Output Format</h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -250,7 +250,7 @@ export default function DayList(): React.ReactElement {
                                 value={outputFormat}
                                 onChange={(e) => setOutputFormat(e.target.value as OutputFormat)}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 
-                                focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-all duration-200"
+                                focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-custom"
                             >
                                 <option value="YYYY-MM-DD">YYYY-MM-DD (e.g., 2023-01-01)</option>
                                 <option value="MM/DD/YYYY">MM/DD/YYYY (e.g., 01/01/2023)</option>
@@ -262,7 +262,7 @@ export default function DayList(): React.ReactElement {
                                 <option value="short">Short (e.g., 1/1/2023)</option>
                             </select>
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Separator
@@ -271,7 +271,7 @@ export default function DayList(): React.ReactElement {
                                 value={separator}
                                 onChange={(e) => setSeparator(e.target.value)}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 
-                                focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-all duration-200"
+                                focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-custom"
                             >
                                 <option value="\n">New Line</option>
                                 <option value=", ">Comma</option>
@@ -290,7 +290,7 @@ export default function DayList(): React.ReactElement {
                             value={locale}
                             onChange={(e) => setLocale(e.target.value)}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 
-                            focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-all duration-200"
+                            focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-custom"
                         >
                             <option value="en-US">English (US)</option>
                             <option value="en-GB">English (UK)</option>
@@ -308,10 +308,10 @@ export default function DayList(): React.ReactElement {
                 <button
                     onClick={generateList}
                     disabled={!isDateRangeValid()}
-                    className={`px-6 py-3 rounded-lg font-medium transition-all duration-200
+                    className={`px-6 py-3 rounded-lg font-medium transition-custom
                     ${isDateRangeValid()
-                        ? 'bg-yellow-600 text-white hover:bg-yellow-700 active:scale-[0.98]'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                            ? 'bg-yellow-600 text-white hover:bg-yellow-700 active:scale-[0.98]'
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
                 >
                     Generate Date List →
                 </button>

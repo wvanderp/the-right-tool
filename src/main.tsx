@@ -12,9 +12,10 @@ import HomePage from "./HomePage";
 import JSONToGEOJSON from "./tools/JSONToGEOJSON/JSONToGEOJSON";
 import HandlebarsTemplate from "./tools/Handlebars/HandlebarsTemplate";
 import WeightedDistribution from "./tools/WeightedDistribution/WeightedDistribution";
-import ICALToCalendars from "./tools/ICALToCalendars/ICALToCalendarsConverter.tsx";
+import ICALToCalendars from "./tools/ICALToCalendars/ICALToCalendarsConverter";
 import DayList from "./tools/DayList/DayList";
-import ExifExtractor from "./tools/ExifExtractor/ExifExtractor.tsx";
+import ExifExtractor from "./tools/ExifExtractor/ExifExtractor";
+import ListComparisonTool from "./tools/ListTool/ListComparisonTool";
 
 const tools: ToolComponent[] = [
   {
@@ -58,6 +59,13 @@ const tools: ToolComponent[] = [
       route: "/exif-data-extractor",
     },
     component: ExifExtractor,
+  },
+  {
+    meta: {
+      name: "List Comparison Tool",
+      route: "/list-comparison",
+    },
+    component: ListComparisonTool,
   },
 ];
 

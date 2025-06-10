@@ -11,14 +11,14 @@
 
     /* Improve default focus styles */
     :focus-visible {
-        @apply outline-none ring-2 ring-yellow-600 ring-offset-2;
+        @apply outline-none ring-1 ring-primary ring-offset-2;
     }
 
     /* Input styles */
     input[type="text"],
     input[type="number"],
     textarea {
-        @apply bg-white border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-yellow-600 focus:border-yellow-600;
+        @apply bg-white border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary;
     }
 
     /* Custom scrollbar */
@@ -51,14 +51,14 @@
     }
 
     .btn-primary {
-        @apply px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 
-        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+        @apply px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover 
+        focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-2
         transition-all duration-200;
     }
 
     .btn-secondary {
         @apply px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 
-        focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2
+        focus:outline-none focus:ring-1 focus:ring-gray-500 focus:ring-offset-2
         transition-all duration-200;
     }
 

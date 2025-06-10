@@ -1,6 +1,6 @@
 # How to Add a New Tool to The Right Tool
 
-This guide outlines the steps required to add a new tool to the "The Right Tool" application.
+This guide outlines the steps required to add a new tool to "The Right Tool" application.
 
 ## 1. Create the Tool Folder
 
@@ -26,6 +26,7 @@ Example basic structure (`MyNewTool.tsx`):
 ```tsx
 import React, { useState } from "react";
 import ToolPage from "../../components/ToolPage"; // Common layout for all tools
+import ToolDescription from "../../components/ToolDescription";
 
 // If your tool has complex logic, place it in a separate file (e.g., myNewToolLogic.ts) and import it here.
 // import { processInput } from "./myNewToolLogic";
@@ -41,10 +42,12 @@ export default function MyNewTool() {
   };
 
   return (
-    <ToolPage
-      title="My New Tool"
-      description="A brief description of what this tool does."
-    >
+    <ToolPage title="My New Tool">
+      <ToolDescription>
+        A brief description of what this tool does. Explain the tool's purpose,
+        how to use it, and any important details users should know.
+      </ToolDescription>
+
       {/* Input Area */}
       <div className="mb-4">
         <label
@@ -57,7 +60,7 @@ export default function MyNewTool() {
           id="input"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded focus:ring-yellow-500 focus:border-yellow-500"
+          className="w-full"
           rows={5}
         />
       </div>
@@ -65,7 +68,7 @@ export default function MyNewTool() {
       {/* Process Button */}
       <button
         onClick={handleProcess}
-        className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+        className="btn-primary"
         type="button"
       >
         Process
@@ -98,20 +101,23 @@ export default function MyNewTool() {
 
 All tools should use the following common components and structure for consistency:
 
-- **ToolPage**: Wrap your tool UI in the `ToolPage` component from `src/components/ToolPage.tsx`. This provides a consistent layout and title for every tool.
-- **ToolDescription**: For tool descriptions, use the `ToolDescription` component from `src/components/ToolDescription.tsx`. This ensures a consistent, styled description area at the top of each tool. Example usage:
+- **ToolPage**: Wrap your tool UI in the `ToolPage` component from `src/components/ToolPage.tsx`. This provides a consistent layout and title for every tool. The ToolPage component only accepts a `title` prop and `children`.
+- **ToolDescription**: For tool descriptions, use the `ToolDescription` component from `src/components/ToolDescription.tsx`. This ensures a consistent, styled description area at the top of each tool. Place it as the first child inside ToolPage. Example usage:
 
   ```tsx
   import ToolDescription from "../../components/ToolDescription";
 
-  <ToolDescription>
-    Your tool description goes here. Explain what the tool does and any
-    important details.
-  </ToolDescription>;
+  <ToolPage title="My New Tool">
+    <ToolDescription>
+      Your tool description goes here. Explain what the tool does and any
+      important details.
+    </ToolDescription>
+    {/* Rest of your tool content */}
+  </ToolPage>
   ```
 
 - **Separation of Logic**: Place any complex or reusable logic in a separate file (e.g., `myNewToolLogic.ts`) within your tool's folder. Import and use these functions in your main component.
-- **Consistent UI Elements**: Use `<label>`, `<textarea>`, `<input>`, and `<button>` elements styled with Tailwind CSS. Always provide hover states for interactive elements. Do not use drop shadows, gradients, or animations.
+- **Consistent UI Elements**: Use `<label>`, `<textarea>`, `<input>`, and `<button>` elements styled with Tailwind CSS utility classes (like `.btn-primary` for buttons). Always provide hover states for interactive elements. Do not use drop shadows, gradients, or animations.
 - **Testing and Documentation**: Each tool must have a `README.md` and a `__tests__` folder for logic tests.
 
 **Example folder structure:**
@@ -129,41 +135,35 @@ src/
 
 ## 3. Register the Tool
 
-To make the tool accessible in the application, you need to register it.
+To make the tool accessible in the application, you need to register it:
 
-1.  **Define Tool Metadata:** Add an entry for your new tool in the `tools` array within `src/HomePage.tsx`. This object should include:
+### 3a. Add Import and Tool Entry in main.tsx
 
-    - `name`: The display name of the tool.
-    - `description`: A short description.
-    - `path`: The URL path for the tool (e.g., `/my-new-tool`).
-    - `component`: A lazy-loaded import of your tool's main component.
+1. **Import your component** at the top of `src/main.tsx`:
 
-    Example entry in `src/HomePage.tsx`:
+   ```tsx
+   import MyNewTool from "./tools/MyNewTool/MyNewTool";
+   ```
 
-    ```tsx
-    // ... other imports ...
-    import { Tool } from "./types/ToolComponent"; // Ensure Tool type is imported
+2. **Add your tool to the tools array** in `src/main.tsx`:
 
-    // ... existing tools ...
+   ```tsx
+   const tools: ToolComponent[] = [
+     // ...existing tools...
+     {
+       meta: {
+         name: "My New Tool",
+         route: "/my-new-tool",
+       },
+       component: MyNewTool,
+     },
+   ];
+   ```
 
-    const MyNewToolComponent = React.lazy(
-      () => import("./tools/MyNewTool/MyNewTool")
-    );
 
-    const tools: Tool[] = [
-      // ... existing tool definitions ...
-      {
-        name: "My New Tool",
-        description: "A brief description of what this tool does.",
-        path: "/my-new-tool",
-        component: MyNewToolComponent,
-      },
-    ];
-
-    // ... rest of HomePage.tsx ...
-    ```
-
-2.  **Add Route:** The routing is handled automatically by the `HomePage.tsx` component based on the `tools` array. Ensure the `path` you defined is unique.
+**Important Notes:**
+- Use kebab-case for routes (e.g., `/my-new-tool`).
+- The route should be unique and descriptive.
 
 ## 4. Add Documentation
 
@@ -191,7 +191,7 @@ To make the tool accessible in the application, you need to register it.
 - [ ] Tool is styled with Tailwind CSS, following the style guide.
 - [ ] Interactive elements have hover states.
 - [ ] Tool logic is implemented (potentially in separate files).
-- [ ] Tool is registered in `src/HomePage.tsx`.
+- [ ] Tool is registered in `src/main.tsx` (import and tools array).
 - [ ] Tool-specific `README.md` is created and filled.
 - [ ] Main project `README.md` is updated.
 - [ ] Unit tests are written in the `__tests__` folder.

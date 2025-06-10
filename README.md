@@ -10,7 +10,8 @@ Welcome to The Right Tool (therighttool.dev), your go-to destination for effortl
 - **JSON to GeoJSON**: Transform regular JSON data into GeoJSON format.
 - **Weighted Distribution**: Distribute values across multiple items using percentage-based weights.
 - **Handlebars**: Template rendering tool.
-- **Exif Extractor**: Extract EXIF metadata from image files directly in your browser.
+- **EXIF Extractor**: Extract EXIF metadata from image files directly in your browser.
+- **List Comparison Tool**: Compare two lists to find intersections and differences.
 
 ## Contributing
 

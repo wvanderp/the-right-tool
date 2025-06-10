@@ -66,7 +66,7 @@ export default function ExifExtractor() {
               type="file"
               accept="image/*"
               onChange={handleFileChange}
-              className="block w-full mb-4 text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-yellow-600 file:text-white hover:file:bg-yellow-700 focus:outline-none cursor-pointer transition-colors"
+              className="block w-full mb-4 text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-yellow-600 file:text-white hover:file:bg-yellow-700 focus:outline-none cursor-pointer transition-custom"
             />
             <p className="text-xs text-gray-500 mt-1">
               Your image is never uploaded. Extraction happens instantly in your
@@ -108,7 +108,7 @@ export default function ExifExtractor() {
                 </label>
                 <button
                   onClick={handleCopyJson}
-                  className="text-sm bg-yellow-600 text-white px-3 py-1 rounded hover:bg-yellow-700 transition-colors"
+                  className="btn-secondary text-sm"
                 >
                   {isCopied ? "Copied!" : "Copy JSON"}
                 </button>

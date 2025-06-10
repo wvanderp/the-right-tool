@@ -17,5 +17,10 @@
       "file": "README.md"
     }
   ],
-  "cSpell.words": ["Exif", "exiftool", "ICAL", "uswriting"]
+  "cSpell.words": [
+    "Exif",
+    "exiftool",
+    "ICAL",
+    "uswriting"
+  ]
 }

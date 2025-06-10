@@ -75,9 +75,8 @@ export default function JSONToGEOJSON(): React.ReactElement {
                     <label className="block">
                         <span className="block text-sm font-medium text-gray-700 mb-2">Latitude Field:</span>
                         <input
-                            className="w-full border border-gray-300 rounded-lg px-4 py-2.5
-                            focus:ring-2 focus:ring-yellow-600/20 focus:border-yellow-600 
-                            outline-none transition-all duration-200"
+                            type="text"
+                            className="w-full"
                             value={latitudeKey}
                             onChange={(e) => setLatitudeKey(e.target.value)}
                             placeholder="e.g. lat or $.coordinates.latitude"
@@ -87,9 +86,8 @@ export default function JSONToGEOJSON(): React.ReactElement {
                     <label className="block">
                         <span className="block text-sm font-medium text-gray-700 mb-2">Longitude Field:</span>
                         <input
-                            className="w-full border border-gray-300 rounded-lg px-4 py-2.5
-                            focus:ring-2 focus:ring-yellow-600/20 focus:border-yellow-600 
-                            outline-none transition-all duration-200"
+                            type="text"
+                            className="w-full"
                             value={longitudeKey}
                             onChange={(e) => setLongitudeKey(e.target.value)}
                             placeholder="e.g. lng or $.coordinates.longitude"
@@ -102,9 +100,7 @@ export default function JSONToGEOJSON(): React.ReactElement {
                     <label className="block">
                         <span className="block text-sm font-medium text-gray-700 mb-2">Your JSON Data:</span>
                         <textarea
-                            className="w-full h-48 border border-gray-300 rounded-lg px-4 py-3 
-                            font-mono text-sm focus:ring-2 focus:ring-yellow-600/20 
-                            focus:border-yellow-600 outline-none transition-all duration-200"
+                            className="w-full h-48 font-mono text-sm"
                             value={json}
                             onChange={(e) => setJson(e.target.value)}
                             spellCheck="false"
@@ -120,9 +116,7 @@ export default function JSONToGEOJSON(): React.ReactElement {
                 )}
 
                 <button
-                    className="px-6 py-2.5 bg-yellow-600 text-white rounded-lg 
-                    hover:bg-yellow-700 transition-all duration-200 font-medium
-                    hover:opacity-90 active:scale-[0.98]"
+                    className="btn-primary"
                     onClick={convert}
                 >
                     Convert to GeoJSON
@@ -133,8 +127,7 @@ export default function JSONToGEOJSON(): React.ReactElement {
                         <div className="flex items-center justify-between mb-3">
                             <h3 className="text-sm font-medium text-gray-700">GeoJSON Result:</h3>
                             <button
-                                className="flex items-center space-x-2 px-3 py-1.5 text-sm bg-gray-100 
-                                text-gray-700 rounded-md hover:bg-gray-200 transition-colors duration-200"
+                                className="btn-secondary flex items-center space-x-2"
                                 onClick={copyToClipboard}
                                 title="Copy to clipboard"
                             >

@@ -10,14 +10,14 @@ interface EditableFieldProps {
     max?: number;
 }
 
-export function EditableField({ 
-    value, 
-    onChange, 
-    suffix = '', 
-    step = '0.1', 
+export function EditableField({
+    value,
+    onChange,
+    suffix = '',
+    step = '0.1',
     align = 'left',
     min = 0,
-    max = Infinity 
+    max = Infinity
 }: EditableFieldProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [inputValue, setInputValue] = useState('');
@@ -30,7 +30,7 @@ export function EditableField({
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = e.target.value;
         const numValue = Number(newValue);
-        
+
         if (newValue === '' || (numValue >= min && numValue <= max)) {
             setInputValue(newValue);
             onChange(newValue);
@@ -51,10 +51,9 @@ export function EditableField({
     };
 
     return (
-        <span 
-            className={`cursor-pointer hover:bg-gray-50 px-2 py-1.5 rounded transition-colors duration-200 ${
-                align === 'right' ? 'text-right' : ''
-            }`}
+        <span
+            className={`cursor-pointer hover:bg-gray-50 px-2 py-1.5 rounded transition-colors duration-200 ${align === 'right' ? 'text-right' : ''
+                }`}
             onClick={handleStartEditing}
         >
             {isEditing ? (
@@ -67,7 +66,7 @@ export function EditableField({
                     autoFocus
                     className={`w-full border border-gray-300 rounded px-2 py-1 
                     focus:ring-2 focus:ring-yellow-600/20 focus:border-yellow-600 
-                    outline-none transition-all duration-200
+                    outline-none transition-custom
                     ${align === 'right' ? 'text-right' : ''}`}
                     step={step}
                     min={min}
