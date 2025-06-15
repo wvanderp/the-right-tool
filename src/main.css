@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+@theme {
+    --color-primary: #f59e0b;
+    --color-secondary: #4b5563;
+    --color-background: #f3f4f6;
+    --color-text: #111827;
+}
+
 @layer base {
     html {
         scroll-behavior: smooth;
@@ -18,7 +25,7 @@
     input[type="text"],
     input[type="number"],
     textarea {
-        @apply bg-white border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary;
+        @apply bg-white border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500;
     }
 
     /* Custom scrollbar */
@@ -52,7 +59,7 @@
     }
 
     .btn-primary {
-        @apply px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-2 transition-all duration-200;
+        @apply bg-primary text-white px-4 py-2 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors duration-200;
     }
 
     .btn-secondary {
