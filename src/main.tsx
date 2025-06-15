@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
@@ -7,15 +7,20 @@ import "./main.css";
 import { ToolComponent } from "./types/ToolComponent";
 import Menu from "./pageComponents/Menu";
 import Footer from "./pageComponents/Footer";
-import HomePage from "./HomePage";
 
-import JSONToGEOJSON from "./tools/JSONToGEOJSON/JSONToGEOJSON";
-import HandlebarsTemplate from "./tools/Handlebars/HandlebarsTemplate";
-import WeightedDistribution from "./tools/WeightedDistribution/WeightedDistribution";
-import ICALToCalendars from "./tools/ICALToCalendars/ICALToCalendarsConverter";
-import DayList from "./tools/DayList/DayList";
-import ExifExtractor from "./tools/ExifExtractor/ExifExtractor";
-import ListComparisonTool from "./tools/ListTool/ListComparisonTool";
+// Dynamic imports for all pages and tools
+const HomePage = React.lazy(() => import("./HomePage"));
+const JSONToGEOJSON = React.lazy(() => import("./tools/JSONToGEOJSON/JSONToGEOJSON"));
+const HandlebarsTemplate = React.lazy(() => import("./tools/Handlebars/HandlebarsTemplate"));
+const WeightedDistribution = React.lazy(() => import("./tools/WeightedDistribution/WeightedDistribution"));
+const ICALToCalendars = React.lazy(() => import("./tools/ICALToCalendars/ICALToCalendarsConverter"));
+const DayList = React.lazy(() => import("./tools/DayList/DayList"));
+const ExifExtractor = React.lazy(() => import("./tools/ExifExtractor/ExifExtractor"));
+const ListComparisonTool = React.lazy(() => import("./tools/ListTool/ListComparisonTool"));
+
+const LoadingFallback = () => (
+  <div className="flex justify-center items-center h-64">Loading...</div>
+);
 
 const tools: ToolComponent[] = [
   {
@@ -72,11 +77,19 @@ const tools: ToolComponent[] = [
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <HomePage />,
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <HomePage />
+      </Suspense>
+    ),
   },
   ...tools.map(({ meta, component }) => ({
     path: meta.route,
-    element: React.createElement(component),
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        {React.createElement(component)}
+      </Suspense>
+    ),
   })),
 ]);
 

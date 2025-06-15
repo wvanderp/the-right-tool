@@ -137,12 +137,12 @@ src/
 
 To make the tool accessible in the application, you need to register it:
 
-### 3a. Add Import and Tool Entry in main.tsx
+### 3a. Add Dynamic Import and Tool Entry in main.tsx
 
-1. **Import your component** at the top of `src/main.tsx`:
+1. **Add a dynamic import for your component** in the dynamic imports section of `src/main.tsx`:
 
    ```tsx
-   import MyNewTool from "./tools/MyNewTool/MyNewTool";
+   const MyNewTool = React.lazy(() => import("./tools/MyNewTool/MyNewTool"));
    ```
 
 2. **Add your tool to the tools array** in `src/main.tsx`:
@@ -160,10 +160,12 @@ To make the tool accessible in the application, you need to register it:
    ];
    ```
 
-
 **Important Notes:**
+- Use dynamic imports (`React.lazy()`) for all tool components to enable code splitting and improve initial load performance.
 - Use kebab-case for routes (e.g., `/my-new-tool`).
 - The route should be unique and descriptive.
+- Your component will automatically be wrapped with `Suspense` for lazy loading.
+- Dynamic imports ensure that only the code for the currently viewed tool is loaded, reducing the initial bundle size and improving page load speeds.
 
 ## 4. Add Documentation
 
@@ -191,7 +193,7 @@ To make the tool accessible in the application, you need to register it:
 - [ ] Tool is styled with Tailwind CSS, following the style guide.
 - [ ] Interactive elements have hover states.
 - [ ] Tool logic is implemented (potentially in separate files).
-- [ ] Tool is registered in `src/main.tsx` (import and tools array).
+- [ ] Tool is registered in `src/main.tsx` (dynamic import and tools array).
 - [ ] Tool-specific `README.md` is created and filled.
 - [ ] Main project `README.md` is updated.
 - [ ] Unit tests are written in the `__tests__` folder.
