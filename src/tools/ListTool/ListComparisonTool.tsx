@@ -6,12 +6,13 @@ import { compareLists, parseList, formatList } from "./listComparisonLogic";
 export default function ListComparisonTool() {
     const [listAInput, setListAInput] = useState("");
     const [listBInput, setListBInput] = useState("");
+    const [caseSensitive, setCaseSensitive] = useState(false);
 
     const result = useMemo(() => {
         const listA = parseList(listAInput);
         const listB = parseList(listBInput);
-        return compareLists(listA, listB);
-    }, [listAInput, listBInput]);
+        return compareLists(listA, listB, caseSensitive);
+    }, [listAInput, listBInput, caseSensitive]);
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
@@ -23,6 +24,27 @@ export default function ListComparisonTool() {
                 Perform set operations on two lists of strings. Input your lists (one item per line)
                 and see the intersection, differences, and symmetric difference in real-time.
             </ToolDescription>
+
+            {/* Settings */}
+            <div className="mb-6">
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Settings</h2>
+                <div className="card">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={caseSensitive}
+                            onChange={(e) => setCaseSensitive(e.target.checked)}
+                            className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                        />
+                        <div>
+                            <span className="text-sm font-medium text-gray-700">Case sensitive comparison</span>
+                            <p className="text-xs text-gray-500 mt-1">
+                                When unchecked, "Apple" and "apple" are treated as the same item
+                            </p>
+                        </div>
+                    </label>
+                </div>
+            </div>
 
             {/* Input Section */}
             <div className="mb-8">

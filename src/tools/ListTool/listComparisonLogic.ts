@@ -19,47 +19,64 @@ export function parseList(input: string): string[] {
 /**
  * Performs set operations on two lists of strings while preserving duplicates
  */
-export function compareLists(listA: string[], listB: string[]): ListComparisonResult {
+export function compareLists(listA: string[], listB: string[], caseSensitive: boolean = false): ListComparisonResult {
+    // Normalize items for comparison if case-insensitive
+    const normalizeItem = (item: string) => caseSensitive ? item : item.toLowerCase();
+
     // Count occurrences of each item in both lists
     const countA = new Map<string, number>();
     const countB = new Map<string, number>();
 
+    // Keep track of original case for display purposes
+    const originalCaseA = new Map<string, string>();
+    const originalCaseB = new Map<string, string>();
+
     for (const item of listA) {
-        countA.set(item, (countA.get(item) || 0) + 1);
+        const normalizedItem = normalizeItem(item);
+        countA.set(normalizedItem, (countA.get(normalizedItem) || 0) + 1);
+        if (!originalCaseA.has(normalizedItem)) {
+            originalCaseA.set(normalizedItem, item);
+        }
     }
 
     for (const item of listB) {
-        countB.set(item, (countB.get(item) || 0) + 1);
-    }
-
-    // Get all unique items from both lists
-    const allItems = new Set([...listA, ...listB]);
+        const normalizedItem = normalizeItem(item);
+        countB.set(normalizedItem, (countB.get(normalizedItem) || 0) + 1);
+        if (!originalCaseB.has(normalizedItem)) {
+            originalCaseB.set(normalizedItem, item);
+        }
+    }    // Get all unique normalized items from both lists
+    const allNormalizedItems = new Set([...countA.keys(), ...countB.keys()]);
 
     const intersection: string[] = [];
     const leftDifference: string[] = [];
     const rightDifference: string[] = [];
     const symmetricDifference: string[] = [];
 
-    for (const item of allItems) {
-        const countInA = countA.get(item) || 0;
-        const countInB = countB.get(item) || 0;
+    for (const normalizedItem of allNormalizedItems) {
+        const countInA = countA.get(normalizedItem) || 0;
+        const countInB = countB.get(normalizedItem) || 0;
         const minCount = Math.min(countInA, countInB);
+
+        // Use original case from A for intersection and left difference, B for right difference
+        const originalFromA = originalCaseA.get(normalizedItem) || normalizedItem;
+        const originalFromB = originalCaseB.get(normalizedItem) || normalizedItem;
 
         // Add items that exist in both lists to intersection (up to minimum count)
         for (let i = 0; i < minCount; i++) {
-            intersection.push(item);
+            intersection.push(originalFromA);
         }
 
         // Add extra items from A to leftDifference
         const extraInA = countInA - minCount;
         for (let i = 0; i < extraInA; i++) {
-            leftDifference.push(item);
+            leftDifference.push(originalFromA);
         }
 
         // Add extra items from B to rightDifference
         const extraInB = countInB - minCount;
         for (let i = 0; i < extraInB; i++) {
-            rightDifference.push(item);
+            rightDifference.push(originalFromB);
         }
     }
 

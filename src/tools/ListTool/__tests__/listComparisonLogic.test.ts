@@ -123,12 +123,10 @@ describe('compareLists', () => {
         expect(result.leftDifference).toEqual(['apple', 'banana']);
         expect(result.rightDifference).toEqual(['cherry']);
         expect(result.symmetricDifference).toEqual(['apple', 'banana', 'cherry']);
-    });
-
-    it('should be case sensitive', () => {
+    }); it('should be case sensitive', () => {
         const listA = ['Apple', 'banana'];
         const listB = ['apple', 'banana'];
-        const result = compareLists(listA, listB);
+        const result = compareLists(listA, listB, true);
 
         expect(result.intersection).toEqual(['banana']);
         expect(result.leftDifference).toEqual(['Apple']);
@@ -158,6 +156,71 @@ describe('compareLists', () => {
         expect(result.leftDifference).toEqual(['2']); // Should contain the extra '2'
         expect(result.rightDifference).toEqual([]);
         expect(result.symmetricDifference).toEqual(['2']); // Should contain the extra '2'
+    });
+});
+
+describe('compareLists - case sensitivity', () => {
+    it('should be case insensitive by default', () => {
+        const listA = ['Apple', 'BANANA', 'cherry'];
+        const listB = ['apple', 'banana', 'CHERRY'];
+        const result = compareLists(listA, listB);
+
+        expect(result.intersection).toEqual(['Apple', 'BANANA', 'cherry']);
+        expect(result.leftDifference).toEqual([]);
+        expect(result.rightDifference).toEqual([]);
+        expect(result.symmetricDifference).toEqual([]);
+    });
+
+    it('should be case insensitive when explicitly set to false', () => {
+        const listA = ['Apple', 'BANANA'];
+        const listB = ['apple', 'banana'];
+        const result = compareLists(listA, listB, false);
+
+        expect(result.intersection).toEqual(['Apple', 'BANANA']);
+        expect(result.leftDifference).toEqual([]);
+        expect(result.rightDifference).toEqual([]);
+        expect(result.symmetricDifference).toEqual([]);
+    });
+
+    it('should be case sensitive when explicitly set to true', () => {
+        const listA = ['Apple', 'BANANA', 'cherry'];
+        const listB = ['apple', 'banana', 'CHERRY'];
+        const result = compareLists(listA, listB, true);
+
+        expect(result.intersection).toEqual([]);
+        expect(result.leftDifference).toEqual(['Apple', 'BANANA', 'cherry']);
+        expect(result.rightDifference).toEqual(['apple', 'banana', 'CHERRY']);
+        expect(result.symmetricDifference).toEqual(['Apple', 'BANANA', 'cherry', 'apple', 'banana', 'CHERRY']);
+    });
+
+    it('should preserve original case from list A in intersection when case insensitive', () => {
+        const listA = ['Apple', 'BANANA'];
+        const listB = ['apple', 'banana'];
+        const result = compareLists(listA, listB, false);
+
+        expect(result.intersection).toEqual(['Apple', 'BANANA']); // Should preserve A's case
+    });
+
+    it('should preserve original case in differences when case insensitive', () => {
+        const listA = ['Apple', 'UNIQUE_A'];
+        const listB = ['apple', 'unique_b'];
+        const result = compareLists(listA, listB, false);
+
+        expect(result.intersection).toEqual(['Apple']);
+        expect(result.leftDifference).toEqual(['UNIQUE_A']);
+        expect(result.rightDifference).toEqual(['unique_b']);
+        expect(result.symmetricDifference).toEqual(['UNIQUE_A', 'unique_b']);
+    });
+
+    it('should handle duplicates with different cases when case insensitive', () => {
+        const listA = ['Apple', 'apple', 'APPLE'];
+        const listB = ['apple', 'APPLE'];
+        const result = compareLists(listA, listB, false);
+
+        expect(result.intersection).toEqual(['Apple', 'Apple']); // Two matches, preserving A's first case
+        expect(result.leftDifference).toEqual(['Apple']); // One extra from A
+        expect(result.rightDifference).toEqual([]);
+        expect(result.symmetricDifference).toEqual(['Apple']);
     });
 });
 
