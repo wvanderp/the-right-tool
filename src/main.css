@@ -35,7 +35,8 @@
     }
 
     /* Code blocks */
-    pre, code {
+    pre,
+    code {
         @apply font-mono text-sm bg-gray-50 rounded-md;
     }
 }
@@ -51,15 +52,11 @@
     }
 
     .btn-primary {
-        @apply px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover 
-        focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-2
-        transition-all duration-200;
+        @apply px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-2 transition-all duration-200;
     }
 
     .btn-secondary {
-        @apply px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 
-        focus:outline-none focus:ring-1 focus:ring-gray-500 focus:ring-offset-2
-        transition-all duration-200;
+        @apply px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200;
     }
 
     .card {
