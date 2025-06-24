@@ -17,6 +17,7 @@ export default function DayList(): React.ReactElement {
     const [filters, setFilters] = useState<FilterType[]>([]);
     const [dayOfWeekFilter, setDayOfWeekFilter] = useState<number[]>([]);
     const [dayOfMonthFilter, setDayOfMonthFilter] = useState<number[]>([]);
+    const [dayOfMonthInput, setDayOfMonthInput] = useState<string>('');
 
     // Output formatting
     const [outputFormat, setOutputFormat] = useState<OutputFormat>('YYYY-MM-DD');
@@ -38,6 +39,7 @@ export default function DayList(): React.ReactElement {
                 setFilters(state.filters || []);
                 setDayOfWeekFilter(state.dayOfWeekFilter || []);
                 setDayOfMonthFilter(state.dayOfMonthFilter || []);
+                setDayOfMonthInput(state.dayOfMonthFilter ? state.dayOfMonthFilter.join(', ') : '');
                 setOutputFormat(state.outputFormat || 'YYYY-MM-DD');
                 setSeparator(state.separator || '\n');
                 setLocale(state.locale || 'en-US');
@@ -61,19 +63,26 @@ export default function DayList(): React.ReactElement {
         }));
     }, [startDate, endDate, filters, dayOfWeekFilter, dayOfMonthFilter, outputFormat, separator, locale]);
 
-    // Generate the day list
+    const parseDayOfMonthInput = (input: string): number[] => {
+        return input.split(',')
+            .map(day => parseInt(day.trim(), 10))
+            .filter(day => !isNaN(day) && day >= 1 && day <= 31);
+    };
+
     const generateList = () => {
+        // Always parse the latest input before generating
+        const parsed = parseDayOfMonthInput(dayOfMonthInput);
+        setDayOfMonthFilter(parsed);
         const options: DayListOptions = {
             startDate,
             endDate,
             filters,
             dayOfWeekFilter,
-            dayOfMonthFilter,
+            dayOfMonthFilter: parsed,
             outputFormat,
             separator: separator.replace(/\\n/g, '\n'),
             locale
         };
-
         const list = generateDayList(options);
         setResult(list);
     };
@@ -109,14 +118,14 @@ export default function DayList(): React.ReactElement {
         }
     };
 
-    // Handle day of month selection
+    // Handle day of month input change (let user type freely)
     const handleDayOfMonthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value;
-        const days = value.split(',')
-            .map(day => parseInt(day.trim(), 10))
-            .filter(day => !isNaN(day) && day >= 1 && day <= 31);
+        setDayOfMonthInput(event.target.value);
+    };
 
-        setDayOfMonthFilter(days);
+    // On blur, update the parsed filter array
+    const handleDayOfMonthBlur = () => {
+        setDayOfMonthFilter(parseDayOfMonthInput(dayOfMonthInput));
     };
 
     // Get day name for the day of week selection
@@ -227,8 +236,9 @@ export default function DayList(): React.ReactElement {
                             </h4>
                             <input
                                 type="text"
-                                value={dayOfMonthFilter.join(', ')}
+                                value={dayOfMonthInput}
                                 onChange={handleDayOfMonthChange}
+                                onBlur={handleDayOfMonthBlur}
                                 placeholder="e.g., 1, 15, 30"
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 
                                 focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-custom"
