@@ -21,9 +21,18 @@
     }
   ],
   "cSpell.words": [
+    "dtend",
+    "dtstart",
     "Exif",
     "exiftool",
+    "ical",
     "ICAL",
+    "prodid",
+    "PRODID",
+    "uswriting",
+    "VCALENDAR",
+    "vevent",
+    "vevents",
     "uswriting"
   ]
 }
