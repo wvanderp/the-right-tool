@@ -12,7 +12,7 @@ import jp from 'jsonpath';
  * @param longitudeJsonPath JSONPath to the longitude field
  * @returns GEOJSON data based on the JSON data.
  */
-export default function JSONToGEOJSONConverter(data: unknown, latitudeJsonPath: string, longitudeJsonPath: string) : string {
+export default function JSONToGEOJSONConverter(data: unknown, latitudeJsonPath: string, longitudeJsonPath: string): string {
     // check if the data is an array
     if (!Array.isArray(data)) {
         throw new Error('Data should be an array');
@@ -45,7 +45,7 @@ export default function JSONToGEOJSONConverter(data: unknown, latitudeJsonPath: 
             properties
         };
     });
-    
+
     return toPrettyJSON({
         type: 'FeatureCollection',
         features

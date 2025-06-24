@@ -9,7 +9,7 @@ export default function DayList(): React.ReactElement {
     const [startDate, setStartDate] = useState<string>(new Date().toISOString().split('T')[0]);
     const [endDate, setEndDate] = useState<string>(() => {
         const nextYear = new Date();
-        nextYear.setFullYear(nextYear.getFullYear() + 1);
+        nextYear.setMonth(nextYear.getMonth() + 1);
         return nextYear.toISOString().split('T')[0];
     });
 

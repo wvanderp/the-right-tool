@@ -106,7 +106,7 @@ export default function generateCalendarLinks(events: Event[]): string[] {
 
 function generateGoogleCalendarLink(event: Event): string {
     const baseUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE";
-    
+
     // Format dates to match Google Calendar format (YYYYMMDDTHHMMSSZ)
     const formatDate = (dateStr: string) => {
         return dateStr
@@ -129,14 +129,14 @@ function generateGoogleCalendarLink(event: Event): string {
     const params = [];
     params.push(`text=${encodeParam(event.summary)}`);
     params.push(`dates=${startTime}/${endTime}`);
-    
+
     if (event.description) {
         params.push(`details=${encodeParam(event.description)}`);
     }
-    
+
     if (event.location) {
         params.push(`location=${encodeParam(event.location)}`);
     }
-    
+
     return `${baseUrl}&${params.join('&')}`;
 }

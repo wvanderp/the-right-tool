@@ -22,7 +22,7 @@ describe('GoogleLinkCreator', () => {
         };
 
         const expectedLink = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Test+Event&dates=20231225T100000Z/20231225T110000Z';
-        
+
         expect(generateCalendarLinks([event])[0]).toBe(expectedLink);
     });
 
@@ -36,7 +36,7 @@ describe('GoogleLinkCreator', () => {
         };
 
         const expectedLink = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Meeting&dates=20231226T143000Z/20231226T153000Z&details=Team+sync&location=Conference+Room+A';
-        
+
         expect(generateCalendarLinks([event])[0]).toBe(expectedLink);
     });
 
@@ -50,7 +50,7 @@ describe('GoogleLinkCreator', () => {
         };
 
         const result = generateCalendarLinks([event])[0];
-        
+
         expect(result).toContain('text=Test+%26+Demo');
         expect(result).toContain('details=Testing+%26+debugging+session');
         expect(result).toContain('location=123+Main+St.%2C+Suite+%23100');
@@ -71,7 +71,7 @@ describe('GoogleLinkCreator', () => {
         ];
 
         const links = generateCalendarLinks(events);
-        
+
         expect(links).toHaveLength(2);
         expect(links[0]).toContain('text=Event+1');
         expect(links[1]).toContain('text=Event+2');

@@ -7,7 +7,7 @@ export function ICALPreprocessor(ICALString: string): string {
 
     // Find the index of END:VCALENDAR
     const endIndex = lines.findIndex(line => line === 'END:VCALENDAR');
-    
+
     if (endIndex !== -1) {
         // Only keep lines up to and including END:VCALENDAR
         lines.splice(endIndex + 1);
@@ -19,7 +19,7 @@ export function ICALPreprocessor(ICALString: string): string {
         lines.splice(lines.indexOf(prodid), 1);
         lines.splice(1, 0, prodid);
     }
-    
+
     return lines.join("\n");
 }
 
