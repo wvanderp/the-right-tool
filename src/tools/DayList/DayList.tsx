@@ -39,7 +39,12 @@ export default function DayList(): React.ReactElement {
                 setFilters(state.filters || []);
                 setDayOfWeekFilter(state.dayOfWeekFilter || []);
                 setDayOfMonthFilter(state.dayOfMonthFilter || []);
-                setDayOfMonthInput(state.dayOfMonthFilter ? state.dayOfMonthFilter.join(', ') : '');
+                // Restore dayOfMonthInput if present, else fallback to joined filter
+                setDayOfMonthInput(
+                    typeof state.dayOfMonthInput === 'string'
+                        ? state.dayOfMonthInput
+                        : (state.dayOfMonthFilter ? state.dayOfMonthFilter.join(', ') : '')
+                );
                 setOutputFormat(state.outputFormat || 'YYYY-MM-DD');
                 setSeparator(state.separator || '\n');
                 setLocale(state.locale || 'en-US');
@@ -57,11 +62,12 @@ export default function DayList(): React.ReactElement {
             filters,
             dayOfWeekFilter,
             dayOfMonthFilter,
+            dayOfMonthInput,
             outputFormat,
             separator,
             locale
         }));
-    }, [startDate, endDate, filters, dayOfWeekFilter, dayOfMonthFilter, outputFormat, separator, locale]);
+    }, [startDate, endDate, filters, dayOfWeekFilter, dayOfMonthFilter, dayOfMonthInput, outputFormat, separator, locale]);
 
     const parseDayOfMonthInput = (input: string): number[] => {
         return input.split(',')
