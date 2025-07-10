@@ -38,7 +38,7 @@ exports[`ExifExtractor Logic > should correctly extract EXIF data from a sample 
     "ExifByteOrder": "Little-endian (Intel, II)",
     "ExifImageHeight": 3853,
     "ExifImageWidth": 2167,
-    "ExifToolVersion": 13.11,
+    "ExifToolVersion": 13.3,
     "ExifVersion": "0232",
     "ExposureCompensation": 0,
     "ExposureMode": "Auto",
