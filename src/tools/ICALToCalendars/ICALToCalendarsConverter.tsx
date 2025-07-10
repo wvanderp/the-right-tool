@@ -8,12 +8,10 @@ import generateCalendarLinks from './GoogleLinkCreator';
 export default function ICALToCalendars(): React.ReactElement {
     const [events, setEvents] = useState<Event[]>([]);
     const [error, setError] = useState<string>('');
+    const [isDragActive, setIsDragActive] = useState<boolean>(false);
 
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const processFile = (file: File) => {
         setError('');
-        const file = event.target.files?.[0];
-        if (!file) return;
-
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
@@ -26,6 +24,45 @@ export default function ICALToCalendars(): React.ReactElement {
             }
         };
         reader.readAsText(file);
+    };
+
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        processFile(file);
+    };
+
+    const handleDragEnter = (e: React.DragEvent<HTMLElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragActive(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent<HTMLElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragActive(false);
+    };
+
+    const handleDragOver = (e: React.DragEvent<HTMLElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragActive(false);
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            if (file.name.toLowerCase().endsWith('.ics')) {
+                processFile(file);
+            } else {
+                setError('Please select a valid ICS file.');
+            }
+        }
     };
 
     function formatDateTime(dateTimeStr: string): string {
@@ -45,10 +82,25 @@ export default function ICALToCalendars(): React.ReactElement {
             </ToolDescription>
 
             <div className="w-full max-w-2xl space-y-6">
-                <div className="flex items-center justify-center w-full">
-                    <label className="flex flex-col items-center justify-center w-full h-32 
-                        border-2 border-gray-200 border-dashed rounded-lg cursor-pointer 
-                        bg-gray-50 hover:bg-gray-100 transition-custom">
+                <div className="flex items-center justify-center w-full relative">
+                    {/* Invisible drop zone overlay */}
+                    <div 
+                        className="absolute inset-0 z-10 cursor-pointer"
+                        aria-label="Drop ICS file here"
+                        onDragEnter={handleDragEnter}
+                        onDragLeave={handleDragLeave}
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop}
+                        onClick={() => (document.querySelector('input[type="file"]') as HTMLInputElement)?.click()}
+                    />
+                    <label 
+                        className={`flex flex-col items-center justify-center w-full h-32 
+                            border-2 border-dashed rounded-lg cursor-pointer transition-custom
+                            ${isDragActive 
+                                ? 'border-yellow-600 bg-yellow-50' 
+                                : 'border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-gray-300'
+                            }`}
+                    >
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                             <svg className="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
@@ -75,7 +127,7 @@ export default function ICALToCalendars(): React.ReactElement {
 
                 {events.length > 0 && (
                     <div className="space-y-4">
-                        <h2 className="text-xl font-medium text-gray-900">Found {events.length} Events</h2>
+                        <h2 className="text-xl font-medium text-gray-900">Found {events.length} Event{events.length > 1 ? 's' : ''}</h2>
                         <div className="space-y-3">
                             {events.map((event, index) => (
                                 <div

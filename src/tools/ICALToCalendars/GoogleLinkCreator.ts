@@ -96,6 +96,13 @@
 
 import type Event from "./types/Event";
 
+/**
+ * Get the browser's timezone using the Intl API
+ */
+function getBrowserTimezone(): string {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+
 export default function generateCalendarLinks(events: Event[]): string[] {
     if (!events || events.length === 0) {
         return [];
@@ -107,12 +114,18 @@ export default function generateCalendarLinks(events: Event[]): string[] {
 function generateGoogleCalendarLink(event: Event): string {
     const baseUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE";
 
-    // Format dates to match Google Calendar format (YYYYMMDDTHHMMSSZ)
+    // Format dates to match Google Calendar format
+    // If the original time ends with Z (UTC), keep the Z suffix
+    // If the original time doesn't end with Z (local time), don't add Z suffix
     const formatDate = (dateStr: string) => {
-        return dateStr
+        const isUTC = dateStr.endsWith('Z');
+        const formatted = dateStr
             .replace(/[-:.]/g, '') // Remove dashes, colons, and periods
             .replace(/\.\d+/, '') // Remove milliseconds
-            .substring(0, 15) + 'Z'; // Keep only up to seconds and add Z
+            .replace(/Z$/, '') // Remove any existing Z
+            .substring(0, 15); // Keep only up to seconds
+
+        return isUTC ? formatted + 'Z' : formatted;
     };
 
     const startTime = formatDate(event.startTime);
@@ -137,6 +150,10 @@ function generateGoogleCalendarLink(event: Event): string {
     if (event.location) {
         params.push(`location=${encodeParam(event.location)}`);
     }
+
+    // Use the event's timezone if provided, otherwise fall back to browser's timezone
+    const timezone = event.timezone || getBrowserTimezone();
+    params.push(`ctz=${encodeParam(timezone)}`);
 
     return `${baseUrl}&${params.join('&')}`;
 }

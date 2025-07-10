@@ -37,6 +37,15 @@ export default function ICALToCalendarsConverter(ICALString: string): Event[] {
             endTime: vevent.getFirstPropertyValue("dtend")?.toString() || "",
         };
 
+        // Extract timezone from DTSTART property
+        const dtStartProperty = vevent.getFirstProperty("dtstart");
+        if (dtStartProperty) {
+            const tzid = dtStartProperty.getParameter("tzid");
+            if (tzid && typeof tzid === 'string') {
+                event.timezone = tzid;
+            }
+        }
+
         // Optional fields
         const description = vevent.getFirstPropertyValue("description");
         if (description) {

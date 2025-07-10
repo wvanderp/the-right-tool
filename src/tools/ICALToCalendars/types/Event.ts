@@ -79,6 +79,7 @@ export default interface Event {
     location?: string;
     startTime: string;
     endTime: string;
+    timezone?: string; // IANA timezone identifier (e.g., 'America/New_York', 'Europe/London')
     organizer?: {
         name: string;
         email: string;
