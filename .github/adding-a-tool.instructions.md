@@ -66,11 +66,7 @@ export default function MyNewTool() {
       </div>
 
       {/* Process Button */}
-      <button
-        onClick={handleProcess}
-        className="btn-primary"
-        type="button"
-      >
+      <button onClick={handleProcess} className="btn-primary" type="button">
         Process
       </button>
 
@@ -113,7 +109,7 @@ All tools should use the following common components and structure for consisten
       important details.
     </ToolDescription>
     {/* Rest of your tool content */}
-  </ToolPage>
+  </ToolPage>;
   ```
 
 - **Separation of Logic**: Place any complex or reusable logic in a separate file (e.g., `myNewToolLogic.ts`) within your tool's folder. Import and use these functions in your main component.
@@ -161,6 +157,7 @@ To make the tool accessible in the application, you need to register it:
    ```
 
 **Important Notes:**
+
 - Use dynamic imports (`React.lazy()`) for all tool components to enable code splitting and improve initial load performance.
 - Use kebab-case for routes (e.g., `/my-new-tool`).
 - The route should be unique and descriptive.

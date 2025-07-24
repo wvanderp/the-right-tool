@@ -18,7 +18,7 @@ The app uses a clean, modern color scheme:
 We keep things simple with a clean, modern system font. Text should be easy to read:
 
 - Base size is 16px
-- Comfortable line height of 1.5
+- Comfortable line-height of 1.5
 - We use three weights: normal (400), medium (500), and bold (700) for hierarchy
 
 ## Layout & Spacing
@@ -38,11 +38,13 @@ Content is centered and has a max-width of 1152px (6xl) to ensure readability.
 Tools should work beautifully across all screen sizes:
 
 ### Desktop
+
 - Use the full width available within the max-width constraint (6xl - 1152px)
 - Utilize grid layouts for complex tools (e.g., `md:grid-cols-2`, `xl:grid-cols-2`)
 - Navigation is always visible as a fixed sidebar
 
 ### Mobile & Tablet
+
 - Tools must be fully responsive and usable on smaller screens
 - Navigation collapses to a hamburger menu on mobile (`md:hidden` breakpoint)
 - Grid layouts stack vertically on mobile (`grid-cols-1 md:grid-cols-2`)
@@ -50,7 +52,9 @@ Tools should work beautifully across all screen sizes:
 - Touch-friendly interactive elements with adequate spacing
 
 ### Breakpoints
+
 We use Tailwind's default responsive breakpoints:
+
 - `sm`: 640px and up (small tablets/large phones)
 - `md`: 768px and up (tablets and small desktops)
 - `lg`: 1024px and up (desktops)
@@ -135,6 +139,7 @@ For tools that display multiple types of results, use semantic color coding:
 - **Purple (Alternative Difference)**: `bg-purple-50 border-purple-200 text-purple-800` (when multiple difference types are needed)
 
 Each colored section should include:
+
 - Consistent padding and rounded corners
 - Item count badges
 - Copy-to-clipboard functionality
@@ -156,18 +161,23 @@ All interactions should have smooth transitions (200ms) to feel polished but sna
 The project includes several custom utility classes defined in `main.css`:
 
 ### Transitions
+
 - `.transition-custom`: Standard 200ms transition for all properties (`transition-all duration-200 ease-in-out`)
 
 ### Buttons
+
 - `.btn-primary`: Primary button style with yellow background, hover and focus states
 - `.btn-secondary`: Gray secondary button style with hover and focus states
 
 ### Layout
+
 - `.card`: Standard card styling with white background, border, padding, and hover effects
 - `.text-readable`: Optimized text styling for readability with proper tracking and line height
 
 ### Form Elements
+
 Standardized input styling is automatically applied to:
+
 - `input[type="text"]`
 - `input[type="number"]`
 - `textarea`
@@ -177,6 +187,7 @@ These include consistent padding, borders, and yellow focus states.
 ## Transition Guidelines
 
 Use consistent transition timing across the application:
+
 - **Standard transitions**: `transition-all duration-200` for most interactive elements
 - **Color transitions**: `transition-colors duration-200` for simple color changes
 - **Hover states**: All interactive elements should have hover feedback

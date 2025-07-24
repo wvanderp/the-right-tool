@@ -1,25 +1,9 @@
 {
   "editor.formatOnSave": true,
   "files.associations": {
-    "*.css": "tailwindcss"
+    "*.css": "tailwindcss",
+    "*.instructions.md": "markdown"
   },
-  "github.copilot.chat.codeGeneration.instructions": [
-    {
-      "file": "docs/.copilot.md"
-    },
-    {
-      "file": "docs/manifesto.md"
-    },
-    {
-      "file": "docs/STYLE_GUIDE.md"
-    },
-    {
-      "file": "docs/adding-a-tool.md"
-    },
-    {
-      "file": "README.md"
-    }
-  ],
   "cSpell.words": [
     "dtend",
     "dtstart",

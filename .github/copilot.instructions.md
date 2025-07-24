@@ -2,7 +2,7 @@ Always use tailwind to style the app.
 Use hover states to indicate interactive elements.
 Never use drop shadows, gradients, or animations.
 Prefer utility classes (like .btn-primary, .btn-secondary, .card) over inline Tailwind classes when available.
-We are using tailwind v4 
+We are using tailwind v4
 
 ---
 
@@ -34,7 +34,7 @@ Sentences start with a capital letter and end with a period.
 Run the test to make sure the code is working as expected.
 
 ```npm
-npm test run
+npm run test
 ```
 
 This is using Vitest and the run will make it do a single run of the tests instead of watching the files.
