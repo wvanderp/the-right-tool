@@ -63,3 +63,8 @@ If you want to use icons then you should use the `react-icons` package.
 ---
 
 When I report a bug, before fixing the bug you must first add a failing test that reproduces the bug. Run the test first. Only after the test is in place and failing, you may proceed to fix the bug and ensure the test passes.
+
+---
+
+You dont have to ask permission to edit the code. I trust you to make the right decisions and changes to improve the codebase.
+If you think something can be improved, go ahead and do it.
