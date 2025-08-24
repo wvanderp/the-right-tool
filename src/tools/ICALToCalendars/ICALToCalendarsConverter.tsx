@@ -53,7 +53,7 @@ export default function ICALToCalendars(): React.ReactElement {
         e.preventDefault();
         e.stopPropagation();
         setIsDragActive(false);
-        
+
         const files = e.dataTransfer.files;
         if (files.length > 0) {
             const file = files[0];
@@ -84,7 +84,7 @@ export default function ICALToCalendars(): React.ReactElement {
             <div className="w-full max-w-2xl space-y-6">
                 <div className="flex items-center justify-center w-full relative">
                     {/* Invisible drop zone overlay */}
-                    <div 
+                    <div
                         className="absolute inset-0 z-10 cursor-pointer"
                         aria-label="Drop ICS file here"
                         onDragEnter={handleDragEnter}
@@ -93,11 +93,11 @@ export default function ICALToCalendars(): React.ReactElement {
                         onDrop={handleDrop}
                         onClick={() => (document.querySelector('input[type="file"]') as HTMLInputElement)?.click()}
                     />
-                    <label 
+                    <label
                         className={`flex flex-col items-center justify-center w-full h-32 
                             border-2 border-dashed rounded-lg cursor-pointer transition-custom
-                            ${isDragActive 
-                                ? 'border-yellow-600 bg-yellow-50' 
+                            ${isDragActive
+                                ? 'border-yellow-600 bg-yellow-50'
                                 : 'border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-gray-300'
                             }`}
                     >
@@ -128,15 +128,15 @@ export default function ICALToCalendars(): React.ReactElement {
                 {events.length > 0 && (
                     <div className="space-y-4">
                         <h2 className="text-xl font-medium text-gray-900">Found {events.length} Event{events.length > 1 ? 's' : ''}</h2>
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                             {events.map((event, index) => (
                                 <div
                                     key={index}
                                     className="card hover:border-yellow-600/20"
                                 >
-                                    <div className="flex flex-col space-y-3">
+                                    <div className="flex flex-col space-y-4">
                                         <h3 className="text-lg font-medium text-gray-900">{event.summary}</h3>
-                                        <div className="text-sm text-gray-600 space-y-1.5">
+                                        <div className="text-sm text-gray-600 space-y-2">
                                             <div>Starts: {formatDateTime(event.startTime)}</div>
                                             <div>Ends: {formatDateTime(event.endTime)}</div>
                                             {event.location && (
@@ -144,7 +144,7 @@ export default function ICALToCalendars(): React.ReactElement {
                                             )}
                                             {event.description && (
                                                 <div className="mt-3">
-                                                    <div className="font-medium text-gray-700 mb-1">Details:</div>
+                                                    <div className="font-medium text-gray-700 mb-2">Details:</div>
                                                     <div className="whitespace-pre-wrap">{event.description}</div>
                                                 </div>
                                             )}

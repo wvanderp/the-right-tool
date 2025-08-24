@@ -17,7 +17,7 @@ const ICALToCalendars = React.lazy(() => import("./tools/ICALToCalendars/ICALToC
 const DayList = React.lazy(() => import("./tools/DayList/DayList"));
 const ExifExtractor = React.lazy(() => import("./tools/ExifExtractor/ExifExtractor"));
 const ListComparisonTool = React.lazy(() => import("./tools/ListTool/ListComparisonTool"));
-const VitaminCalculator = React.lazy(() => import("./tools/vitaminCalc/App"));
+const VitaminCalculator = React.lazy(() => import("./tools/vitaminCalc/vitaminCalc"));
 
 const LoadingFallback = () => (
   <div className="flex justify-center items-center h-64">Loading...</div>

@@ -60,9 +60,9 @@ export default function HandlebarsOutput({ exif }: HandlebarsOutputProps) {
             <br />
             Example: <code>{"{{Make}} {{Model}}"}</code>
           </ToolDescription>
-          <div className="flex flex-col gap-2 mt-2">
+          <div className="flex flex-col gap-4 mt-2">
             <textarea
-              className="w-full p-2 border border-gray-300 rounded font-mono text-sm focus:ring-2 focus:ring-yellow-600/20 focus:border-yellow-600 mb-2"
+              className="w-full p-4 border border-gray-300 rounded font-mono text-sm focus:ring-2 focus:ring-yellow-600/20 focus:border-yellow-600 mb-2"
               rows={4}
               value={template}
               onChange={(e) => setTemplate(e.target.value)}
@@ -71,11 +71,11 @@ export default function HandlebarsOutput({ exif }: HandlebarsOutputProps) {
             {error && <div className="text-red-600 text-sm mt-2">{error}</div>}
             {output && (
               <div className="mt-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Output
                 </label>
                 <textarea
-                  className="w-full p-2 border border-gray-300 rounded bg-gray-50 font-mono text-sm"
+                  className="w-full p-4 border border-gray-300 rounded bg-gray-50 font-mono text-sm"
                   rows={4}
                   value={output}
                   readOnly

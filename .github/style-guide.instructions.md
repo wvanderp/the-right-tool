@@ -31,7 +31,7 @@ We use a 4px grid system for consistency. Common spacing values are:
 - Section separation: 32px
 - Major divisions: 48px
 
-Content is centered and has a max-width of 1152px (6xl) to ensure readability.
+Use all available screen space: All UI surfaces must make effective use of the full viewport — tools, result panels, canvases, sidebars and controls should expand to fill available width and height and avoid leaving unused white space. Never leave large, empty margins; on wide screens prefer fluid, multi-column layouts, full-bleed panels, and flexible grids so interactive areas occupy excess space while text blocks retain a readable max-width. Surrounding tool controls, sidebars, and visualizations should stretch and fill remaining space where appropriate. Use utilities like `w-full`, `min-h-screen`, `flex-grow`, and responsive grid tracks to implement this behavior.
 
 ## Responsive Design
 
@@ -39,7 +39,7 @@ Tools should work beautifully across all screen sizes:
 
 ### Desktop
 
-- Use the full width available within the max-width constraint (6xl - 1152px)
+- Use the full width of the screen for tool canvases and panels; center text-heavy content but allow surrounding components to fill remaining space. Prefer fluid layouts that expand to the viewport while preserving readable line lengths (keep centered max-width for body text where appropriate).
 - Utilize grid layouts for complex tools (e.g., `md:grid-cols-2`, `xl:grid-cols-2`)
 - Navigation is always visible as a fixed sidebar
 

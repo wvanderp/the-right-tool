@@ -160,7 +160,7 @@ export default function WeightedDistribution(): React.ReactElement {
             <div className="w-full space-y-4">
                 {distributedItems.map((item, index) => (
                     <div key={index} className="flex flex-col p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
-                        <div className="flex justify-between mb-3">
+                        <div className="flex justify-between mb-4">
                             <input
                                 type="text"
                                 value={item.name}

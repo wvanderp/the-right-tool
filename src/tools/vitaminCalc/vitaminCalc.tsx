@@ -18,7 +18,7 @@ export default function App(): React.ReactElement {
         see suggested combinations and calculated totals.
       </ToolDescription>
 
-      <div className="space-y-6 w-full max-w-4xl">
+      <div className="space-y-6 w-full max-w-10xl">
         <div className="flex items-center justify-end">
           <button
             onClick={handleExport}
@@ -31,17 +31,17 @@ export default function App(): React.ReactElement {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="card">
-            <h2 className="text-lg font-semibold mb-3">Supplements</h2>
+            <h2 className="text-lg font-semibold mb-4">Supplements</h2>
             <SupplementList />
           </div>
 
           <div className="card">
-            <h2 className="text-lg font-semibold mb-3">Requirements & Constraints</h2>
+            <h2 className="text-lg font-semibold mb-4">Requirements & Constraints</h2>
             <ConstraintList />
           </div>
 
           <div className="card">
-            <h2 className="text-lg font-semibold mb-3">Calculations</h2>
+            <h2 className="text-lg font-semibold mb-4">Calculations</h2>
             <CalculationColumn />
           </div>
         </div>

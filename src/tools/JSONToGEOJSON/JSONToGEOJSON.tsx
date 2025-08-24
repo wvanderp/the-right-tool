@@ -124,7 +124,7 @@ export default function JSONToGEOJSON(): React.ReactElement {
 
                 {geojson && (
                     <div className="mt-4">
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center justify-between mb-4">
                             <h3 className="text-sm font-medium text-gray-700">GeoJSON Result:</h3>
                             <button
                                 className="btn-secondary flex items-center space-x-2"

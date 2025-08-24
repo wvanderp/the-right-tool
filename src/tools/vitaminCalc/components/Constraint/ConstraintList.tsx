@@ -112,7 +112,7 @@ function ConstraintList() {
                                 <h3 className="text-lg font-medium text-gray-900">
                                     {supplements.find(s => s.id === requirement.supplementId)?.name || 'Unknown Supplement'}
                                 </h3>
-                                <div className="space-y-1">
+                                <div className="space-y-2">
                                     <div className="flex justify-between items-center text-sm">
                                         <span className="text-gray-500">Required Amount:</span>
                                         <span className="font-medium text-gray-900">{requirement.amount}</span>

@@ -6,7 +6,7 @@ This guide outlines the steps required to add a new tool to "The Right Tool" app
 
 Create a new folder for your tool under `src/tools/`. The folder name should be descriptive and use PascalCase (e.g., `MyNewTool`).
 
-```
+```tree
 src/
 └── tools/
     └── MyNewTool/
@@ -18,7 +18,7 @@ Inside your new tool folder (`src/tools/MyNewTool/`), create the main React comp
 
 - **Use Function Components:** Follow the project standard of using React function components with hooks.
 - **TypeScript:** Write the component in TypeScript.
-- **Styling:** Use Tailwind CSS for all styling. Adhere to the guidelines in `docs/STYLE_GUIDE.md`. Ensure interactive elements have hover states. Avoid drop shadows, gradients, and animations.
+- **Styling:** Use Tailwind CSS for all styling. Adhere to the guidelines in `.github/style-guide.instructions.md`. Ensure interactive elements have hover states. Avoid drop shadows, gradients, and animations.
 - **Logic:** Keep the core logic separate from the component if it becomes complex. You can create additional `.ts` files within the tool's folder (e.g., `myNewToolLogic.ts`).
 
 Example basic structure (`MyNewTool.tsx`):
@@ -118,7 +118,7 @@ All tools should use the following common components and structure for consisten
 
 **Example folder structure:**
 
-```
+```tree
 src/
   tools/
     MyNewTool/

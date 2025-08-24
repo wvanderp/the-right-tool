@@ -164,7 +164,7 @@ export default function DayList(): React.ReactElement {
                             type="date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 
+                            className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 
                             focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-custom"
                         />
                     </div>
@@ -176,7 +176,7 @@ export default function DayList(): React.ReactElement {
                             type="date"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 
+                            className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 
                             focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-custom"
                         />
                     </div>
@@ -192,7 +192,7 @@ export default function DayList(): React.ReactElement {
                 <div className="space-y-4">
                     <h3 className="font-medium text-gray-700">Filters</h3>
 
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap gap-4">
                         <button
                             className={`px-4 py-2 rounded-lg transition-custom
                             ${filters.includes('dayOfWeek')
@@ -216,7 +216,7 @@ export default function DayList(): React.ReactElement {
                     {/* Day of Week Selection */}
                     {filters.includes('dayOfWeek') && (
                         <div className="p-4 border border-gray-200 rounded-lg bg-white">
-                            <h4 className="text-sm font-medium text-gray-700 mb-3">Select days of the week:</h4>
+                            <h4 className="text-sm font-medium text-gray-700 mb-4">Select days of the week:</h4>
                             <div className="flex flex-wrap gap-2">
                                 {[0, 1, 2, 3, 4, 5, 6].map((day) => (
                                     <button
@@ -237,7 +237,7 @@ export default function DayList(): React.ReactElement {
                     {/* Day of Month Selection */}
                     {filters.includes('dayOfMonth') && (
                         <div className="p-4 border border-gray-200 rounded-lg bg-white">
-                            <h4 className="text-sm font-medium text-gray-700 mb-3">
+                            <h4 className="text-sm font-medium text-gray-700 mb-4">
                                 Enter day(s) of the month (comma separated, e.g., 1,15,30):
                             </h4>
                             <input
@@ -246,7 +246,7 @@ export default function DayList(): React.ReactElement {
                                 onChange={handleDayOfMonthChange}
                                 onBlur={handleDayOfMonthBlur}
                                 placeholder="e.g., 1, 15, 30"
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 
+                                className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 
                                 focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-custom"
                             />
                         </div>
@@ -335,10 +335,10 @@ export default function DayList(): React.ReactElement {
                 {/* Results */}
                 {result && (
                     <div className="mt-6">
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center justify-between mb-4">
                             <h3 className="text-sm font-medium text-gray-700">Generated Date List:</h3>
                             <button
-                                className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-100 
+                                className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 
                                 text-gray-700 rounded-md hover:bg-gray-200 transition-colors duration-200"
                                 onClick={copyToClipboard}
                                 title="Copy to clipboard"

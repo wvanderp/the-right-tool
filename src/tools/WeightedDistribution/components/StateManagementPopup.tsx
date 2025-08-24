@@ -35,7 +35,7 @@ export function StateManagementPopup({ isOpen, onClose, onLoadState, currentStat
                     <textarea
                         readOnly
                         value={currentState}
-                        className="w-full h-32 p-3 border border-gray-200 rounded-lg font-mono text-sm bg-gray-50"
+                        className="w-full h-32 p-4 border border-gray-200 rounded-lg font-mono text-sm bg-gray-50"
                     />
                 </div>
 
@@ -45,7 +45,7 @@ export function StateManagementPopup({ isOpen, onClose, onLoadState, currentStat
                     <textarea
                         value={jsonInput}
                         onChange={(e) => setJsonInput(e.target.value)}
-                        className="w-full h-32 p-3 border border-gray-300 rounded-lg font-mono text-sm
+                        className="w-full h-32 p-4 border border-gray-300 rounded-lg font-mono text-sm
                         focus:ring-2 focus:ring-yellow-600/20 focus:border-yellow-600 
                         outline-none transition-custom"
                         placeholder="Paste your saved configuration here..."
@@ -57,7 +57,7 @@ export function StateManagementPopup({ isOpen, onClose, onLoadState, currentStat
                     )}
                 </div>
 
-                <div className="flex justify-end gap-3">
+                <div className="flex justify-end gap-4">
                     <button
                         onClick={onClose}
                         className="btn-secondary"
