@@ -68,3 +68,10 @@ When I report a bug, before fixing the bug you must first add a failing test tha
 
 You dont have to ask permission to edit the code. I trust you to make the right decisions and changes to improve the codebase.
 If you think something can be improved, go ahead and do it.
+
+---
+
+You may use the playwright mcp server to look at the application in a browser and interact with it as a user would.
+please run the `npm run dev` to start the development server. and then open the browser to the localhost URL.
+you wont get the webpage if you look at the index.html file directly because the app is a single-page application (SPA) that relies on JavaScript to render content dynamically.
+Determine the path of a component before opening it.

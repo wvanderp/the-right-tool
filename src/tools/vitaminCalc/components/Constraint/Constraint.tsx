@@ -12,7 +12,7 @@ function ConstraintComponent({ constraint }: ConstraintProps) {
             <div className="space-y-2">
                 <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500">Target Amount:</span>
-                    <span className="font-medium text-gray-900">{constraint.target}</span>
+                    <span className="font-medium text-gray-900">{constraint.target === -1 ? '-' : constraint.target}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500">Maximum Amount:</span>

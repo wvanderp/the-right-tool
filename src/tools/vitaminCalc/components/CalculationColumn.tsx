@@ -11,7 +11,8 @@ function CalculationColumn() {
     const supplementRepo = new SupplementRepository();
     const constraintRepo = new ConstraintRepository();
     const requiredSupplements = new RequirementRepository();
-    const supplements = supplementRepo.getAllSupplements();
+    // only include enabled supplements in calculations
+    const supplements = supplementRepo.getAllSupplements().filter(s => !s.disabled);
     const constraints = constraintRepo.getAllConstraints().reduce((acc, constraint) => {
       acc[constraint.name] = { target: constraint.target, max: constraint.max };
       return acc;
@@ -37,13 +38,16 @@ function CalculationColumn() {
       <div className="flex-1 overflow-auto mt-6">
         {results.length > 0 && (
           <h2 className="text-xl font-semibold text-gray-900 mb-6">
-            Found {results.length} results:
+            Found {results.length} result{results.length !== 1 ? 's' : ''}{results.length > 10 ? ' — showing top 10' : ''}:
           </h2>
         )}
         <div className="space-y-6">
-          {results.map((result, index) => (
-            <CombinationComponent key={index} combination={result} />
-          ))}
+          {results
+            // sort by lowest distance
+            .sort((a, b) => a.distance - b.distance)
+            .slice(0, 10).map((result, index) => (
+              <CombinationComponent key={index} combination={result} />
+            ))}
         </div>
       </div>
     </div>

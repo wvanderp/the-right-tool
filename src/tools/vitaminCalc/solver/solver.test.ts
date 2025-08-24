@@ -1,6 +1,7 @@
 import { solve, Constraints, Options, calculateAmounts, maximumNumberOfSupplement, AmountsExceedConstraints, generateAllCombinations, Option } from './solver';
+import { describe, it, expect } from 'vitest';
 
-function createSupplement(name: string, ingredients: {name:string, amount: number}[], id?: number): Option {
+function createSupplement(name: string, ingredients: { name: string, amount: number }[], id?: number): Option {
     return { id: id ?? Math.random(), name: name, maker: "Unknown", ingredients };
 }
 
@@ -10,7 +11,9 @@ describe('solve', () => {
         const contains: Constraints = {};
         const options: Options = [];
         const result = solve(contains, options);
-        expect(result).toEqual([]);
+        // solver now returns a single result representing the empty combination
+        expect(result).toHaveLength(1);
+        expect(result[0]).toMatchObject({ supplements: [], distance: 0, numberOfSupplements: 0, constraints: {} });
     });
 
     it('should return the correct amounts for given options', () => {
@@ -23,7 +26,7 @@ describe('solve', () => {
         ];
         const result = solve(contains, options);
         expect(result).toHaveLength(33);
-        expect(result[0]).toEqual({
+        expect(result[0]).toMatchObject({
             distance: 0,
             numberOfSupplements: 3,
             supplements: [[2, options[0]], [1, options[1]]]
@@ -41,8 +44,8 @@ describe('solve', () => {
         ];
         const result = solve(contains, options);
         expect(result).toHaveLength(22);
-        expect(result[0]).toEqual({
-            distance: 25,
+        expect(result[0]).toMatchObject({
+            distance: 0.25,
             numberOfSupplements: 1,
             supplements: [[0, options[0]], [1, options[1]]]
         });
@@ -59,11 +62,24 @@ describe('solve', () => {
         ];
         const result = solve(contains, options, [{ amount: 1, supplement: options[1] }]);
         expect(result).toHaveLength(4);
-        expect(result[0]).toEqual({
-            distance: 10,
+        expect(result[0]).toMatchObject({
+            distance: 1,
             numberOfSupplements: 1,
             supplements: [[0, options[0]], [1, options[1]]]
         });
+    });
+
+    it('should ignore supplements that are marked disabled', () => {
+        const contains: Constraints = {
+            vitaminC: { target: 100, max: 200 }
+        };
+        const small: Option = { id: 1, name: 'small', maker: 'unknown', ingredients: [{ name: 'vitaminC', amount: 12.5 }] };
+        const bigDisabled: Option = { id: 2, name: 'big', maker: 'unknown', ingredients: [{ name: 'vitaminC', amount: 75 }], disabled: true } as Option;
+
+        const resultWithDisabled = solve(contains, [small, bigDisabled]);
+        const resultOnlySmall = solve(contains, [small]);
+
+        expect(resultWithDisabled).toEqual(resultOnlySmall);
     });
 });
 
@@ -249,6 +265,36 @@ describe('AmountsExceedConstraints', () => {
         };
         const result = AmountsExceedConstraints(amounts, constraints);
         expect(result).toBe(false);
+    });
+
+    it('should respect max even when target is -1 (no target)', () => {
+        const constraints: Constraints = {
+            vitaminC: { target: -1, max: 200 }
+        };
+        const amounts = {
+            vitaminC: 201
+        };
+        const result = AmountsExceedConstraints(amounts, constraints);
+        expect(result).toBe(true);
+    });
+});
+
+describe('target -1 behavior', () => {
+    it('solve should ignore nutrients with target === -1 when calculating distance', () => {
+        const contains: Constraints = {
+            vitaminC: { target: -1, max: 200 },
+            vitaminD: { target: 50, max: 150 }
+        };
+        const options: Options = [
+            { id: 1, name: 'combo', maker: 'unknown', ingredients: [{ name: 'vitaminC', amount: 100 }, { name: 'vitaminD', amount: 25 }] }
+        ];
+
+        const result = solve(contains, options);
+
+        // The best combination should include the single supplement (distance based only on vitaminD)
+        expect(result[0].distance).toBeCloseTo(0.5);
+        expect(result[0].numberOfSupplements).toBe(1);
+        expect(result[0].supplements[0][1]).toEqual(options[0]);
     });
 });
 

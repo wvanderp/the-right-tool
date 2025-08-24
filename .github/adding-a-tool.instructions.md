@@ -174,7 +174,7 @@ To make the tool accessible in the application, you need to register it:
 - Create a `__tests__` subfolder within your tool's directory (`src/tools/MyNewTool/__tests__/`).
 - Write unit tests for your tool's logic using Vitest. Name the test file appropriately (e.g., `myNewToolLogic.test.ts`).
 - Ensure tests cover the core functionality and edge cases.
-- Run tests using `npm test run` to ensure they pass.
+- Run tests using `npm test run` to ensure they pass. the `run` part is important because otherwise vitest will run forever.
 
 ## 6. Code Style and Conventions
 
