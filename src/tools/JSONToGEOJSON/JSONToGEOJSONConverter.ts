@@ -26,15 +26,23 @@ export default function JSONToGEOJSONConverter(data: unknown, latitudeJsonPath: 
 
     // convert the json
     const features = data.map((item: unknown) => {
-        const latitude = parseFloat(QueryType === 'string' ? item[latitudeJsonPath] : jp.query(item, latitudeJsonPath)[0]);
-        const longitude = parseFloat(QueryType === 'string' ? item[longitudeJsonPath] : jp.query(item, longitudeJsonPath)[0]);
+        if (!isRecord(item)) {
+            throw new Error('Each item in data should be an object');
+        }
+
+        const latitude = parseFloat(
+            QueryType === 'string' ? String(item[latitudeJsonPath]) : String(jp.query(item, latitudeJsonPath)[0])
+        );
+        const longitude = parseFloat(
+            QueryType === 'string' ? String(item[longitudeJsonPath]) : String(jp.query(item, longitudeJsonPath)[0])
+        );
 
         const properties = Object.keys(item).reduce((acc, key) => {
             if (key !== latitudeJsonPath && key !== longitudeJsonPath) {
                 acc[key] = item[key];
             }
             return acc;
-        }, {});
+        }, {} as Record<string, unknown>);
 
         return {
             type: 'Feature',
@@ -50,6 +58,10 @@ export default function JSONToGEOJSONConverter(data: unknown, latitudeJsonPath: 
         type: 'FeatureCollection',
         features
     });
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null;
 }
 
 export type QueryType = 'string' | 'JSONPath' | 'invalid';

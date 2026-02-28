@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import SupplementRepository, { Supplement } from '../repository/SupplementRepository';
 import ConstraintRepository, { RequirementRepository } from '../repository/ConstraintRepository';
 import { solve, SolverResult } from '../solver/solver';

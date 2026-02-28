@@ -1,4 +1,3 @@
-import React from 'react';
 import { SolverResult } from '../solver/solver';
 
 interface CombinationComponentProps {

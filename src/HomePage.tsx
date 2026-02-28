@@ -1,4 +1,3 @@
-import React from 'react';
 import { useEffect } from 'react';
 import packageJson from '../package.json';
 import logo from '../static/temp-logo.svg';

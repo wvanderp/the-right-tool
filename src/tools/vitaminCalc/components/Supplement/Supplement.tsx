@@ -1,8 +1,7 @@
-import React from 'react';
 import { Supplement } from '../../repository/SupplementRepository';
 
 interface SupplementProps {
-  supplement: Supplement;
+    supplement: Supplement;
 }
 
 function SupplementComponent({ supplement }: SupplementProps) {
@@ -13,9 +12,9 @@ function SupplementComponent({ supplement }: SupplementProps) {
                 <span className="text-sm text-gray-500">{supplement.maker}</span>
             </div>
             {supplement.image && (
-                <img 
-                    src={supplement.image} 
-                    alt={supplement.name} 
+                <img
+                    src={supplement.image}
+                    alt={supplement.name}
                     style={{ width: '150px', height: '150px' }}
                     className="w-full h-40 rounded-md"
                 />

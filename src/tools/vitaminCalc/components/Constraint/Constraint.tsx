@@ -1,4 +1,3 @@
-import React from 'react';
 import { Constraint } from '../../repository/ConstraintRepository';
 
 interface ConstraintProps {
