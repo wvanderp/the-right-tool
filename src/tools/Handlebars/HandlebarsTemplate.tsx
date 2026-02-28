@@ -30,7 +30,8 @@ export default function HandlebarsTemplate(): React.ReactElement {
         }
 
         try {
-            eval(javascript);
+            const helperFactory = new Function('Handlebars', javascript);
+            helperFactory(Handlebars);
         } catch (e) {
             // @ts-expect-error -- We don't know the type of e but if it string like then we can put on the screen
             setParseErrors([...parseErrors, e.message]);

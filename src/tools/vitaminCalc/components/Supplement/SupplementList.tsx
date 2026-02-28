@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import SupplementRepository, { Supplement } from '../../repository/SupplementRepository';
 import SupplementComponent from './Supplement';
 import SupplementForm from './SupplementForm';
@@ -6,15 +6,13 @@ import { FaTrash, FaEdit } from 'react-icons/fa';
 import { FaBan } from 'react-icons/fa';
 
 function SupplementList() {
-    const [supplements, setSupplements] = useState<Supplement[]>([]);
+    const [supplements, setSupplements] = useState<Supplement[]>(() => {
+        const repository = new SupplementRepository();
+        return repository.getAllSupplements();
+    });
     const [showForm, setShowForm] = useState(false);
     const [editingSupplement, setEditingSupplement] = useState<Supplement | undefined>(undefined);
     const [searchQuery, setSearchQuery] = useState('');
-
-    useEffect(() => {
-        const repository = new SupplementRepository();
-        setSupplements(repository.getAllSupplements());
-    }, []);
 
     const handleAddSupplement = (supplement: Supplement) => {
         const repository = new SupplementRepository();

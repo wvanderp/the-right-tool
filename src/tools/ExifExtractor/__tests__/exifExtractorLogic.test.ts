@@ -39,7 +39,12 @@ describe("ExifExtractor Logic", () => {
 
         // Take a snapshot of the entire EXIF data structure
         // This will create a snapshot file to compare against in future test runs
-        expect(data).toMatchSnapshot();
+        // Strip non-deterministic file timestamp fields before snapshotting
+        const stableData = data!.map((entry) => {
+            const { FileAccessDate, FileInodeChangeDate, FileModifyDate, ...rest } = entry as Record<string, unknown>;
+            return rest;
+        });
+        expect(stableData).toMatchSnapshot();
     });
 
     it("should handle errors when file is not an image", async () => {

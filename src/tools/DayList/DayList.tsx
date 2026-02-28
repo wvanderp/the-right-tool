@@ -5,54 +5,77 @@ import { generateDayList, DayListOptions, OutputFormat, FilterType } from './day
 import { FiCopy, FiCheck } from 'react-icons/fi';
 
 export default function DayList(): React.ReactElement {
-    // Date range selection
-    const [startDate, setStartDate] = useState<string>(new Date().toISOString().split('T')[0]);
-    const [endDate, setEndDate] = useState<string>(() => {
-        const nextYear = new Date();
-        nextYear.setMonth(nextYear.getMonth() + 1);
-        return nextYear.toISOString().split('T')[0];
+    const formatDateForInput = (date: Date): string => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const getDateOneWeekLater = (): string => {
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        return formatDateForInput(nextWeek);
+    };
+
+    const [savedState] = useState(() => {
+        const defaults = {
+            startDate: formatDateForInput(new Date()),
+            endDate: getDateOneWeekLater(),
+            filters: [] as FilterType[],
+            dayOfWeekFilter: [] as number[],
+            dayOfMonthFilter: [] as number[],
+            dayOfMonthInput: '',
+            outputFormat: 'YYYY-MM-DD' as OutputFormat,
+            separator: '\n',
+            locale: 'en-US'
+        };
+
+        const rawState = localStorage.getItem('dayListState');
+        if (!rawState) {
+            return defaults;
+        }
+
+        try {
+            const state = JSON.parse(rawState);
+            return {
+                startDate: state.startDate || defaults.startDate,
+                endDate: state.endDate || defaults.endDate,
+                filters: state.filters || defaults.filters,
+                dayOfWeekFilter: state.dayOfWeekFilter || defaults.dayOfWeekFilter,
+                dayOfMonthFilter: state.dayOfMonthFilter || defaults.dayOfMonthFilter,
+                dayOfMonthInput:
+                    typeof state.dayOfMonthInput === 'string'
+                        ? state.dayOfMonthInput
+                        : (state.dayOfMonthFilter ? state.dayOfMonthFilter.join(', ') : defaults.dayOfMonthInput),
+                outputFormat: state.outputFormat || defaults.outputFormat,
+                separator: state.separator || defaults.separator,
+                locale: state.locale || defaults.locale
+            };
+        } catch (e) {
+            console.error('Failed to load saved state:', e);
+            return defaults;
+        }
     });
 
+    // Date range selection
+    const [startDate, setStartDate] = useState<string>(savedState.startDate);
+    const [endDate, setEndDate] = useState<string>(savedState.endDate);
+
     // Filters
-    const [filters, setFilters] = useState<FilterType[]>([]);
-    const [dayOfWeekFilter, setDayOfWeekFilter] = useState<number[]>([]);
-    const [dayOfMonthFilter, setDayOfMonthFilter] = useState<number[]>([]);
-    const [dayOfMonthInput, setDayOfMonthInput] = useState<string>('');
+    const [filters, setFilters] = useState<FilterType[]>(savedState.filters);
+    const [dayOfWeekFilter, setDayOfWeekFilter] = useState<number[]>(savedState.dayOfWeekFilter);
+    const [dayOfMonthFilter, setDayOfMonthFilter] = useState<number[]>(savedState.dayOfMonthFilter);
+    const [dayOfMonthInput, setDayOfMonthInput] = useState<string>(savedState.dayOfMonthInput);
 
     // Output formatting
-    const [outputFormat, setOutputFormat] = useState<OutputFormat>('YYYY-MM-DD');
-    const [separator, setSeparator] = useState<string>('\n');
-    const [locale, setLocale] = useState<string>('en-US');
+    const [outputFormat, setOutputFormat] = useState<OutputFormat>(savedState.outputFormat);
+    const [separator, setSeparator] = useState<string>(savedState.separator);
+    const [locale, setLocale] = useState<string>(savedState.locale);
 
     // Generated output
     const [result, setResult] = useState<string>('');
     const [copySuccess, setCopySuccess] = useState<boolean>(false);
-
-    // Load from localStorage if available
-    useEffect(() => {
-        const savedState = localStorage.getItem('dayListState');
-        if (savedState) {
-            try {
-                const state = JSON.parse(savedState);
-                setStartDate(state.startDate);
-                setEndDate(state.endDate);
-                setFilters(state.filters || []);
-                setDayOfWeekFilter(state.dayOfWeekFilter || []);
-                setDayOfMonthFilter(state.dayOfMonthFilter || []);
-                // Restore dayOfMonthInput if present, else fallback to joined filter
-                setDayOfMonthInput(
-                    typeof state.dayOfMonthInput === 'string'
-                        ? state.dayOfMonthInput
-                        : (state.dayOfMonthFilter ? state.dayOfMonthFilter.join(', ') : '')
-                );
-                setOutputFormat(state.outputFormat || 'YYYY-MM-DD');
-                setSeparator(state.separator || '\n');
-                setLocale(state.locale || 'en-US');
-            } catch (e) {
-                console.error('Failed to load saved state:', e);
-            }
-        }
-    }, []);
 
     // Save to localStorage when state changes
     useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import ConstraintRepository, { Constraint, RequirementConstraint, RequirementRepository } from '../../repository/ConstraintRepository';
 import SupplementRepository, { Supplement } from '../../repository/SupplementRepository';
 import ConstraintComponent from './Constraint';
@@ -7,24 +7,22 @@ import { FaTrash, FaEdit } from 'react-icons/fa';
 import RequirementForm from './RequirementForm';
 
 function ConstraintList() {
-    const [constraints, setConstraints] = useState<Constraint[]>([]);
+    const [constraints, setConstraints] = useState<Constraint[]>(() => {
+        const repository = new ConstraintRepository();
+        return repository.getAllConstraints();
+    });
     const [showForm, setShowForm] = useState(false);
     const [editingConstraint, setEditingConstraint] = useState<Constraint | undefined>(undefined);
     const [showRequirementForm, setShowRequirementForm] = useState(false);
     const [editingRequirement, setEditingRequirement] = useState<RequirementConstraint | undefined>(undefined);
-    const [requirements, setRequirements] = useState<RequirementConstraint[]>([]);
-    const [supplements, setSupplements] = useState<Supplement[]>([]);
-
-    useEffect(() => {
-        const repository = new ConstraintRepository();
-        setConstraints(repository.getAllConstraints());
-
+    const [requirements, setRequirements] = useState<RequirementConstraint[]>(() => {
         const requirementRepository = new RequirementRepository();
-        setRequirements(requirementRepository.getAllRequirements());
-
+        return requirementRepository.getAllRequirements();
+    });
+    const [supplements] = useState<Supplement[]>(() => {
         const supplementRepository = new SupplementRepository();
-        setSupplements(supplementRepository.getAllSupplements());
-    }, []);
+        return supplementRepository.getAllSupplements();
+    });
 
     const handleAddConstraint = (constraint: Constraint) => {
         const repository = new ConstraintRepository();

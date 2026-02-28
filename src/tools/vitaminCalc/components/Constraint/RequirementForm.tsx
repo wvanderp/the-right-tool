@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { RequirementConstraint } from '../../repository/ConstraintRepository';
 import SupplementRepository, { Supplement } from '../../repository/SupplementRepository';
 import ModalForm from '../Common/ModalForm';
@@ -12,12 +12,10 @@ interface RequirementFormProps {
 function RequirementForm({ onAddRequirement, onClose, requirement }: RequirementFormProps) {
     const [amount, setAmount] = useState(requirement?.amount || 0);
     const [supplementId, setSupplementId] = useState<number | undefined>(requirement?.supplementId);
-    const [supplements, setSupplements] = useState<Supplement[]>([]);
-
-    useEffect(() => {
+    const [supplements] = useState<Supplement[]>(() => {
         const repository = new SupplementRepository();
-        setSupplements(repository.getAllSupplements());
-    }, []);
+        return repository.getAllSupplements();
+    });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
