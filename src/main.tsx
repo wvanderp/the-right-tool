@@ -18,6 +18,7 @@ const DayList = React.lazy(() => import("./tools/DayList/DayList"));
 const ExifExtractor = React.lazy(() => import("./tools/ExifExtractor/ExifExtractor"));
 const ListComparisonTool = React.lazy(() => import("./tools/ListTool/ListComparisonTool"));
 const VitaminCalculator = React.lazy(() => import("./tools/vitaminCalc/vitaminCalc"));
+const MarkdownPrint = React.lazy(() => import("./tools/MarkdownPrint/MarkdownPrint"));
 
 const LoadingFallback = () => (
   <div className="flex justify-center items-center h-64">Loading...</div>
@@ -79,6 +80,13 @@ const tools: ToolComponent[] = [
       route: "/vitamin-calculator",
     },
     component: VitaminCalculator,
+  },
+  {
+    meta: {
+      name: "Markdown Print Layout",
+      route: "/markdown-print-layout",
+    },
+    component: MarkdownPrint,
   },
 ];
 
