@@ -23,6 +23,7 @@
     "postinstall": "patch-package && node -e \"const fs=require('fs'),p='node_modules/@6over3/zeroperl-ts/dist';fs.existsSync(p+'/cjs/zeroperl.wasm')&&!fs.existsSync(p+'/esm/zeroperl.wasm')&&fs.copyFileSync(p+'/cjs/zeroperl.wasm',p+'/esm/zeroperl.wasm')\""
   },
   "dependencies": {
+    "@6over3/zeroperl-ts": "1.0.10",
     "@tailwindcss/vite": "^4.3.1",
     "@uswriting/exiftool": "^1.0.9",
     "handlebars": "^4.7.9",
