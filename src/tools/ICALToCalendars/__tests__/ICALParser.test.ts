@@ -1,3 +1,5 @@
+/// <reference types="node" />
+
 import { describe, it, expect } from "vitest";
 
 import fs from "fs";
@@ -92,3 +94,4 @@ something else
 END:VCALENDAR`);
     });
 });
+

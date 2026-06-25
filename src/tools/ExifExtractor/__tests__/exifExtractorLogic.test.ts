@@ -1,3 +1,5 @@
+/// <reference types="node" />
+
 import { describe, it, expect } from "vitest";
 import { extractExifDataFromFile } from "../exifExtractorLogic";
 import fs from "fs";
@@ -67,3 +69,4 @@ describe("ExifExtractor Logic", () => {
         // Error may be null or a warning, depending on exiftool's output
     });
 });
+

@@ -31,16 +31,16 @@ export default function ExifSummary({ exif, imageFile }: ExifSummaryProps) {
     // Date information
     const date = data["DateTimeOriginal"] as string | undefined;
 
-    // Thumbnail (from file, not EXIF)
-    const [thumbUrl, setThumbUrl] = React.useState<string | null>(null);
+    // Thumbnail (from file, not EXIF).
+    const thumbUrl = React.useMemo(
+        () => (imageFile ? URL.createObjectURL(imageFile) : null),
+        [imageFile]
+    );
     React.useEffect(() => {
-        if (imageFile) {
-            const url = URL.createObjectURL(imageFile);
-            setThumbUrl(url);
-            return () => URL.revokeObjectURL(url);
+        if (thumbUrl) {
+            return () => URL.revokeObjectURL(thumbUrl);
         }
-        setThumbUrl(null);
-    }, [imageFile]);
+    }, [thumbUrl]);
 
     return (
         <div className="bg-white border border-gray-200 rounded p-4 mt-4">

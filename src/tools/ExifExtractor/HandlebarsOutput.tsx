@@ -6,6 +6,17 @@ interface HandlebarsOutputProps {
   exif: Record<string, unknown>[];
 }
 
+interface TemplateResult {
+  output: string;
+  error: string | null;
+}
+
+function decodeHTMLEntities(text: string) {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = text;
+  return txt.value;
+}
+
 /**
  * Allows the user to generate custom output from EXIF data using a Handlebars template.
  */
@@ -13,34 +24,24 @@ export default function HandlebarsOutput({ exif }: HandlebarsOutputProps) {
   const [template, setTemplate] = useState(
     "Camera: {{Make}} {{Model}}\nExposure: {{ExposureTime}} sec @ f/{{FNumber}} ISO {{ISO}}\nDate: {{DateTimeOriginal}}\nLocation: {{GPSLatitude}}, {{GPSLongitude}}\n"
   );
-  const [output, setOutput] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [showCard, setShowCard] = useState(false);
 
-  const data = exif && exif.length > 0 ? exif[0] : {};
+  const { output, error } = React.useMemo<TemplateResult>(() => {
+    const data = exif && exif.length > 0 ? exif[0] : {};
 
-  // Utility to decode HTML entities
-  function decodeHTMLEntities(text: string) {
-    const txt = document.createElement("textarea");
-    txt.innerHTML = text;
-    return txt.value;
-  }
-
-  // Update output automatically when exif or template changes
-  React.useEffect(() => {
-    setError(null);
     try {
       const compiled = Handlebars.compile(template);
       const rawOutput = compiled(data);
-      setOutput(decodeHTMLEntities(rawOutput));
+      return { output: decodeHTMLEntities(rawOutput), error: null };
     } catch (e) {
       if (e instanceof Error) {
-        setError(e.message || "Failed to render template.");
-      } else {
-        setError("Failed to render template.");
+        return {
+          output: "",
+          error: e.message || "Failed to render template.",
+        };
       }
+      return { output: "", error: "Failed to render template." };
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [template, exif]);
 
   return (
