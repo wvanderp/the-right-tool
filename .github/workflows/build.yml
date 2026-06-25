@@ -7,22 +7,25 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - uses: actions/checkout@v7
+
+    - uses: pnpm/action-setup@v6
+
+    - uses: actions/setup-node@v6
       with:
         node-version: 'latest'
-        cache: 'npm'
+        cache: 'pnpm'
 
-    - name: npm install
-      run: npm install
-      
-    - name: npm run build
-      run: npm run build
+    - name: pnpm install
+      run: pnpm install --frozen-lockfile
 
-    - name: npm run lint
-      run: npm run lint
+    - name: pnpm run build
+      run: pnpm run build
 
-    - name: npm run test
-      run: npm run test
+    - name: pnpm run lint
+      run: pnpm run lint
+
+    - name: pnpm run test
+      run: pnpm run test
