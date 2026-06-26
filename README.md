@@ -12,7 +12,7 @@ Welcome to The Right Tool ([therighttool.dev](https://therighttool.dev/)), your 
 - **Handlebars**: Template rendering tool.
 - **EXIF Extractor**: Extract EXIF metadata from image files directly in your browser.
 - **List Comparison Tool**: Compare two lists to find intersections and differences.
-- **Markdown Print Layout**: Render markdown as a printable document with extra line spacing and a wide right margin for comments.
+- **Markdown Print Layout**: Render markdown as a printable document with extra line spacing, a wide right margin for comments, and filtered HTML comments.
 
 ## Contributing
 

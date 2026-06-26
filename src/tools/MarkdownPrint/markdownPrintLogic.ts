@@ -37,6 +37,74 @@ function sanitizeHref(url: string): string {
     return '#';
 }
 
+function appendCommentFilteredText(currentValue: string, textToAppend: string): string {
+    if (currentValue && /\s$/.test(currentValue) && /^\s/.test(textToAppend)) {
+        return currentValue + textToAppend.replace(/^\s+/, '');
+    }
+
+    return currentValue + textToAppend;
+}
+
+function stripHtmlCommentsOutsideFencedCode(markdown: string): string {
+    const lines = markdown.replace(/\r\n/g, '\n').split('\n');
+    let insideFencedCode = false;
+    let insideComment = false;
+
+    return lines
+        .map((line) => {
+            if (insideFencedCode) {
+                if (line.trim().startsWith('```')) {
+                    insideFencedCode = false;
+                }
+
+                return line;
+            }
+
+            if (!insideComment && line.trim().startsWith('```')) {
+                insideFencedCode = true;
+                return line;
+            }
+
+            let filteredLine = '';
+            let position = 0;
+
+            while (position < line.length) {
+                if (insideComment) {
+                    const commentEnd = line.indexOf('-->', position);
+
+                    if (commentEnd === -1) {
+                        position = line.length;
+                        continue;
+                    }
+
+                    insideComment = false;
+                    position = commentEnd + 3;
+                    continue;
+                }
+
+                const commentStart = line.indexOf('<!--', position);
+
+                if (commentStart === -1) {
+                    filteredLine = appendCommentFilteredText(filteredLine, line.slice(position));
+                    break;
+                }
+
+                filteredLine = appendCommentFilteredText(filteredLine, line.slice(position, commentStart));
+                const commentEnd = line.indexOf('-->', commentStart + 4);
+
+                if (commentEnd === -1) {
+                    insideComment = true;
+                    break;
+                }
+
+                position = commentEnd + 3;
+            }
+
+            return filteredLine;
+        })
+        .join('\n');
+}
+
 function renderInlineMarkdown(value: string): string {
     const codeSegments: string[] = [];
     let html = escapeHtml(value).replace(/`([^`]+)`/g, (_match, code: string) => {
@@ -84,7 +152,7 @@ function isTableStart(lines: string[], index: number): boolean {
 }
 
 export function renderMarkdownToHtml(markdown: string): string {
-    const lines = markdown.replace(/\r\n/g, '\n').split('\n');
+    const lines = stripHtmlCommentsOutsideFencedCode(markdown).split('\n');
     const blocks: string[] = [];
     let index = 0;
 

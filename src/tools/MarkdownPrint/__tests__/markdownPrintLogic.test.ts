@@ -30,6 +30,31 @@ Paragraph with **bold** text.
 
             expect(html).toContain('<pre><code>const value = &quot;&lt;tag&gt;&quot;;</code></pre>');
         });
+
+        it('filters HTML comments outside fenced code blocks', () => {
+            const html = renderMarkdownToHtml(`# Title
+
+Visible text.
+<!-- Hidden note -->
+
+Before comment. <!-- Inline note --> After comment.
+<!--
+Hidden
+multi-line note
+-->
+
+\`\`\`
+<!-- Keep code comment -->
+\`\`\``);
+
+            expect(html).toContain('<h1>Title</h1>');
+            expect(html).toContain('<p>Visible text.</p>');
+            expect(html).toContain('<p>Before comment. After comment.</p>');
+            expect(html).toContain('<pre><code>&lt;!-- Keep code comment --&gt;</code></pre>');
+            expect(html).not.toContain('Hidden note');
+            expect(html).not.toContain('Inline note');
+            expect(html).not.toContain('multi-line note');
+        });
     });
 
     describe('buildPrintableDocument', () => {
