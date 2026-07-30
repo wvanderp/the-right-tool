@@ -11,12 +11,12 @@
     "exiftool",
     "ical",
     "ICAL",
+    "OPENROUTER",
     "prodid",
     "PRODID",
     "uswriting",
     "VCALENDAR",
     "vevent",
-    "vevents",
-    "uswriting"
+    "vevents"
   ]
 }

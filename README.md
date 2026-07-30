@@ -13,6 +13,7 @@ Welcome to The Right Tool ([therighttool.dev](https://therighttool.dev/)), your 
 - **EXIF Extractor**: Extract EXIF metadata from image files directly in your browser.
 - **List Comparison Tool**: Compare two lists to find intersections and differences.
 - **Markdown Print Layout**: Render markdown as a printable document with extra line spacing, a wide right margin for comments, and filtered HTML comments.
+- **Predictive Text Editor**: Generate contextual text continuations through OpenRouter and accept them one word at a time.
 
 ## Contributing
 
@@ -21,14 +22,14 @@ The Right Tool is an open-source project. If you'd like to contribute or report 
 ## Development
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 For testing:
 
 ```bash
-npm test run
+pnpm test
 ```
 
 ## License

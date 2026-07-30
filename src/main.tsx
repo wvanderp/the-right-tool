@@ -19,6 +19,7 @@ const ExifExtractor = React.lazy(() => import("./tools/ExifExtractor/ExifExtract
 const ListComparisonTool = React.lazy(() => import("./tools/ListTool/ListComparisonTool"));
 const VitaminCalculator = React.lazy(() => import("./tools/vitaminCalc/vitaminCalc"));
 const MarkdownPrint = React.lazy(() => import("./tools/MarkdownPrint/MarkdownPrint"));
+const PredictiveTextEditor = React.lazy(() => import("./tools/PredictiveTextEditor/PredictiveTextEditor"));
 
 const LoadingFallback = () => (
   <div className="flex justify-center items-center h-64">Loading...</div>
@@ -87,6 +88,13 @@ const tools: ToolComponent[] = [
       route: "/markdown-print-layout",
     },
     component: MarkdownPrint,
+  },
+  {
+    meta: {
+      name: "Predictive Text Editor",
+      route: "/predictive-text-editor",
+    },
+    component: PredictiveTextEditor,
   },
 ];
 
