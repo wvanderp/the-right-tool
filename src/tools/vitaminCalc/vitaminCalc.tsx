@@ -6,22 +6,29 @@ import ToolPage from '../../components/ToolPage';
 import ToolDescription from '../../components/ToolDescription';
 import SupplementRepository from './repository/SupplementRepository';
 import ConstraintRepository, { RequirementRepository } from './repository/ConstraintRepository';
+import { FaDatabase } from 'react-icons/fa';
+import VitaminDataDialog from './components/VitaminDataDialog';
+import { createVitaminDataFile, parseVitaminDataFile, storeVitaminData } from './vitaminData';
 
 type TabId = 'supplements' | 'requirements' | 'calculations';
 
 export default function App(): React.ReactElement {
+  const [selectedTab, setSelectedTab] = useState<TabId>('calculations');
+  const [isDataDialogOpen, setIsDataDialogOpen] = useState(false);
+  const [dataRevision, setDataRevision] = useState(0);
+  const [statusMessage, setStatusMessage] = useState('');
+
   const handleExport = () => {
     try {
       const supplementRepo = new SupplementRepository();
       const constraintRepo = new ConstraintRepository();
       const requirementRepo = new RequirementRepository();
 
-      const data = {
-        timestamp: new Date().toISOString(),
-        supplements: supplementRepo.getAllSupplements(),
-        constraints: constraintRepo.getAllConstraints(),
-        requirements: requirementRepo.getAllRequirements(),
-      };
+      const data = createVitaminDataFile(
+        supplementRepo.getAllSupplements(),
+        constraintRepo.getAllConstraints(),
+        requirementRepo.getAllRequirements(),
+      );
 
       const json = JSON.stringify(data, null, 2);
       const blob = new Blob([json], { type: 'application/json' });
@@ -36,21 +43,44 @@ export default function App(): React.ReactElement {
     } catch (err) {
       // Best-effort feedback
       console.error('Export failed', err);
-      alert('Export failed. See console for details.');
+      alert('Export failed. See the console for details.');
     }
   };
 
-  const [selectedTab, setSelectedTab] = useState<TabId>('calculations');
+  const handleImport = async (file: File) => {
+    const importedData = parseVitaminDataFile(await file.text());
+    storeVitaminData(importedData);
+    setDataRevision((revision) => revision + 1);
+    setStatusMessage('Vitamin data imported successfully.');
+  };
 
   return (
     <ToolPage title="Vitamin Calculator">
+      <div className="absolute top-4 right-4">
+        <button
+          type="button"
+          onClick={() => setIsDataDialogOpen(true)}
+          className="rounded-lg p-2 text-gray-500 transition-custom hover:bg-gray-100 hover:text-gray-900"
+          title="Import or export Vitamin data."
+          aria-label="Import or export Vitamin data."
+        >
+          <FaDatabase className="h-5 w-5" aria-hidden="true" />
+        </button>
+      </div>
+
       <ToolDescription>
         Calculate combinations of supplements to reach nutrient requirements. Add supplements, set requirements and
         see suggested combinations and calculated totals.
       </ToolDescription>
 
+      {statusMessage && (
+        <div role="status" className="mb-6 w-full max-w-10xl rounded-lg border border-green-200 bg-green-50 p-3 text-green-700">
+          {statusMessage}
+        </div>
+      )}
+
       <div className="space-y-6 w-full max-w-10xl">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center">
           <div role="tablist" aria-label="Vitamin calculator steps" className="flex space-x-2">
             {/* Simple tab buttons for each step */}
             <TabButton label="Supplements" id="supplements" />
@@ -58,24 +88,23 @@ export default function App(): React.ReactElement {
             <TabButton label="Calculations" id="calculations" />
           </div>
 
-          <div>
-            <button
-              onClick={handleExport}
-              className="btn-secondary"
-              title="Export current data"
-            >
-              Export Data
-            </button>
-          </div>
         </div>
 
         <div>
           {/* Panels: only the active panel is rendered for a cleaner single-screen flow */}
-          <div className="mt-4">
+          <div key={dataRevision} className="mt-4">
             {renderActivePanel()}
           </div>
         </div>
       </div>
+
+      {isDataDialogOpen && (
+        <VitaminDataDialog
+          onClose={() => setIsDataDialogOpen(false)}
+          onExport={handleExport}
+          onImport={handleImport}
+        />
+      )}
     </ToolPage>
   );
 
