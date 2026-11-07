@@ -1,9 +1,27 @@
 import { describe, expect, it } from 'vitest';
 import { deflateSync } from 'fflate';
+import { create } from 'qrcode';
 import { encodeSignal, SignalAssembler, type Signal } from '../signaling';
 
 const signal: Signal = { version: 1, session: '12345678-1234-1234-1234-123456789abc', type: 'offer', sdp: 'v=0\r\na=candidate:local.local 1 udp 123 192.168.1.1 1234 typ host\r\n' };
 describe('QR signaling', () => {
+    it('ignores the receive-page QR without affecting pairing progress', async () => {
+        const assembler = new SignalAssembler();
+        const link = 'https://therighttool.dev/file-transfer?mode=receive';
+        expect(await assembler.add(link)).toBeNull();
+        expect(assembler.progress).toEqual({ received: 0, total: 0 });
+        const frames = await encodeSignal(signal);
+        expect(await assembler.add(frames[0])).toEqual(signal);
+        expect(await assembler.add(link)).toBeNull();
+        expect(assembler.progress).toEqual({ received: 1, total: 1 });
+        await expect(assembler.add('https://example.com/other')).rejects.toThrow();
+    });
+    it('keeps QR codes sparse enough for camera scanning', async () => {
+        const random = Array.from(crypto.getRandomValues(new Uint8Array(4000)), b => b.toString(16)).join('');
+        const frames = await encodeSignal({ ...signal, sdp: `v=0${random}` });
+        expect(frames.length).toBeGreaterThan(1);
+        for (const frame of frames) expect(create(frame, { errorCorrectionLevel: 'M' }).modules.size).toBeLessThanOrEqual(69);
+    });
     it('round trips complete SDP without altering candidates', async () => {
         const frames = await encodeSignal(signal);
         expect(frames.every(frame => frame.length <= 800)).toBe(true);

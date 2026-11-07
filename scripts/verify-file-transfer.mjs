@@ -61,10 +61,10 @@ async function installWebcamFeed(context) {
 async function pair(context, sourceFiles, qrImages) {
     const sender = await context.newPage(), receiver = await context.newPage();
     for (const page of [sender, receiver]) page.on('pageerror', error => errors.push(error.message));
-    await Promise.all([sender.goto(`${baseURL}/file-transfer`), receiver.goto(`${baseURL}/file-transfer`)]);
+    await Promise.all([sender.goto(`${baseURL}/file-transfer`), receiver.goto(`${baseURL}/file-transfer?mode=receive`)]);
     await sender.locator('input[type=file]').setInputFiles(sourceFiles);
     await sender.getByRole('button', { name: 'Create transfer.', exact: true }).click();
-    await receiver.getByRole('button', { name: 'Receive files.', exact: true }).click();
+    await receiver.getByRole('button', { name: 'Scan with camera.', exact: true }).waitFor();
     for (const [from, to] of [[sender, receiver], [receiver, sender]]) {
         if (qrImages === 'webcam-auto') {
             await from.locator('canvas').waitFor();
@@ -90,6 +90,10 @@ async function pair(context, sourceFiles, qrImages) {
             });
             const pause = from.getByRole('button', { name: 'Pause.', exact: true });
             if (await pause.count()) await pause.click();
+            while (!(await from.getByText(/^QR frame 1 of \d+\.$/).count())) {
+                await from.getByRole('button', { name: 'Previous.', exact: true }).click();
+            }
+            await from.waitForTimeout(150);
             const count = Number((await from.getByText(/^QR frame \d+ of \d+\.$/).innerText()).match(/of (\d+)/)[1]);
             const bounds = await from.locator('canvas').evaluate(canvas => {
                 const rect = canvas.getBoundingClientRect(), parent = canvas.parentElement.getBoundingClientRect();
@@ -115,7 +119,12 @@ async function pair(context, sourceFiles, qrImages) {
                     await to.locator('input[type=file][accept="image/*"]').setInputFiles({ name: 'frame.png', mimeType: 'image/png', buffer });
                 }
                 if (i < count - 1) {
-                    await to.getByText(`Scanned ${i + 1} of ${count} QR frames.`, { exact: true }).waitFor().catch(async error => {
+                    const linkOffset = from === sender ? 1 : 0;
+                    if (linkOffset && i === 0) {
+                        await to.waitForTimeout(1000);
+                        assert.equal(await to.locator('[role=alert]').count(), 0, 'The receive link must be ignored by the scanner.');
+                        await to.getByText('Scan every frame shown on the other device.', { exact: true }).waitFor();
+                    } else await to.getByText(`Scanned ${i + 1 - linkOffset} of ${count - linkOffset} QR frames.`, { exact: true }).waitFor().catch(async error => {
                         throw new Error(`${error.message} Scanner errors: ${(await to.locator('[role=alert]').allTextContents()).join(' ')}`);
                     });
                     if (qrImages === 'webcam' && i === 0 && artifacts) {

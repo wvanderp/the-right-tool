@@ -2,8 +2,8 @@ import { deflateSync, Inflate } from 'fflate';
 
 export type Signal = { version: 1; session: string; type: 'offer' | 'answer'; sdp: string };
 const MAX_SIGNAL = 128 * 1024;
-const MAX_FRAMES = 64;
-const PART_SIZE = 400;
+const MAX_FRAMES = 144;
+const PART_SIZE = 180;
 const encoder = new TextEncoder();
 
 function base64(bytes: Uint8Array): string {
@@ -45,6 +45,10 @@ export class SignalAssembler {
 
     async add(frame: string): Promise<Signal | null> {
         if (frame.length > 800) throw new Error('QR frame is too large.');
+        try {
+            const link = new URL(frame.trim());
+            if (['https:', 'http:'].includes(link.protocol) && link.pathname === '/file-transfer' && link.searchParams.get('mode') === 'receive') return null;
+        } catch { /* Connection frames are not URLs. */ }
         const fields = frame.trim().split(':');
         if (fields.length !== 7) throw new Error('This is not a File Transfer QR code.');
         const [version, session, type, indexText, countText, hash, payload] = fields;

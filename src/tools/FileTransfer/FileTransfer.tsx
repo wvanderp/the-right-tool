@@ -13,9 +13,9 @@ function formatBytes(bytes: number): string {
 }
 export default function FileTransfer() {
     const [files, setFiles] = useState<File[]>([]);
-    const [role, setRole] = useState<'send' | 'receive' | null>(null);
+    const [role, setRole] = useState<'send' | 'receive' | null>(() => new URLSearchParams(window.location.search).get('mode') === 'receive' ? 'receive' : null);
     const [frames, setFrames] = useState<string[]>([]);
-    const [status, setStatus] = useState('Choose files to send, or receive files from another device.');
+    const [status, setStatus] = useState(() => new URLSearchParams(window.location.search).get('mode') === 'receive' ? 'Scan the QR shown on the sending device.' : 'Choose files to send, or receive files from another device.');
     const [error, setError] = useState('');
     const [busy, setBusy] = useState(false);
     const [connected, setConnected] = useState(false);
@@ -76,7 +76,7 @@ export default function FileTransfer() {
             const offer = await peer.offer();
             const codes = await encodeSignal(offer);
             if (token !== generation.current) return;
-            setFrames(codes); setStatus('On the receiving device, choose Receive files and scan this QR. Then scan its reply here.');
+            setFrames(codes); setStatus('Scan the first QR with the receiving device to open the receive page. Keep scanning the connection codes, then scan its reply here.');
         } catch (err) { if (token === generation.current) { connection.current?.close(); setError(err instanceof Error ? err.message : 'Could not create transfer.'); } }
         finally { if (token === generation.current) setBusy(false); }
     }
@@ -145,7 +145,7 @@ export default function FileTransfer() {
             <div role="status" aria-live="polite" className="border border-gray-200 rounded-lg p-4 bg-gray-50">{status}</div>
             {error && <p role="alert" className="border border-red-200 bg-red-50 text-red-800 rounded-lg p-4">{error}</p>}
             {role && !connected && !busy && <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {frames.length > 0 && <section className="card space-y-4"><h2 className="text-xl font-medium">{role === 'send' ? '2. Show this offer.' : '2. Show this reply.'}</h2><QrDisplay frames={frames} /></section>}
+                {frames.length > 0 && <section className="card space-y-4"><h2 className="text-xl font-medium">{role === 'send' ? '2. Show this offer.' : '2. Show this reply.'}</h2><QrDisplay frames={frames} receiveUrl={role === 'send' ? new URL('/file-transfer?mode=receive', window.location.origin).href : undefined} /></section>}
                 {(role === 'send' || frames.length === 0) && <section className="card space-y-4"><h2 className="text-xl font-medium">{role === 'send' ? '3. Scan the receiver’s reply.' : '1. Scan the sender’s offer.'}</h2><QrReader onSignal={handleSignal} /></section>}
             </div>}
             {busy && <p role="status">Preparing. If a save dialog is open, choose a destination or cancel it.</p>}

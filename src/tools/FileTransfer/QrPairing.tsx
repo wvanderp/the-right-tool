@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { SignalAssembler, type Signal } from './signaling';
 
-export function QrDisplay({ frames }: { frames: string[] }) {
+export function QrDisplay({ frames, receiveUrl }: { frames: string[]; receiveUrl?: string }) {
+    const sequence = useMemo(() => receiveUrl ? [receiveUrl, ...frames] : frames, [frames, receiveUrl]);
     const canvas = useRef<HTMLCanvasElement>(null);
     const frame = useRef<HTMLDivElement>(null);
     const [index, setIndex] = useState(0);
@@ -15,7 +16,7 @@ export function QrDisplay({ frames }: { frames: string[] }) {
             if (!active || !canvas.current || !frame.current) return;
             const target = canvas.current;
             const container = frame.current;
-            const text = frames[index % frames.length];
+            const text = sequence[index % sequence.length];
             const modules = qr.create(text, { errorCorrectionLevel: 'M' }).modules.size + 8;
             let lastScale = 0;
             const draw = () => {
@@ -33,23 +34,24 @@ export function QrDisplay({ frames }: { frames: string[] }) {
             draw();
         }).catch(fail);
         return () => { active = false; observer?.disconnect(); };
-    }, [frames, index]);
+    }, [sequence, index]);
     useEffect(() => {
-        if (paused || frames.length < 2) return;
-        const timer = setInterval(() => setIndex(i => (i + 1) % frames.length), 750);
+        if (paused || sequence.length < 2) return;
+        const timer = setInterval(() => setIndex(i => (i + 1) % sequence.length), 750);
         return () => clearInterval(timer);
-    }, [frames.length, paused]);
+    }, [sequence.length, paused]);
     return <div className="space-y-4">
         <div ref={frame} className="mx-auto flex aspect-square w-full max-w-[480px] items-center justify-center bg-white">
-            <canvas ref={canvas} aria-label={`Connection QR frame ${index % frames.length + 1} of ${frames.length}`} className="block max-w-full h-auto" />
+            <canvas ref={canvas} aria-label={`Connection QR frame ${index % sequence.length + 1} of ${sequence.length}`} className="block max-w-full h-auto" />
         </div>
         {error && <p role="alert">{error}</p>}
-        <p className="text-center">QR frame {index % frames.length + 1} of {frames.length}.</p>
-        {frames.length > 1 && <div className="flex flex-wrap justify-center gap-2">
-            <button className="btn-secondary" onClick={() => { setPaused(true); setIndex(i => (i + frames.length - 1) % frames.length); }}>Previous.</button>
+        <p className="text-center">QR frame {index % sequence.length + 1} of {sequence.length}.</p>
+        {sequence.length > 1 && <div className="flex flex-wrap justify-center gap-2">
+            <button className="btn-secondary" onClick={() => { setPaused(true); setIndex(i => (i + sequence.length - 1) % sequence.length); }}>Previous.</button>
             <button className="btn-secondary" onClick={() => setPaused(p => !p)}>{paused ? 'Play.' : 'Pause.'}</button>
-            <button className="btn-secondary" onClick={() => { setPaused(true); setIndex(i => (i + 1) % frames.length); }}>Next.</button>
+            <button className="btn-secondary" onClick={() => { setPaused(true); setIndex(i => (i + 1) % sequence.length); }}>Next.</button>
         </div>}
+        <p className="text-center">{receiveUrl && index % sequence.length === 0 ? 'Scan with your phone’s camera to open the receive page.' : 'Keep scanning until all connection frames are captured.'}</p>
         <details><summary className="cursor-pointer">Connection text fallback.</summary>
             <label className="block mt-4">Copy all lines to the other device.
                 <textarea className="w-full h-32 mt-2 font-mono text-xs" readOnly value={frames.join('\n')} onFocus={e => e.target.select()} />
@@ -75,7 +77,7 @@ export function QrReader({ onSignal }: { onSignal: (signal: Signal) => Promise<v
         try {
             let signal: Signal | null = null;
             for (const line of input.trim().split(/\r?\n/).filter(Boolean)) {
-                signal = await assembler.current.add(line);
+                signal = await assembler.current.add(line) ?? signal;
                 setProgress(assembler.current.progress);
             }
             setError('');
