@@ -20,6 +20,7 @@ const ListComparisonTool = React.lazy(() => import("./tools/ListTool/ListCompari
 const VitaminCalculator = React.lazy(() => import("./tools/vitaminCalc/vitaminCalc"));
 const MarkdownPrint = React.lazy(() => import("./tools/MarkdownPrint/MarkdownPrint"));
 const PredictiveTextEditor = React.lazy(() => import("./tools/PredictiveTextEditor/PredictiveTextEditor"));
+const FileTransfer = React.lazy(() => import("./tools/FileTransfer/FileTransfer"));
 
 const LoadingFallback = () => (
   <div className="flex justify-center items-center h-64">Loading...</div>
@@ -95,6 +96,13 @@ const tools: ToolComponent[] = [
       route: "/predictive-text-editor",
     },
     component: PredictiveTextEditor,
+  },
+  {
+    meta: {
+      name: "File Transfer",
+      route: "/file-transfer"
+    },
+    component: FileTransfer
   },
 ];
 
