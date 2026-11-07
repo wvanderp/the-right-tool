@@ -13,6 +13,7 @@ function formatBytes(bytes: number): string {
 }
 export default function FileTransfer() {
     const [files, setFiles] = useState<File[]>([]);
+    const [mode, setMode] = useState<'send' | 'receive'>(() => new URLSearchParams(window.location.search).get('mode') === 'receive' ? 'receive' : 'send');
     const [role, setRole] = useState<'send' | 'receive' | null>(() => new URLSearchParams(window.location.search).get('mode') === 'receive' ? 'receive' : null);
     const [frames, setFrames] = useState<string[]>([]);
     const [status, setStatus] = useState(() => new URLSearchParams(window.location.search).get('mode') === 'receive' ? 'Scan the QR shown on the sending device.' : 'Choose files to send, or receive files from another device.');
@@ -125,24 +126,28 @@ export default function FileTransfer() {
         <div className="w-full space-y-6">
             {!supported && <p role="alert" className="border border-orange-200 rounded-lg p-4 bg-orange-50">Open this tool over HTTPS in a browser that supports WebRTC. Localhost is also supported for development.</p>}
             <p className="text-gray-600">Keep both devices awake and both tabs open. Guest Wi-Fi isolation, VPNs, and network permissions can prevent a direct connection.</p>
-            {!role && <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <section className="card space-y-4" onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); setFiles(Array.from(e.dataTransfer.files)); }}>
+            {!role && <div className="space-y-6">
+                <div role="group" aria-label="Transfer direction" className="flex flex-wrap gap-4">
+                    <button className={mode === 'send' ? 'btn-primary' : 'btn-secondary'} aria-pressed={mode === 'send'} onClick={() => setMode('send')}>Send files.</button>
+                    <button className={mode === 'receive' ? 'btn-primary' : 'btn-secondary'} aria-pressed={mode === 'receive'} onClick={() => setMode('receive')}>Receive files.</button>
+                </div>
+                {mode === 'send' ? <section className="card space-y-4" onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); setFiles(Array.from(e.dataTransfer.files)); }}>
                     <h2 className="text-xl font-medium">1. Select files to send.</h2>
                     <label className="block border-2 border-dashed border-gray-300 rounded-lg p-6">Choose files or drop them here.
                         <input type="file" multiple className="block w-full mt-4" onChange={e => setFiles(Array.from(e.target.files ?? []))} />
                     </label>
                     {files.length > 0 && <><p>{files.length} files · {formatBytes(files.reduce((sum, f) => sum + f.size, 0))}.</p>
-                        <ul className="max-h-48 overflow-y-auto text-sm space-y-2">{files.map((file, i) => <li key={i} className="break-all">{file.name} · {formatBytes(file.size)}</li>)}</ul></>}
-                    <button className="btn-primary" disabled={!supported || !files.length || busy} onClick={() => void startSending()}>Create transfer.</button>
-                </section>
-                <section className="card space-y-4">
+                        <ul className="max-h-48 overflow-y-auto text-sm space-y-2">{files.map((file, i) => <li key={i} className="break-all">{file.name} · {formatBytes(file.size)}</li>)}</ul>
+                        <button className="btn-primary" disabled={!supported || busy} onClick={() => void startSending()}>Create transfer.</button></>}
+                </section> : <section className="card space-y-4">
                     <h2 className="text-xl font-medium">Receive files.</h2>
                     <p>Open the sender’s QR code, scan it here, and show the reply QR back to the sender.</p>
                     <p>{disk ? 'This browser can stream large files to disk.' : 'This browser uses memory downloads, limited to 100 MiB per file. Use desktop Chrome or Edge for larger files.'}</p>
-                    <button className="btn-primary" disabled={!supported} onClick={() => { setRole('receive'); setStatus('Scan the QR shown on the sending device.'); }}>Receive files.</button>
-                </section>
+                    <button className="btn-primary" disabled={!supported} onClick={() => { setRole('receive'); setStatus('Scan the QR shown on the sending device.'); }}>Start receiving.</button>
+                </section>}
             </div>}
-            <div role="status" aria-live="polite" className="border border-gray-200 rounded-lg p-4 bg-gray-50">{status}</div>
+            {role && <h2 className="text-xl font-medium">{role === 'send' ? 'Sending files.' : 'Receiving files.'}</h2>}
+            {role && <div role="status" aria-live="polite" className="border border-gray-200 rounded-lg p-4 bg-gray-50">{status}</div>}
             {error && <p role="alert" className="border border-red-200 bg-red-50 text-red-800 rounded-lg p-4">{error}</p>}
             {role && !connected && !busy && <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {frames.length > 0 && <section className="card space-y-4"><h2 className="text-xl font-medium">{role === 'send' ? '2. Show this offer.' : '2. Show this reply.'}</h2><QrDisplay frames={frames} receiveUrl={role === 'send' ? new URL('/file-transfer?mode=receive', window.location.origin).href : undefined} /></section>}

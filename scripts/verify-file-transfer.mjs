@@ -20,12 +20,15 @@ const errors = [];
 const artifacts = process.env.FILE_TRANSFER_ARTIFACTS;
 if (artifacts) await mkdir(artifacts, { recursive: true });
 
-async function installWebcamFeed(context) {
-    await context.addInitScript(() => {
+async function installWebcamFeed(context, placement = { x: 160, y: 160, size: 400, width: 720, height: 720 }) {
+    await context.addInitScript(placement => {
+        // Exercise the bundled software decoder used by browsers without BarcodeDetector.
+        delete window.BarcodeDetector;
         // Substitute only the camera hardware. The application still uses getUserMedia,
         // a real video MediaStream, its normal QR decoder, and normal SDP handling.
         const canvas = document.createElement('canvas');
-        canvas.width = canvas.height = 720;
+        canvas.width = placement.width;
+        canvas.height = placement.height;
         const ctx = canvas.getContext('2d');
         // Match the application's pixelated QR display instead of blurring modules on resize.
         ctx.imageSmoothingEnabled = false;
@@ -34,8 +37,8 @@ async function installWebcamFeed(context) {
         window.webcamPaints = 0;
         const paint = () => {
             ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, 720, 720);
-            if (image) ctx.drawImage(image, 160, 160, 400, 400);
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            if (image) ctx.drawImage(image, placement.x, placement.y, placement.size, placement.size);
             window.webcamPaints++;
             for (const track of window.webcamTracks) if (track.readyState === 'live') track.requestFrame();
         };
@@ -55,7 +58,7 @@ async function installWebcamFeed(context) {
             paint();
             return stream;
         };
-    });
+    }, placement);
 }
 
 async function pair(context, sourceFiles, qrImages) {
@@ -201,7 +204,10 @@ try {
     const context = await makeContext(false);
     const cameraPage = await context.newPage();
     await cameraPage.goto(`${baseURL}/file-transfer`);
+    assert.equal(await cameraPage.getByRole('button', { name: 'Start receiving.', exact: true }).count(), 0);
     await cameraPage.getByRole('button', { name: 'Receive files.', exact: true }).click();
+    assert.equal(await cameraPage.locator('input[type=file]').count(), 0);
+    await cameraPage.getByRole('button', { name: 'Start receiving.', exact: true }).click();
     for (const cancelSession of [false, true]) {
         await cameraPage.getByRole('button', { name: 'Scan with camera.', exact: true }).click();
         await cameraPage.waitForFunction(() => {
@@ -239,7 +245,9 @@ try {
     console.log('Passed: real QR image pairing, WebRTC, exact multiple/empty downloads, bounded queue, camera cleanup, and mobile width.');
 
     const webcamContext = await makeContext(false);
-    await installWebcamFeed(webcamContext);
+    // A QR can fit entirely in the preview while extending beyond the old invisible
+    // central two-thirds crop. Keep it paused to isolate framing from animation.
+    await installWebcamFeed(webcamContext, { x: 60, y: 60, size: 600, width: 720, height: 720 });
     const webcam = await pair(webcamContext, [
         { name: 'webcam-proof.bin', mimeType: 'application/octet-stream', buffer: content },
         { name: 'empty.txt', mimeType: 'text/plain', buffer: Buffer.alloc(0) },
@@ -267,7 +275,8 @@ try {
     console.log('Passed: offer AND answer decoded through live simulated webcam video; exact multi-file transfer and automatic camera shutdown.');
 
     const autoContext = await makeContext(false);
-    await installWebcamFeed(autoContext);
+    // Also cover an off-center code in a portrait preview, as on a phone.
+    await installWebcamFeed(autoContext, { x: 20, y: 280, size: 400, width: 720, height: 960 });
     const autoContent = Buffer.from('Live automatic QR cycling and webcam transfer.\n');
     const automatic = await pair(autoContext, [{ name: 'automatic-webcam.txt', mimeType: 'text/plain', buffer: autoContent }], 'webcam-auto');
     await automatic.receiver.getByRole('button', { name: 'Receive into memory.', exact: true }).click();

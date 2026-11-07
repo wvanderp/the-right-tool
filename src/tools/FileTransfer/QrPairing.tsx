@@ -98,16 +98,19 @@ export function QrReader({ onSignal }: { onSignal: (signal: Signal) => Promise<v
                 returnDetailedScanResult: true,
                 maxScansPerSecond: 8,
                 calculateScanRegion: video => {
-                    const size = Math.round(Math.min(video.videoWidth, video.videoHeight) * 2 / 3);
-                    // Keep available camera detail for dense signaling codes, with bounded decoding work.
-                    const resolution = Math.min(size, 800);
+                    const width = video.videoWidth;
+                    const height = video.videoHeight;
+                    // Scan everything shown in the preview. An invisible central crop
+                    // cuts off codes when users move closer to make them easier to read.
+                    // Preserve the aspect ratio and bound work on high-resolution cameras.
+                    const scale = Math.min(1, 1280 / Math.max(width, height));
                     return {
-                        x: Math.round((video.videoWidth - size) / 2),
-                        y: Math.round((video.videoHeight - size) / 2),
-                        width: size,
-                        height: size,
-                        downScaledWidth: resolution,
-                        downScaledHeight: resolution,
+                        x: 0,
+                        y: 0,
+                        width,
+                        height,
+                        downScaledWidth: Math.max(1, Math.round(width * scale)),
+                        downScaledHeight: Math.max(1, Math.round(height * scale)),
                     };
                 },
             });
@@ -122,6 +125,7 @@ export function QrReader({ onSignal }: { onSignal: (signal: Signal) => Promise<v
     return <div className="space-y-4">
         <button className="btn-secondary" onClick={() => setCamera(c => !c)}>{camera ? 'Stop camera.' : 'Scan with camera.'}</button>
         {camera && <video ref={video} muted playsInline className="w-full rounded-lg bg-gray-100" aria-label="QR scanner camera preview" />}
+        {camera && <p>Keep the whole QR code and its white border visible. If scanning stalls, pause the code on the other device and avoid screen glare.</p>}
         <p role="status">{progress.total ? `Scanned ${progress.received} of ${progress.total} QR frames.` : 'Scan every frame shown on the other device.'}</p>
         <label className="block">Import a QR image.
             <input type="file" accept="image/*" className="block mt-2 w-full" onChange={e => {
