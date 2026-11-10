@@ -1,14 +1,17 @@
 import { MAX_PACKETS, MIN_INTERVAL, frameBytes, encodeFrame, type Observation, type Profile, type Report, type TransferFrame } from './framing.ts';
 
 export const PROFILES: readonly Profile[] = [
-    { packetsPerFrame: 1, intervalMs: 1000 },
+    { packetsPerFrame: 1, intervalMs: 800 },
     { packetsPerFrame: 2, intervalMs: 1000 },
     { packetsPerFrame: 2, intervalMs: 750 },
     { packetsPerFrame: 4, intervalMs: 750 },
     { packetsPerFrame: 4, intervalMs: 500 },
     { packetsPerFrame: 8, intervalMs: 500 },
     { packetsPerFrame: 8, intervalMs: 350 },
+    { packetsPerFrame: 10, intervalMs: 350 },
+    { packetsPerFrame: 10, intervalMs: 250 },
 ];
+export const DEFAULT_PROFILE = 5;
 export const FEEDBACK_TIMEOUT = 6000;
 
 export class ReceiverMeasurements {
@@ -44,6 +47,13 @@ export class ReceiverMeasurements {
 // Evaluate one epoch's evidence. The sender rejects stale reports and applies
 // each change in a new epoch, so replaying feedback cannot keep raising speed.
 export function negotiate(current: number, report: Report, maxPackets = MAX_PACKETS, minIntervalMs = MIN_INTERVAL) {
+    // Receiver limits also apply to the optimistic starting profile.
+    if (PROFILES[current].packetsPerFrame > maxPackets || PROFILES[current].intervalMs < minIntervalMs) {
+        for (let index = current; index >= 0; index--) {
+            if (PROFILES[index].packetsPerFrame <= maxPackets && PROFILES[index].intervalMs >= minIntervalMs) return index;
+        }
+        return 0;
+    }
     if (report.ageMs > 3000 || report.elapsedMs < 2000 || report.sequenceSpan < 4) return current;
     const reliability = report.frames / report.sequenceSpan;
     const rate = (report.frames - 1) * 1000 / Math.max(1, report.elapsedMs);

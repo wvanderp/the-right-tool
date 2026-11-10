@@ -1,7 +1,8 @@
 import { CHUNK, decode, encode, type Manifest, type Packet } from './protocol.ts';
+import { deflateSync, inflateSync } from 'fflate';
 
-export const MAX_PACKETS = 8;
-export const MIN_INTERVAL = 350;
+export const MAX_PACKETS = 10;
+export const MIN_INTERVAL = 250;
 export const MAX_FRAME_BYTES = 1800;
 export const MAX_METADATA_BYTES = 128 * 1024;
 export type Profile = { packetsPerFrame: number; intervalMs: number };
@@ -38,14 +39,17 @@ export function frameBytes(raw: string) {
 export function encodeFrame(frame: Frame): string {
     const report = frame.kind === 'feedback' ? frame.report : null;
     const wire = frame.kind === 'transfer'
-        ? [3, frame.id, 't', frame.sequence, frame.epoch, frame.profile.packetsPerFrame, frame.profile.intervalMs,
+        ? [4, frame.id, 't', frame.sequence, frame.epoch, frame.profile.packetsPerFrame, frame.profile.intervalMs,
                 frame.packets.map(p => p.kind === 'metadata' ? ['m', p.part, p.total, p.data] : ['d', p.file, p.part, p.data])]
-        : [3, frame.id, 'f', frame.sequence, frame.keys, frame.maxPackets, frame.minIntervalMs,
+        : [4, frame.id, 'f', frame.sequence, frame.keys, frame.maxPackets, frame.minIntervalMs,
                 report && [report.epoch, report.lastSequence, report.frames, report.sequenceSpan, report.elapsedMs, report.ageMs,
                     report.packetsPerFrame, report.intervalMs, report.encodedBytes, report.qrModules, report.codePixels, report.frameKind]];
     const raw = JSON.stringify(wire);
     if (frameBytes(raw) > MAX_FRAME_BYTES) throw Error('QR frame exceeds the payload limit.');
-    return raw;
+    // Independent frames need no dictionary or previously decoded QR. Keep the
+    // plain form when compression plus base64 would barely help or grow it.
+    const compressed = `TRT4:${btoa(String.fromCharCode(...deflateSync(new TextEncoder().encode(raw))))}`;
+    return compressed.length + 32 < raw.length ? compressed : raw;
 }
 
 function integer(value: unknown, min = 0, max = Number.MAX_SAFE_INTEGER): value is number {
@@ -60,8 +64,17 @@ function profile(packets: unknown, interval: unknown) {
 }
 export function decodeFrame(raw: string): Frame {
     if (frameBytes(raw) > MAX_FRAME_BYTES) throw Error('QR frame exceeds the payload limit.');
+    if (raw.startsWith('TRT4:')) {
+        const data = raw.slice(5);
+        if (!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(data)) throw Error('Invalid compressed QR frame.');
+        // fflate truncates into this fixed output buffer. The extra byte lets
+        // us detect overflow without allocating an attacker-controlled size.
+        const bytes = inflateSync(Uint8Array.from(atob(data), c => c.charCodeAt(0)), { out: new Uint8Array(MAX_FRAME_BYTES + 1) });
+        if (bytes.length > MAX_FRAME_BYTES) throw Error('QR frame exceeds the payload limit.');
+        raw = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    }
     const w: unknown = JSON.parse(raw);
-    if (!Array.isArray(w) || w.length !== 8 || w[0] !== 3 || typeof w[1] !== 'string' || !w[1].length || w[1].length > 64 || !integer(w[3]))
+    if (!Array.isArray(w) || w.length !== 8 || w[0] !== 4 || typeof w[1] !== 'string' || !w[1].length || w[1].length > 64 || !integer(w[3]))
         throw Error('Unsupported transfer QR code. Refresh both devices.');
     if (w[2] === 't' && integer(w[4]) && profile(w[5], w[6]) && Array.isArray(w[7]) && w[7].length > 0 && w[7].length <= w[5]) {
         const packets: FramePacket[] = w[7].map((p: unknown) => {

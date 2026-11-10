@@ -3,7 +3,7 @@ import { TransferSpeedTracker } from './transferSpeed.ts';
 import { createReception, receive } from './reception.ts';
 import { decodeFrame, decodeMetadata, encodeFrame, metadataPackets, packetKey, MAX_PACKETS, MIN_INTERVAL,
     type FeedbackFrame, type FramePacket, type Observation, type TransferFrame } from './framing.ts';
-import { FEEDBACK_TIMEOUT, negotiate, PROFILES, ReceiverMeasurements } from './negotiation.ts';
+import { DEFAULT_PROFILE, FEEDBACK_TIMEOUT, negotiate, PROFILES, ReceiverMeasurements } from './negotiation.ts';
 
 export type ReadResult = { outcome: 'progress' | 'duplicate' | 'ignored'; message: string };
 const unsupported: ReadResult = { outcome: 'ignored', message: 'Unsupported transfer QR code. Refresh both devices if this is a transfer code.' };
@@ -14,7 +14,7 @@ export class SenderSession {
     readonly confirmed = new Set<string>();
     private readonly metadata: FramePacket[];
     private readonly validKeys: Set<string>;
-    private profileIndex = 0;
+    private profileIndex = DEFAULT_PROFILE;
     private epoch = 0;
     private sequence = 0;
     private dataCursor = 0;
@@ -26,7 +26,9 @@ export class SenderSession {
     private confirmedDataCount = 0;
     private confirmedDataBytes = 0;
     private speedTracker = new TransferSpeedTracker();
+    private feedbackExpected = false;
     negotiated = false;
+    conservative = false;
 
     constructor(packets: Packet[]) {
         const manifest = packets[0];
@@ -38,6 +40,17 @@ export class SenderSession {
     }
 
     get profile() { return PROFILES[this.profileIndex]; }
+    expectFeedback(enabled: boolean, now: number) {
+        if (enabled && !this.feedbackExpected) this.lastEvidenceAt = now;
+        this.feedbackExpected = enabled;
+    }
+
+    setConservative(enabled: boolean, now: number) {
+        this.conservative = enabled;
+        this.changeProfile(enabled ? 0 : DEFAULT_PROFILE, now);
+        this.negotiated = false;
+    }
+
     get confirmedParts() {
         return this.confirmedDataCount;
     }
@@ -57,20 +70,23 @@ export class SenderSession {
 
     nextFrame(now: number): TransferFrame {
         this.speedTracker.record(this.confirmedDataBytes, now);
-        if (now - this.lastEvidenceAt > FEEDBACK_TIMEOUT) {
+        if ((this.feedbackExpected || this.negotiated) && now - this.lastEvidenceAt > FEEDBACK_TIMEOUT) {
             this.changeProfile(0, now);
             this.negotiated = false;
         }
         const packets: FramePacket[] = [];
-        // Revisit metadata every fourth frame even for very large transfers.
+        // Send the complete file list first, then revisit it every 16 frames.
         // Packet identifiers never change when QR capacity or timing changes.
-        if (this.sequence % 4 === 0 || this.confirmedParts === this.data.length) {
+        if (this.metadataCursor < this.metadata.length || this.sequence % 16 === 0 || this.confirmedParts === this.data.length) {
             for (let tried = 0; tried < this.metadata.length && packets.length < this.profile.packetsPerFrame; tried++) {
                 const p = this.metadata[this.metadataCursor++ % this.metadata.length];
                 if (!this.confirmed.has(packetKey(p))) packets.push(p);
             }
         }
-        for (let tried = 0; this.confirmedParts < this.data.length && tried < this.data.length && packets.length < this.profile.packetsPerFrame; tried++) {
+        // A small, independently readable file list must not depend on decoding
+        // the denser data profile. Only fill data slots when no metadata is due.
+        const metadataFrame = packets.length > 0;
+        for (let tried = 0; !metadataFrame && this.confirmedParts < this.data.length && tried < this.data.length && packets.length < this.profile.packetsPerFrame; tried++) {
             const p = this.data[this.dataCursor++ % this.data.length];
             if (!this.confirmed.has(key(p))) packets.push({ kind: 'data', file: p.file, part: p.part, data: p.data });
         }
@@ -103,7 +119,7 @@ export class SenderSession {
                     this.lastEvidenceSequence = report.lastSequence;
                     this.lastEvidenceAt = now;
                     this.negotiated = true;
-                    if (now - this.changedAt >= 2000) this.changeProfile(negotiate(this.profileIndex, report, frame.maxPackets, frame.minIntervalMs), now);
+                    if (!this.conservative && now - this.changedAt >= 2000) this.changeProfile(negotiate(this.profileIndex, report, frame.maxPackets, frame.minIntervalMs), now);
                 }
             }
             const added = this.confirmed.size - before;
@@ -184,7 +200,7 @@ export class ReceiverSession {
         const keys = [...this.reception.parts.keys()];
         if (this.metadataReady) for (let part = 0; part < this.metadataTotal; part++) keys.push(`m:${part}`);
         if (this.ackCursor >= keys.length) this.ackCursor = 0;
-        const batch = keys.slice(this.ackCursor, this.ackCursor + 16);
+        const batch = keys.slice(this.ackCursor, this.ackCursor + 32);
         this.ackCursor += batch.length;
         return { kind: 'feedback', id: this.reception.id, sequence: this.feedbackSequence++, keys: batch,
             maxPackets: MAX_PACKETS, minIntervalMs: MIN_INTERVAL, report: this.measurements.report(now) };

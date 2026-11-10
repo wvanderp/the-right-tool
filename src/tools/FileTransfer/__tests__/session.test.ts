@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CHUNK, prepare } from '../protocol';
 import { decodeFrame, encodeFrame, metadataPackets, MAX_FRAME_BYTES, type FeedbackFrame, type TransferFrame } from '../framing';
-import { negotiate, PROFILES, ReceiverMeasurements } from '../negotiation';
+import { DEFAULT_PROFILE, negotiate, PROFILES, ReceiverMeasurements } from '../negotiation';
 import { ReceiverSession, SenderSession } from '../session';
 
 const observation = { qrModules: 49, codePixels: 490 };
@@ -44,17 +44,18 @@ describe('QR frame protocol', () => {
     });
 
     it('rejects malformed, oversized, incompatible, and unbounded QR frames', () => {
-        const valid = [3, 'a', 't', 1, 0, 1, 1000, [['d', 0, 0, btoa('x')]]];
+        const valid = [4, 'a', 't', 1, 0, 1, 1000, [['d', 0, 0, btoa('x')]]];
         expect(() => decodeFrame(JSON.stringify(valid))).not.toThrow();
         for (const invalid of [
             [2, 'a', 't', 1, 0, 1, 1000, []],
-            [3, 'a', 't', -1, 0, 1, 1000, []],
-            [3, 'a', 't', 1, 0, 100, 1000, []],
-            [3, 'a', 't', 1, 0, 1, 1, [['d', 0, 0, btoa('x')]]],
-            [3, 'a', 't', 1, 0, 1, 1000, [['d', 0, 0, 'a']]],
-            [3, 'a', 't', 1, 0, 1, 1000, [['m', 2, 2, btoa('x')]]],
-            [3, 'a', 'f', 1, ['bad-key'], 8, 350, null],
-            [3, 'a', 'f', 1, [], 8, 350, [0, 3, 4, 1, 3000, 0, 1, 1000, 100, 49, 490, 'data']],
+            [3, 'a', 't', 1, 0, 1, 1000, [['d', 0, 0, btoa('x')]]],
+            [4, 'a', 't', -1, 0, 1, 1000, []],
+            [4, 'a', 't', 1, 0, 100, 1000, []],
+            [4, 'a', 't', 1, 0, 1, 1, [['d', 0, 0, btoa('x')]]],
+            [4, 'a', 't', 1, 0, 1, 1000, [['d', 0, 0, 'a']]],
+            [4, 'a', 't', 1, 0, 1, 1000, [['m', 2, 2, btoa('x')]]],
+            [4, 'a', 'f', 1, ['bad-key'], 8, 350, null],
+            [4, 'a', 'f', 1, [], 8, 350, [0, 3, 4, 1, 3000, 0, 1, 1000, 100, 49, 490, 'data']],
         ]) expect(() => decodeFrame(JSON.stringify(invalid))).toThrow();
         expect(() => decodeFrame('x'.repeat(MAX_FRAME_BYTES + 1))).toThrow();
     });
@@ -74,11 +75,11 @@ describe('React-free transfer sessions', () => {
         expect(sender.confirmedParts).toBe(13);
     });
 
-    it('completes one-way transfers at conservative defaults without any feedback', async () => {
+    it('completes one-way transfers at the faster starting profile without any feedback', async () => {
         const sender = new SenderSession(await prepare(files()));
         const receiver = new ReceiverSession();
         for (let n = 0; n < 100; n++) deliver(sender, receiver, n * 1000, false);
-        expect(sender.profile).toEqual(PROFILES[0]);
+        expect(sender.profile).toEqual(PROFILES[DEFAULT_PROFILE]);
         expect(sender.confirmedParts).toBe(0);
         expect(await receiver.download(0).text()).toBe('x'.repeat(CHUNK * 40 - 1));
     });
@@ -94,7 +95,7 @@ describe('React-free transfer sessions', () => {
             maximums.speed = Math.min(maximums.speed, frame.profile.intervalMs);
             now += sender.profile.intervalMs;
         }
-        expect(maximums).toEqual({ packets: 8, speed: 350 });
+        expect(maximums).toEqual({ packets: 10, speed: 250 });
         expect(sender.confirmedParts).toBe(400);
         expect(await receiver.download(0).text()).toBe('x'.repeat(CHUNK * 400 - 1));
         const frame = sender.nextFrame(now);
@@ -121,7 +122,7 @@ describe('React-free transfer sessions', () => {
         expect(sender.read(encodeFrame(frame), 0).outcome).toBe('ignored');
         sender.read(encodeFrame({ ...frame, id: sender.manifest.id, keys: ['99:9999', 'm:999'] }), 0);
         expect(sender.confirmed.size).toBe(0);
-        expect(sender.profile).toEqual(PROFILES[0]);
+        expect(sender.profile).toEqual(PROFILES[DEFAULT_PROFILE]);
     });
 
     it('falls back to small, slow frames when fresh feedback disappears', async () => {
@@ -141,14 +142,19 @@ describe('React-free transfer sessions', () => {
     it('reduces capacity when frame losses rise despite continued feedback', async () => {
         const sender = new SenderSession(await prepare(files(400)));
         const receiver = new ReceiverSession();
-        for (let n = 0; n < 4; n++) deliver(sender, receiver, n * 1000);
-        expect(sender.profile).toEqual(PROFILES[1]);
-        for (let n = 4; n < 13; n++) {
-            const frame = sender.nextFrame(n * 1000);
-            if (n % 3 === 1) receiver.read(encodeFrame(frame), n * 1000, observation);
-            sender.read(encodeFrame(receiver.nextFrame(n * 1000)!), n * 1000);
+        let now = 0;
+        for (let n = 0; n < 4; n++) {
+            const frame = deliver(sender, receiver, now);
+            now += frame.profile.intervalMs;
         }
-        expect(sender.profile).toEqual(PROFILES[0]);
+        const startingProfile = sender.profile;
+        for (let n = 4; n < 24; n++) {
+            const frame = sender.nextFrame(now);
+            if (n % 3 === 1) receiver.read(encodeFrame(frame), now, observation);
+            sender.read(encodeFrame(receiver.nextFrame(now)!), now);
+            now += frame.profile.intervalMs;
+        }
+        expect(sender.profile.packetsPerFrame).toBeLessThan(startingProfile.packetsPerFrame);
     });
 
     it('honors receiver limits and ignores stale epochs even in newly numbered feedback', async () => {
@@ -187,7 +193,7 @@ describe('Receiver measurements', () => {
         measurements.observe(frame, 100, observation);
         measurements.observe({ ...frame, sequence: 2 }, 2000, observation);
         const report = measurements.report(2500)!;
-        expect(report).toMatchObject({ frames: 2, sequenceSpan: 3, elapsedMs: 2000, ageMs: 500, qrModules: 49, codePixels: 490, frameKind: 'data', packetsPerFrame: 1, intervalMs: 1000 });
+        expect(report).toMatchObject({ frames: 2, sequenceSpan: 3, elapsedMs: 2000, ageMs: 500, qrModules: 49, codePixels: 490, frameKind: 'data', packetsPerFrame: 1, intervalMs: 800 });
         expect(report.encodedBytes).toBeGreaterThan(0);
         measurements.observe({ ...frame, sequence: 3, epoch: 1, profile: PROFILES[1] }, 3000, observation);
         measurements.observe(frame, 4000, observation);

@@ -8,9 +8,11 @@ import { initialFeedback, recordScan } from './feedback';
 import { startRotation } from './rotation';
 import { CHUNK, prepare, type Manifest } from './protocol';
 import { ReceiverSession, SenderSession, sessionFrame } from './session';
-import { cameraScanRegion, qrObservation } from './scanner';
+import { qrObservation } from './scanner';
+import { createCameraScanner } from './camera';
 import { keepScreenAwake, type WakeStatus } from './wakeLock';
 import TransferSpeed from './TransferSpeedPanel';
+import PacketProgress from './PacketProgress';
 
 function Display({ value, label }: { value: string; label: string }) {
     const canvas = useRef<HTMLCanvasElement>(null);
@@ -37,14 +39,11 @@ function Display({ value, label }: { value: string; label: string }) {
 }
 
 function ReceivedFile({ file, index, parts, onDownload }: { file: Manifest['files'][number]; index: number; parts: Map<string, string>; onDownload: () => void }) {
-    const [page, setPage] = useState(0);
     const total = Math.ceil(file.size / CHUNK);
     let count = 0;
     for (const id of parts.keys()) {
         if (id.startsWith(`${index}:`)) count++;
     }
-    const pageSize = 512;
-    const start = page * pageSize;
     return (
         <article className="rounded-lg border border-gray-200 p-4 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-4">
@@ -69,31 +68,7 @@ function ReceivedFile({ file, index, parts, onDownload }: { file: Manifest['file
             {total === 0
                 ? <p className="text-green-700">Empty file. Ready to download.</p>
                 : (
-                        <>
-                            <div className="flex flex-wrap gap-1" role="img" aria-label={`${file.name}: ${count} of ${total} parts received. Green means received; red means missing.`}>
-                                {Array.from({ length: Math.min(pageSize, total - start) }, (_, offset) => {
-                                    const part = start + offset;
-                                    const received = parts.has(`${index}:${part}`);
-                                    return <span key={part} className={`h-3 w-3 rounded-sm ${received ? 'bg-green-600' : 'bg-red-500'}`} title={`Part ${part + 1}: ${received ? 'Received' : 'Missing'}.`} />;
-                                })}
-                            </div>
-                            {total > pageSize && (
-                                <div className="flex flex-wrap items-center gap-4 text-sm">
-                                    <button className="btn-secondary disabled:opacity-50" disabled={page === 0} onClick={() => setPage(p => p - 1)}>Previous parts</button>
-                                    <span>
-                                        Parts
-                                        {start + 1}
-                                        –
-                                        {Math.min(start + pageSize, total)}
-                                        {' '}
-                                        of
-                                        {total.toLocaleString()}
-                                        .
-                                    </span>
-                                    <button className="btn-secondary disabled:opacity-50" disabled={start + pageSize >= total} onClick={() => setPage(p => p + 1)}>Next parts</button>
-                                </div>
-                            )}
-                        </>
+                        <PacketProgress total={total} file={index} parts={parts} received={count} name={file.name} />
                     )}
         </article>
     );
@@ -140,6 +115,9 @@ export default function FileTransfer() {
     });
     const delay = mode === 'send' ? sender?.profile.intervalMs ?? 1000 : 1000;
     useEffect(() => {
+        sender?.expectFeedback(mode === 'send' && scanning, Date.now());
+    }, [mode, sender, scanning]);
+    useEffect(() => {
         const session = mode === 'send' ? sender : mode === 'receive' ? receiver : null;
         if (!session) return;
         const advance = () => {
@@ -155,11 +133,16 @@ export default function FileTransfer() {
     }, [mode, sender, receiver, delay]);
     useEffect(() => {
         if (!scanning || !video.current) return;
-        const scanner = new QrScanner(video.current, result => handler.current(result), {
-            preferredCamera: camera,
-            returnDetailedScanResult: true,
-            maxScansPerSecond: 12,
-            calculateScanRegion: cameraScanRegion,
+        const scanner = createCameraScanner(video.current, result => handler.current(result), {
+            facingMode: camera,
+            // Feedback changes once per second. Re-decoding it at the data
+            // camera's rate wastes work while both devices are scanning.
+            maxScansPerSecond: mode === 'send' ? 3 : 12,
+            onError: (error) => {
+                setError(String(error));
+                setCameraStatus('Camera could not restart. Check camera permission and try again.');
+                setScanning(false);
+            },
         });
         let active = true;
         setCameraStatus('Starting camera. Allow camera access when prompted.');
@@ -176,7 +159,7 @@ export default function FileTransfer() {
             active = false;
             scanner.destroy();
         };
-    }, [scanning, camera]);
+    }, [scanning, camera, mode]);
     const total = manifest?.files.reduce((sum, f) => sum + Math.ceil(f.size / CHUNK), 0);
     const finished = manifest !== null && parts.size === total;
     const sending = mode === 'send' && sender !== null;
@@ -343,6 +326,7 @@ export default function FileTransfer() {
                                             {shown && <Display value={shown} label="Sending file QR code" />}
                                         </section>
                                         <aside className="card space-y-6 min-w-0">
+                                            {cameraPanel}
                                             <div className="space-y-4">
                                                 <h2 className="text-xl font-bold">Sending progress</h2>
                                                 {sender && <TransferSpeed progress={sender.progress(now)} direction="send" />}
@@ -366,17 +350,30 @@ export default function FileTransfer() {
                                                 </p>
                                                 <p className="text-sm text-gray-600">{`QR display time: ${delay} ms. File metadata repeats automatically.`}</p>
                                                 <p className="text-sm text-gray-600">{`${sender?.profile.packetsPerFrame} packets per QR · ${CHUNK} bytes per file packet.`}</p>
-                                                <p className="text-sm text-gray-600">{sender?.negotiated ? 'Two-way adaptation is active.' : 'Waiting for receiver measurements. Conservative defaults are used.'}</p>
+                                                <p className="text-sm text-gray-600">{sender?.negotiated ? 'Two-way adaptation is active.' : 'QR codes repeat at the current speed. Receiver feedback enables automatic tuning.'}</p>
+                                                <label className="flex items-center gap-2 text-sm">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="accent-primary focus-visible:outline-primary"
+                                                        checked={sender?.conservative ?? false}
+                                                        onChange={(event) => {
+                                                            sender?.setConservative(event.target.checked, Date.now());
+                                                            setRevision(n => n + 1);
+                                                        }}
+                                                    />
+                                                    Use smaller, slower QR codes.
+                                                </label>
+                                                <p className="text-sm text-gray-600">Use this if the receiver cannot read the starting codes. Received parts are preserved.</p>
                                                 {confirmedParts === packetCount && packetCount > 0 && <p role="status" className="text-green-700">All file parts are confirmed. Download the files on the receiver.</p>}
                                             </div>
-                                            {cameraPanel}
-                                            <p className="text-sm text-gray-600">Point this camera at the receiver’s feedback QR code. Confirmed parts leave the sequence. Receiver measurements tune QR capacity and speed. Without feedback, small codes repeat at one-second intervals.</p>
+                                            <p className="text-sm text-gray-600">Point this camera at the receiver’s feedback QR code. Confirmed parts leave the sequence. Receiver measurements tune QR capacity and speed. Transfers start with eight packets every 500 ms. Without feedback, use the smaller, slower option if scanning is unreliable.</p>
                                         </aside>
                                     </div>
                                 )}
                                 {mode === 'receive' && (
                                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start" data-revision={revision}>
                                         <section className="card min-w-0 space-y-6">
+                                            {cameraPanel}
                                             <div className="space-y-4">
                                                 <h2 className="text-xl font-bold">Receiving progress</h2>
                                                 <TransferSpeed progress={receiver.progress(now)} direction="receive" />
@@ -393,7 +390,6 @@ export default function FileTransfer() {
                                                     </div>
                                                 )}
                                             </div>
-                                            {cameraPanel}
                                             <div className="space-y-4">
                                                 <h2 className="text-xl font-bold">{manifest ? `Files (${manifest.files.length})` : 'Waiting for the file list'}</h2>
                                                 {manifest && (
