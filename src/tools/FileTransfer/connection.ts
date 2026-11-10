@@ -57,11 +57,19 @@ export class TransferConnection {
     private timer: ReturnType<typeof setTimeout> | undefined;
     private abortGather: (() => void) | undefined;
     private lastProgress = 0;
+    private opened = false;
     constructor(readonly session: string, private sources: File[] | null, private events: TransferEvents) {
         this.pc = new RTCPeerConnection({ iceServers: [] });
         if (sources) this.items = sources.map((file, id) => ({ id, name: file.name, size: file.size, bytes: 0, status: 'Waiting' }));
         this.pc.onconnectionstatechange = () => {
-            if (this.pc.connectionState === 'failed') this.fail(new Error('Could not connect directly. Check guest Wi-Fi isolation, VPNs, and local network permissions. Start a new session to retry.'));
+            if (this.stopped) return;
+            if (this.pc.connectionState === 'failed') {
+                // Firefox can exhaust its initial checks before a manually exchanged
+                // answer reaches the sender. Keep the receiver and its QR alive:
+                // incoming checks can still recover this same ICE session.
+                if (!this.sources && !this.opened) this.events.status('Waiting for the sender to scan the reply. Keep this page open.');
+                else this.fail(new Error('Could not connect directly. Check guest Wi-Fi isolation, VPNs, and local network permissions. Start a new session to retry.'));
+            }
             if (this.pc.connectionState === 'disconnected') this.fail(new Error('Connection interrupted. Keep both devices awake and start a new session.'));
         };
         this.pc.ondatachannel = event => {
@@ -101,6 +109,7 @@ export class TransferConnection {
         channel.binaryType = 'arraybuffer';
         channel.bufferedAmountLowThreshold = 256 * 1024;
         channel.onopen = () => {
+            this.opened = true;
             clearTimeout(this.timer);
             this.events.connected();
             this.events.status('Connected. Review and save files on the receiving device.');
@@ -147,9 +156,7 @@ export class TransferConnection {
     async answer(signal: Signal): Promise<Signal> {
         if (signal.type !== 'offer' || signal.session !== this.session) throw new Error('Expected an offer for this session.');
         await this.pc.setRemoteDescription({ type: signal.type, sdp: signal.sdp });
-        const reply = await this.gather('answer');
-        // The sender still needs time to scan the reply. Start its deadline when ICE actually connects/checks.
-        return reply;
+        return this.gather('answer');
     }
     async applyAnswer(signal: Signal) {
         if (signal.type !== 'answer' || signal.session !== this.session) throw new Error('This reply belongs to a different session.');

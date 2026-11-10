@@ -17,6 +17,7 @@ class Peer extends EventTarget {
     static instances: Peer[] = [];
     connectionState = 'new'; iceGatheringState = 'complete'; sctp = { maxMessageSize: 16384 };
     localDescription: { sdp: string } | null = null;
+    remoteDescription: { sdp: string } | null = null;
     onconnectionstatechange: (() => void) | null = null;
     ondatachannel: ((e: { channel: Channel }) => void) | null = null;
     channel = new Channel();
@@ -26,7 +27,7 @@ class Peer extends EventTarget {
     async createOffer() { return { type: 'offer', sdp: 'v=0\r\n' }; }
     async createAnswer() { return { type: 'answer', sdp: 'v=0\r\n' }; }
     async setLocalDescription(value: { sdp: string }) { this.localDescription = value; }
-    async setRemoteDescription() {}
+    async setRemoteDescription(value: { sdp: string }) { this.remoteDescription = value; }
     close() { this.connectionState = 'closed'; }
 }
 function events() {
@@ -59,6 +60,49 @@ async function pair(files: File[]) {
 }
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
 describe('transfer protocol', () => {
+    it('keeps the receiver available when ICE fails before the reply is scanned', async () => {
+        vi.stubGlobal('RTCPeerConnection', Peer);
+        const receiveEvents = events();
+        const receiver = new TransferConnection('session', null, receiveEvents.callbacks);
+        const sdp = 'v=0\r\na=ice-ufrag:sender\r\na=ice-pwd:secret\r\na=fingerprint:sha-256 AA:BB\r\nm=application 9 UDP/DTLS/SCTP webrtc-datachannel\r\na=mid:0\r\na=candidate:1 1 udp 2113937151 device.local 63604 typ host\r\na=end-of-candidates\r\n';
+        try {
+            await receiver.answer({ version: 1, session: 'session', type: 'offer', sdp });
+            const peer = receiver.pc as unknown as Peer;
+            expect(peer.remoteDescription?.sdp).toBe(sdp);
+            peer.connectionState = 'failed';
+            peer.onconnectionstatechange!();
+            expect(receiveEvents.state.error).toBe('');
+            expect(peer.connectionState).toBe('failed');
+            expect(receiveEvents.callbacks.status).toHaveBeenLastCalledWith('Waiting for the sender to scan the reply. Keep this page open.');
+        } finally { receiver.close(); }
+    });
+    it('still closes failed sender connections and failed established receiver connections', async () => {
+        vi.stubGlobal('RTCPeerConnection', Peer);
+        const sendEvents = events();
+        const sender = new TransferConnection('session', [], sendEvents.callbacks);
+        const peer = sender.pc as unknown as Peer;
+        peer.connectionState = 'failed';
+        peer.onconnectionstatechange!();
+        expect(sendEvents.state.error).toContain('Could not connect directly');
+        expect(peer.connectionState).toBe('closed');
+
+        const p = await pair([new File(['a'], 'a')]);
+        try {
+            p.b.connectionState = 'failed';
+            p.b.onconnectionstatechange!();
+            expect(p.receiveEvents.state.error).toContain('Could not connect directly');
+            expect(p.b.connectionState).toBe('closed');
+        } finally { p.sender.close(); p.receiver.close(); }
+    });
+    it('gives the sender every reply candidate so it can initiate connectivity checks', async () => {
+        vi.stubGlobal('RTCPeerConnection', Peer);
+        const sender = new TransferConnection('session', [], events().callbacks);
+        const sdp = 'v=0\r\na=candidate:1 1 udp 2113937151 192.168.2.3 60367 typ host\r\na=end-of-candidates\r\n';
+        try {
+            await sender.applyAnswer({ version: 1, session: 'session', type: 'answer', sdp });
+            expect((sender.pc as unknown as Peer).remoteDescription?.sdp).toBe(sdp);
+        } finally { sender.close(); }
+    });
     it('waits for complete ICE gathering and includes the final candidates', async () => {
         Peer.instances = [];
         vi.stubGlobal('RTCPeerConnection', Peer);
