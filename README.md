@@ -6,7 +6,7 @@ Welcome to The Right Tool ([therighttool.dev](https://therighttool.dev/)), your 
 
 ## Available Tools
 
-- **File Transfer**: Send multiple files directly between devices with separate sending and receiving interfaces, continuous two-way, low-density QR pairing with simultaneous camera scanning and front/rear camera selection, a receive-page link, and encrypted WebRTC, without signaling, STUN, or TURN servers.
+- **File Transfer**: Transfer files through animated QR codes, with optional two-way confirmations, repeated file metadata, and per-file reception progress. Files remain local to the devices.
 - **ICS to Calendars**: Convert ICS calendar files to Google Calendar events.
 - **JSON to GeoJSON**: Transform regular JSON data into GeoJSON format.
 - **Weighted Distribution**: Distribute values across multiple items using percentage-based weights.
