@@ -8,6 +8,12 @@ Start the receiving camera and point it at the sender. Initially the file list a
 
 For two-way transfers, start the sender camera and point it at the receiver’s feedback QR. Feedback starts after the first valid sender frame, even before the complete file list is known. Validated packets are acknowledged and removed from rotation. Use **Start over** on both devices to clear the transfer from memory and return to role selection.
 
+The sending QR screen and receiving screen automatically request a screen wake lock to prevent idle dimming or locking while the page is visible. **Keep screen awake** is enabled by default and can be turned off. The lock is released when you start over, leave the tool, or hide the tab; it is requested again when you return to the visible transfer screen. The status explains whether the lock is active or unavailable. Browser support, permissions, and device power-saving settings may prevent a lock. This does not change display brightness or override manual screen locking.
+
+Both transfer screens show a 30-second speed sparkline and an estimated time remaining. Speed is measured in file bytes per second and smoothed over the last 10 seconds. Metadata, base64 overhead, and repeated packets do not count as transferred file data. Short final packets count their actual byte size. On the sender, progress counts only newly acknowledged bytes, so receiver feedback is required for a measured speed and ETA. On the receiver, collected bytes can be measured before metadata arrives, but the ETA waits for the file total. Provisional byte counts are corrected when metadata validates buffered packets.
+
+The ETA appears after at least three seconds of data observations and adjusts as throughput changes. After 10 seconds without new progress, the speed falls to zero and the ETA shows that it is waiting for new data. Completed transfers show **Complete**. Starting over clears the history. The estimate covers remaining file data; file metadata and delayed confirmations can add time.
+
 ## Packets and QR frames
 
 File packets always contain up to 96 raw bytes, with only the last packet of each file potentially shorter. Packet identity is the file index and packet index. QR frames can contain multiple packets, including packets from different files. Changing QR capacity or display timing never renumbers packets or discards received progress.
@@ -49,6 +55,7 @@ Communication state and decisions live outside React:
 - `framing.ts` handles bounded version 3 wire encoding, validation, and metadata fragmentation.
 - `reception.ts` stores and validates received file packets, including packets arriving before metadata.
 - `negotiation.ts` measures received frames and selects the next capacity/timing profile.
+- `transferSpeed.ts` tracks unique file-byte throughput, bounded speed history, and time estimates independently of React. `TransferSpeedPanel.tsx` renders the compact sparkline and current estimate.
 - `session.ts` provides `SenderSession` and `ReceiverSession`, including packet scheduling, acknowledgements, feedback, negotiation, and reconstruction. Call `nextFrame(now)` and `read(raw, now)` with explicit timestamps; no React, camera, or timer is needed for session tests. Optional camera observations can be passed to the receiver.
 - `scanner.ts` adapts full-frame camera scanning and QR geometry to the sessions. `FileTransfer.tsx` renders the UI, draws QR codes, and connects camera and timer events to session methods.
 

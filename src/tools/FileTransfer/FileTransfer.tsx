@@ -9,6 +9,8 @@ import { startRotation } from './rotation';
 import { CHUNK, prepare, type Manifest } from './protocol';
 import { ReceiverSession, SenderSession, sessionFrame } from './session';
 import { cameraScanRegion, qrObservation } from './scanner';
+import { keepScreenAwake, type WakeStatus } from './wakeLock';
+import TransferSpeed from './TransferSpeedPanel';
 
 function Display({ value, label }: { value: string; label: string }) {
     const canvas = useRef<HTMLCanvasElement>(null);
@@ -108,6 +110,13 @@ export default function FileTransfer() {
     const [camera, setCamera] = useState('environment');
     const [error, setError] = useState('');
     const [busy, setBusy] = useState(false);
+    const [keepAwake, setKeepAwake] = useState(true);
+    const [wakeStatus, setWakeStatus] = useState<WakeStatus>('requesting');
+    const wakeActive = mode === 'receive' || (mode === 'send' && sender !== null);
+    useEffect(() => {
+        if (!wakeActive || !keepAwake) return;
+        return keepScreenAwake({ page: document, wakeLock: navigator.wakeLock }, setWakeStatus);
+    }, [wakeActive, keepAwake]);
     const [feedback, setFeedback] = useState(initialFeedback);
     const [cameraStatus, setCameraStatus] = useState('Camera is off.');
     const [now, setNow] = useState(() => Date.now());
@@ -278,6 +287,25 @@ export default function FileTransfer() {
                                     </button>
                                     <p className="font-medium">{mode === 'receive' ? 'Receive files' : sending ? 'Send files · 2. Show QR codes' : 'Send files · 1. Choose files'}</p>
                                 </div>
+                                {wakeActive && (
+                                    <div className="flex flex-wrap items-center gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm">
+                                        <label className="flex items-center gap-2 font-medium">
+                                            <input type="checkbox" className="h-4 w-4 accent-primary" checked={keepAwake} onChange={e => setKeepAwake(e.target.checked)} />
+                                            Keep screen awake.
+                                        </label>
+                                        <p role="status">
+                                            {!keepAwake
+                                                ? 'Normal screen timeout is enabled.'
+                                                : wakeStatus === 'active'
+                                                    ? 'Keeping the screen awake while this page is visible.'
+                                                    : wakeStatus === 'requesting'
+                                                        ? 'Requesting screen wake lock.'
+                                                        : wakeStatus === 'released'
+                                                            ? 'Screen wake lock was released. Toggle this option to try again.'
+                                                            : 'Automatic screen wake lock is unavailable. Your device may still dim the screen.'}
+                                        </p>
+                                    </div>
+                                )}
                                 {error && <p role="alert" className="rounded-lg border border-red-300 bg-red-50 p-4 text-red-800">{error}</p>}
                                 {mode === 'send' && !sending && (
                                     <section className="space-y-4">
@@ -317,6 +345,7 @@ export default function FileTransfer() {
                                         <aside className="card space-y-6 min-w-0">
                                             <div className="space-y-4">
                                                 <h2 className="text-xl font-bold">Sending progress</h2>
+                                                {sender && <TransferSpeed progress={sender.progress(now)} direction="send" />}
                                                 <p className="text-2xl font-bold">
                                                     {confirmedParts.toLocaleString()}
                                                     {' '}
@@ -350,6 +379,7 @@ export default function FileTransfer() {
                                         <section className="card min-w-0 space-y-6">
                                             <div className="space-y-4">
                                                 <h2 className="text-xl font-bold">Receiving progress</h2>
+                                                <TransferSpeed progress={receiver.progress(now)} direction="receive" />
                                                 <p role="status" aria-live="polite" className={`font-medium ${finished ? 'text-green-700' : ''}`}>
                                                     {finished ? 'Transfer complete. All files are ready to download.' : manifest ? `${parts.size.toLocaleString()} of ${total?.toLocaleString()} parts received.` : `${pending.size.toLocaleString()} parts collected. Total parts and file list are not known yet.`}
                                                 </p>

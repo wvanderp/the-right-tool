@@ -48,6 +48,9 @@ try {
     });
     await page.goto(process.env.FILE_TRANSFER_URL || 'http://localhost:5173/file-transfer');
     await page.getByRole('button', { name: 'Receive files', exact: false }).click();
+    const speedPanel = page.getByRole('region', { name: 'Transfer speed and time remaining' });
+    await speedPanel.getByText('Waiting for file metadata.', { exact: true }).waitFor();
+    await speedPanel.getByRole('img', { name: /Transfer speed over the last 30 seconds/ }).waitFor();
     await page.getByRole('button', { name: 'Start camera', exact: true }).click();
     await page.getByText('Camera is scanning for QR codes.', { exact: true }).waitFor();
     const contents = 'a'.repeat(CHUNK * 9 - 1);
@@ -73,6 +76,9 @@ try {
     // A genuinely dense QR contains eight independently identified file packets.
     await show(data.slice(1), { x: 340, y: 60, size: 600 }, 8);
     await page.getByText('Transfer complete. All files are ready to download.', { exact: true }).waitFor({ timeout: 5000 });
+    await speedPanel.getByText('Complete.', { exact: true }).waitFor();
+    const sparkline = await speedPanel.locator('polyline').getAttribute('points');
+    assert.equal(/NaN|Infinity/.test(sparkline), false);
     const downloading = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Download file', exact: true }).click();
     const download = await downloading;
@@ -95,6 +101,7 @@ try {
     const liveContents = 'Live two-way transfer. '.repeat(160);
     await sender.locator('input[type=file]').setInputFiles({ name: 'live.txt', mimeType: 'text/plain', buffer: Buffer.from(liveContents) });
     await sender.getByRole('img', { name: 'Sending file QR code', exact: true }).waitFor();
+    await sender.getByRole('region', { name: 'Transfer speed and time remaining' }).getByText('Waiting for receiver feedback.', { exact: true }).waitFor();
     await sender.getByRole('button', { name: 'Start camera', exact: true }).click();
     let largestCapacity = 1;
     let fastestInterval = 1000;

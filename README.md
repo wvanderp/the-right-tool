@@ -6,7 +6,7 @@ Welcome to The Right Tool ([therighttool.dev](https://therighttool.dev/)), your 
 
 ## Available Tools
 
-- **File Transfer**: Follow separate sending and receiving flows with animated QR codes, live feedback, and per-file packet grids. Two-way transfers adapt QR payload size and display speed to receiver measurements while fixed-size packets preserve progress. Files remain local to the devices.
+- **File Transfer**: Follow separate sending and receiving flows with animated QR codes, live feedback, per-file packet grids, a transfer-speed sparkline, and time remaining estimates. Two-way transfers adapt QR payload size and display speed to receiver measurements while fixed-size packets preserve progress. Files remain local to the devices.
 - **ICS to Calendars**: Convert ICS calendar files to Google Calendar events.
 - **JSON to GeoJSON**: Transform regular JSON data into GeoJSON format.
 - **Weighted Distribution**: Distribute values across multiple items using percentage-based weights.

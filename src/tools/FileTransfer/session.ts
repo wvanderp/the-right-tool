@@ -1,4 +1,5 @@
-import { assemble, key, type Manifest, type Packet } from './protocol.ts';
+import { assemble, CHUNK, key, type Manifest, type Packet } from './protocol.ts';
+import { TransferSpeedTracker } from './transferSpeed.ts';
 import { createReception, receive } from './reception.ts';
 import { decodeFrame, decodeMetadata, encodeFrame, metadataPackets, packetKey, MAX_PACKETS, MIN_INTERVAL,
     type FeedbackFrame, type FramePacket, type Observation, type TransferFrame } from './framing.ts';
@@ -23,6 +24,8 @@ export class SenderSession {
     private lastEvidenceAt = 0;
     private changedAt = 0;
     private confirmedDataCount = 0;
+    private confirmedDataBytes = 0;
+    private speedTracker = new TransferSpeedTracker();
     negotiated = false;
 
     constructor(packets: Packet[]) {
@@ -39,6 +42,10 @@ export class SenderSession {
         return this.confirmedDataCount;
     }
 
+    progress(now: number) {
+        return this.speedTracker.snapshot(now, this.manifest.files.reduce((sum, file) => sum + file.size, 0));
+    }
+
     private changeProfile(index: number, now: number) {
         if (index === this.profileIndex) return;
         this.profileIndex = index;
@@ -49,6 +56,7 @@ export class SenderSession {
     }
 
     nextFrame(now: number): TransferFrame {
+        this.speedTracker.record(this.confirmedDataBytes, now);
         if (now - this.lastEvidenceAt > FEEDBACK_TIMEOUT) {
             this.changeProfile(0, now);
             this.negotiated = false;
@@ -79,8 +87,13 @@ export class SenderSession {
             for (const k of frame.keys) {
                 if (!this.validKeys.has(k) || this.confirmed.has(k)) continue;
                 this.confirmed.add(k);
-                if (!k.startsWith('m:')) this.confirmedDataCount++;
+                if (!k.startsWith('m:')) {
+                    this.confirmedDataCount++;
+                    const [file, part] = k.split(':').map(Number);
+                    this.confirmedDataBytes += Math.min(CHUNK, this.manifest.files[file].size - part * CHUNK);
+                }
             }
+            this.speedTracker.record(this.confirmedDataBytes, now);
             if (frame.sequence > this.lastFeedbackSequence) {
                 this.lastFeedbackSequence = frame.sequence;
                 const report = frame.report;
@@ -108,6 +121,13 @@ export class ReceiverSession {
     private feedbackSequence = 0;
     private ackCursor = 0;
     private metadataReady = false;
+    private receivedDataBytes = 0;
+    private speedTracker = new TransferSpeedTracker();
+
+    progress(now: number) {
+        const manifest = this.reception.manifest;
+        return this.speedTracker.snapshot(now, manifest ? manifest.files.reduce((sum, file) => sum + file.size, 0) : null);
+    }
 
     read(raw: string, now: number, observation: Observation = { qrModules: 0, codePixels: 0 }): ReadResult {
         try {
@@ -116,6 +136,7 @@ export class ReceiverSession {
             if (this.reception.id && this.reception.id !== frame.id)
                 return { outcome: 'ignored', message: 'Read a code for another transfer. Start over to receive it.' };
             this.reception.id = frame.id;
+            this.speedTracker.record(this.receivedDataBytes, now);
             let progress = false;
             let message = 'Read packets already received. The camera is working.';
             for (const p of frame.packets) {
@@ -131,6 +152,7 @@ export class ReceiverSession {
                         try {
                             const manifest = decodeMetadata(frame.id, this.metadata, p.total);
                             receive(this.reception, manifest);
+                            this.receivedDataBytes = [...this.reception.parts.values()].reduce((sum, bytes) => sum + bytes.length, 0);
                             this.metadataReady = true;
                             message = `File list received: ${manifest.files.length} files. Collecting file parts.`;
                         }
@@ -144,12 +166,14 @@ export class ReceiverSession {
                 else {
                     const result = receive(this.reception, { v: 1, id: frame.id, ...p });
                     if (result.outcome === 'progress') {
+                        this.receivedDataBytes += atob(p.data).length;
                         progress = true;
                         message = result.message;
                     }
                 }
             }
             this.measurements.observe(frame, now, observation);
+            this.speedTracker.record(this.receivedDataBytes, now);
             return { outcome: progress ? 'progress' : 'duplicate', message };
         }
         catch { return unsupported; }
