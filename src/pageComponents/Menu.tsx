@@ -22,7 +22,7 @@ export default function Menu(props: { tools: ToolComponent[] }) {
                 <nav
                     className={`
                     w-64 p-6 bg-gray-900 text-white border-r border-gray-700
-                    fixed md:sticky top-0 left-0 h-screen overflow-y-auto z-40
+                    fixed md:sticky top-0 left-0 h-dvh md:h-screen overflow-y-auto z-40
                     transform transition-custom ease-in-out pt-16 md:pt-6
                     ${isMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
                 `}
@@ -62,3 +62,4 @@ export default function Menu(props: { tools: ToolComponent[] }) {
         </>
     );
 }
+

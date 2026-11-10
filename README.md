@@ -6,7 +6,7 @@ Welcome to The Right Tool ([therighttool.dev](https://therighttool.dev/)), your 
 
 ## Available Tools
 
-- **File Transfer**: Follow separate sending and receiving flows with large animated QR codes, live feedback codes, and red/green per-file part grids. Parts scanned before metadata are retained. Files remain local to the devices.
+- **File Transfer**: Follow separate sending and receiving flows with animated QR codes, live feedback, and per-file packet grids. Two-way transfers adapt QR payload size and display speed to receiver measurements while fixed-size packets preserve progress. Files remain local to the devices.
 - **ICS to Calendars**: Convert ICS calendar files to Google Calendar events.
 - **JSON to GeoJSON**: Transform regular JSON data into GeoJSON format.
 - **Weighted Distribution**: Distribute values across multiple items using percentage-based weights.
@@ -39,3 +39,5 @@ pnpm test
 MIT License - See LICENSE file for details
 
 Code formatting uses ESLint with @stylistic rules based on the older handwritten tools: four-space indentation, semicolons, and single quotes. Run pnpm format to apply fixes or pnpm format:check to check code. In VS Code, install the ESLint extension (dbaeumer.vscode-eslint) to apply fixes on save. EditorConfig provides whitespace defaults for other file types.
+
+The mobile navigation uses the dynamic viewport height so its full tool list remains reachable while the browser address bar is visible or hidden.

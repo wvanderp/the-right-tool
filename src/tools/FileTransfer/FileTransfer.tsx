@@ -5,10 +5,10 @@ import QrScanner from 'qr-scanner';
 import ToolPage from '../../components/ToolPage';
 import ToolDescription from '../../components/ToolDescription';
 import { initialFeedback, recordScan } from './feedback';
-import { rotationDelay, startRotation } from './rotation';
-import { ACK_BATCH, assemble, CHUNK, decode, encode, key, prepare, type Manifest, type Packet } from './protocol';
-import { createReception, receive } from './reception';
-import { cameraScanRegion } from './scanner';
+import { startRotation } from './rotation';
+import { CHUNK, prepare, type Manifest } from './protocol';
+import { ReceiverSession, SenderSession, sessionFrame } from './session';
+import { cameraScanRegion, qrObservation } from './scanner';
 
 function Display({ value, label }: { value: string; label: string }) {
     const canvas = useRef<HTMLCanvasElement>(null);
@@ -99,12 +99,11 @@ function ReceivedFile({ file, index, parts, onDownload }: { file: Manifest['file
 
 export default function FileTransfer() {
     const [mode, setMode] = useState<'send' | 'receive' | null>(null);
-    const [packets, setPackets] = useState<Packet[]>([]);
-    const [acks, setAcks] = useState<Set<string>>(new Set());
-    const [reception, setReception] = useState(createReception);
-    const { manifest, parts, pending } = reception;
+    const [sender, setSender] = useState<SenderSession | null>(null);
+    const [receiver, setReceiver] = useState(() => new ReceiverSession());
+    const { manifest, parts, pending } = receiver.reception;
     const [revision, setRevision] = useState(0);
-    const [tick, setTick] = useState(0);
+    const [shown, setShown] = useState<string | null>(null);
     const [scanning, setScanning] = useState(false);
     const [camera, setCamera] = useState('environment');
     const [error, setError] = useState('');
@@ -117,38 +116,37 @@ export default function FileTransfer() {
         return () => clearInterval(timer);
     }, []);
     const video = useRef<HTMLVideoElement>(null);
-    const handler = useRef<(raw: string) => void>(() => {});
+    const handler = useRef<(result: QrScanner.ScanResult) => void>(() => {});
     useEffect(() => {
-        handler.current = (raw) => {
-            const report = (outcome: 'progress' | 'duplicate' | 'ignored', message: string) => setFeedback(old => recordScan(old, outcome, message));
-            try {
-                const p = decode(raw);
-                if (mode === 'send') {
-                    if (p.kind !== 'ack' || p.id !== packets[0]?.id) {
-                        report('ignored', 'Read a QR code, but it is not a confirmation for this transfer.');
-                        return;
-                    }
-                    const valid = p.keys.filter(k => packets.some(packet => packet.kind === 'data' && key(packet) === k));
-                    const added = valid.filter(k => !acks.has(k)).length;
-                    setAcks(old => new Set([...old, ...valid]));
-                    report(added ? 'progress' : 'duplicate', added ? `Confirmed ${added} new parts.` : 'Read a repeated confirmation. The camera is working.');
-                }
-                else if (mode === 'receive') {
-                    const result = receive(reception, p);
-                    setRevision(n => n + 1);
-                    report(result.outcome, result.message);
-                }
-            }
-            catch {
-                report('ignored', 'QR code detected, but its format is unsupported. Refresh both devices if this is a transfer code.');
+        handler.current = (scan) => {
+            const at = Date.now();
+            const result = mode === 'send'
+                ? sender?.read(scan.data, at)
+                : mode === 'receive' ? receiver.read(scan.data, at, qrObservation(scan)) : null;
+            if (result) {
+                setFeedback(old => recordScan(old, result.outcome, result.message, at));
+                setRevision(n => n + 1);
             }
         };
     });
-    const delay = mode === 'send' ? rotationDelay(acks.size) : 1000;
-    useEffect(() => startRotation(() => setTick(n => n + 1), delay), [delay]);
+    const delay = mode === 'send' ? sender?.profile.intervalMs ?? 1000 : 1000;
+    useEffect(() => {
+        const session = mode === 'send' ? sender : mode === 'receive' ? receiver : null;
+        if (!session) return;
+        const advance = () => {
+            setShown(sessionFrame(session, Date.now()));
+            setRevision(n => n + 1);
+        };
+        const initial = setTimeout(advance, 0);
+        const stop = startRotation(advance, delay);
+        return () => {
+            clearTimeout(initial);
+            stop();
+        };
+    }, [mode, sender, receiver, delay]);
     useEffect(() => {
         if (!scanning || !video.current) return;
-        const scanner = new QrScanner(video.current, result => handler.current(result.data), {
+        const scanner = new QrScanner(video.current, result => handler.current(result), {
             preferredCamera: camera,
             returnDetailedScanResult: true,
             maxScansPerSecond: 12,
@@ -170,34 +168,30 @@ export default function FileTransfer() {
             scanner.destroy();
         };
     }, [scanning, camera]);
-    const rotation = packets.filter(p => p.kind !== 'data' || !acks.has(key(p)));
-    const keys = [...parts.keys()];
-    const ackPage = tick % Math.max(1, Math.ceil(keys.length / ACK_BATCH));
-    const ack: Packet | null = manifest ? { v: 1, id: manifest.id, kind: 'ack', keys: keys.slice(ackPage * ACK_BATCH, (ackPage + 1) * ACK_BATCH) } : null;
-    const shown = mode === 'send' ? (tick % 8 === 0 ? packets[0] : rotation[tick % rotation.length]) : ack;
     const total = manifest?.files.reduce((sum, f) => sum + Math.ceil(f.size / CHUNK), 0);
     const finished = manifest !== null && parts.size === total;
-    const sending = mode === 'send' && packets.length > 0;
-    const senderManifest = packets[0]?.kind === 'manifest' ? packets[0] : null;
+    const sending = mode === 'send' && sender !== null;
+    const senderManifest = sender?.manifest;
+    const packetCount = sender?.data.length ?? 0;
+    const confirmedParts = sender?.confirmedParts ?? 0;
+    const measurements = receiver.measurements.report(now);
 
     function reset() {
         setScanning(false);
-        setPackets([]);
-        setAcks(new Set());
-        setReception(createReception());
+        setSender(null);
+        setReceiver(new ReceiverSession());
+        setShown(null);
         setRevision(0);
-        setTick(0);
         setError('');
         setFeedback(initialFeedback);
         setCameraStatus('Camera is off.');
     }
     function download(index: number) {
         if (!manifest) return;
-        const f = manifest.files[index];
-        const url = URL.createObjectURL(assemble(f, index, parts));
+        const url = URL.createObjectURL(receiver.download(index));
         const a = document.createElement('a');
         a.href = url;
-        a.download = f.name;
+        a.download = manifest.files[index].name;
         a.click();
         setTimeout(() => URL.revokeObjectURL(url), 10000);
     }
@@ -302,13 +296,9 @@ export default function FileTransfer() {
                                                     e.target.value = '';
                                                     if (!files.length) return;
                                                     reset();
-                                                    if (files.length > 100 || files.reduce((n, f) => n + f.size, 0) > 100 * 1024 * 1024) {
-                                                        setError('Choose at most 100 files and 100 MiB total.');
-                                                        return;
-                                                    }
                                                     setBusy(true);
                                                     try {
-                                                        setPackets(await prepare(files));
+                                                        setSender(new SenderSession(await prepare(files)));
                                                     }
                                                     catch (e) { setError(String(e)); }
                                                     finally { setBusy(false); }
@@ -322,20 +312,20 @@ export default function FileTransfer() {
                                     <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_20rem] gap-6 items-start">
                                         <section className="min-w-0 rounded-lg border border-gray-200 bg-white p-4 space-y-4">
                                             <h2 className="text-xl font-bold">Scan this code on the receiving device</h2>
-                                            {shown && <Display value={encode(shown)} label="Sending file QR code" />}
+                                            {shown && <Display value={shown} label="Sending file QR code" />}
                                         </section>
                                         <aside className="card space-y-6 min-w-0">
                                             <div className="space-y-4">
                                                 <h2 className="text-xl font-bold">Sending progress</h2>
                                                 <p className="text-2xl font-bold">
-                                                    {acks.size.toLocaleString()}
+                                                    {confirmedParts.toLocaleString()}
                                                     {' '}
                                                     /
                                                     {' '}
-                                                    {(packets.length - 1).toLocaleString()}
+                                                    {packetCount.toLocaleString()}
                                                 </p>
                                                 <p className="text-gray-600">File parts confirmed by the receiver.</p>
-                                                {packets.length > 1 && <progress className="w-full accent-primary" aria-label="Confirmed file parts" value={acks.size} max={packets.length - 1} />}
+                                                {packetCount > 0 && <progress className="w-full accent-primary" aria-label="Confirmed file parts" value={confirmedParts} max={packetCount} />}
                                                 <p>
                                                     {senderManifest?.files.length}
                                                     {' '}
@@ -345,16 +335,13 @@ export default function FileTransfer() {
                                                     {' '}
                                                     bytes.
                                                 </p>
-                                                <p className="text-sm text-gray-600">
-                                                    QR display time:
-                                                    {delay}
-                                                    {' '}
-                                                    ms. File metadata repeats automatically.
-                                                </p>
-                                                {acks.size === packets.length - 1 && packets.length > 1 && <p role="status" className="text-green-700">All file parts are confirmed. Download the files on the receiver.</p>}
+                                                <p className="text-sm text-gray-600">{`QR display time: ${delay} ms. File metadata repeats automatically.`}</p>
+                                                <p className="text-sm text-gray-600">{`${sender?.profile.packetsPerFrame} packets per QR · ${CHUNK} bytes per file packet.`}</p>
+                                                <p className="text-sm text-gray-600">{sender?.negotiated ? 'Two-way adaptation is active.' : 'Waiting for receiver measurements. Conservative defaults are used.'}</p>
+                                                {confirmedParts === packetCount && packetCount > 0 && <p role="status" className="text-green-700">All file parts are confirmed. Download the files on the receiver.</p>}
                                             </div>
                                             {cameraPanel}
-                                            <p className="text-sm text-gray-600">Point this camera at the receiver’s feedback QR code. Confirmed parts leave the sequence. Without feedback, all parts keep repeating.</p>
+                                            <p className="text-sm text-gray-600">Point this camera at the receiver’s feedback QR code. Confirmed parts leave the sequence. Receiver measurements tune QR capacity and speed. Without feedback, small codes repeat at one-second intervals.</p>
                                         </aside>
                                     </div>
                                 )}
@@ -367,6 +354,14 @@ export default function FileTransfer() {
                                                     {finished ? 'Transfer complete. All files are ready to download.' : manifest ? `${parts.size.toLocaleString()} of ${total?.toLocaleString()} parts received.` : `${pending.size.toLocaleString()} parts collected. Total parts and file list are not known yet.`}
                                                 </p>
                                                 {!manifest && <p className="text-sm text-gray-600">Keep scanning. Parts are saved while waiting for file metadata.</p>}
+                                                {measurements && (
+                                                    <div className="rounded-lg border border-gray-200 p-4 text-sm text-gray-600 space-y-2">
+                                                        <p>{`Observed QR: ${measurements.frameKind} · ${measurements.encodedBytes} encoded bytes · up to ${measurements.packetsPerFrame} packets.`}</p>
+                                                        <p>{`Size: ${measurements.qrModules} modules per side · about ${Math.round(measurements.codePixels)} camera pixels.`}</p>
+                                                        <p>{measurements.elapsedMs > 0 ? `${((measurements.frames - 1) * 1000 / measurements.elapsedMs).toFixed(1)} distinct QR codes decoded per second.` : 'Measuring decode speed.'}</p>
+                                                        <p>{`${measurements.frames} of ${measurements.sequenceSpan} frame sequences seen.`}</p>
+                                                    </div>
+                                                )}
                                             </div>
                                             {cameraPanel}
                                             <div className="space-y-4">
@@ -392,8 +387,8 @@ export default function FileTransfer() {
                                                 <FiArrowUpRight aria-hidden="true" />
                                             </h2>
                                             <p className="text-gray-600">Show this half of the screen to the sender’s camera. Received parts will be removed from its QR sequence.</p>
-                                            {shown ? <Display value={encode(shown)} label="Received file parts feedback QR code" /> : <div className="aspect-square rounded-lg border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center p-8 text-center text-gray-600">The feedback QR code will appear when file metadata arrives.</div>}
-                                            <p className="text-sm text-gray-600">Feedback updates automatically as parts arrive. Receiving also works without a feedback camera on the sender.</p>
+                                            {shown ? <Display value={shown} label="Received file parts feedback QR code" /> : <div className="aspect-square rounded-lg border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center p-8 text-center text-gray-600">The feedback QR code will appear after the first sender code is read.</div>}
+                                            <p className="text-sm text-gray-600">Feedback reports received packets and camera performance automatically. Receiving also works without a feedback camera on the sender.</p>
                                         </section>
                                     </div>
                                 )}

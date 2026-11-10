@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { rotationDelay, startRotation } from '../rotation';
+import { startRotation } from '../rotation';
 afterEach(() => vi.useRealTimers());
 it('holds a QR for one second by default and stops cleanly', () => {
     vi.useFakeTimers();
@@ -22,11 +22,4 @@ it('allows slower rotation for cameras that need more time', () => {
     vi.advanceTimersByTime(1);
     expect(advance).toHaveBeenCalledTimes(1);
     stop();
-});
-it('ramps up only as distinct confirmed parts accumulate', () => {
-    expect(rotationDelay(0)).toBe(1000);
-    expect(rotationDelay(3)).toBe(1000);
-    expect(rotationDelay(4)).toBe(750);
-    expect(rotationDelay(12)).toBe(500);
-    expect(rotationDelay(28)).toBe(350);
 });

@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { cameraScanRegion } from '../scanner';
+import { cameraScanRegion, qrObservation } from '../scanner';
+
+it('measures QR density and camera size from the payload and rotated corner points', () => {
+    const observation = qrObservation({ data: 'QR test payload', cornerPoints: [
+        { x: 0, y: 50 }, { x: 50, y: 0 }, { x: 100, y: 50 }, { x: 50, y: 100 },
+    ] });
+    expect(observation.qrModules).toBeGreaterThanOrEqual(21);
+    expect((observation.qrModules - 21) % 4).toBe(0);
+    expect(observation.codePixels).toBe(71);
+});
 
 describe('Camera scan region', () => {
     it('keeps the entire camera frame at its original HD resolution', () => {

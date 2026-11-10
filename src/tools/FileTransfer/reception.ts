@@ -1,4 +1,4 @@
-import { accept, key, type Manifest, type Packet } from './protocol';
+import { accept, key, type Manifest, type Packet } from './protocol.ts';
 
 export function createReception() {
     return {

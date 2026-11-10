@@ -49,6 +49,8 @@ export function key(p: {
     part: number;
 }) { return `${p.file}:${p.part}`; }
 export async function prepare(files: File[]): Promise<Packet[]> {
+    if (!files.length || files.length > 100 || files.reduce((sum, file) => sum + file.size, 0) > 100 * 1024 * 1024)
+        throw Error('Choose between 1 and 100 files and at most 100 MiB total.');
     const id = crypto.randomUUID();
     const packets: Packet[] = [{ v: 1, id, kind: 'manifest', files: files.map(f => ({ name: f.name, size: f.size, type: f.type })) }];
     for (let file = 0; file < files.length; file++) {
