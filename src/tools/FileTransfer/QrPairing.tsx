@@ -65,6 +65,7 @@ export function QrReader({ onSignal }: { onSignal: (signal: Signal) => Promise<v
     const assembler = useRef(new SignalAssembler());
     const locked = useRef(false);
     const [camera, setCamera] = useState(false);
+    const [facing, setFacing] = useState<'user' | 'environment'>('user');
     const [error, setError] = useState('');
     const [text, setText] = useState('');
     const [progress, setProgress] = useState({ received: 0, total: 0 });
@@ -81,7 +82,7 @@ export function QrReader({ onSignal }: { onSignal: (signal: Signal) => Promise<v
                 setProgress(assembler.current.progress);
             }
             setError('');
-            if (signal) { setCamera(false); await callback.current(signal); }
+            if (signal) await callback.current(signal);
         } catch (err) { setError(err instanceof Error ? err.message : 'Could not read connection information.'); }
         finally { locked.current = false; }
     };
@@ -94,7 +95,7 @@ export function QrReader({ onSignal }: { onSignal: (signal: Signal) => Promise<v
         void import('qr-scanner').then(async ({ default: QrScanner }) => {
             if (disposed || !video.current) return;
             scanner = new QrScanner(video.current, result => { void consumer.current(result.data); }, {
-                preferredCamera: 'environment',
+                preferredCamera: facing,
                 returnDetailedScanResult: true,
                 maxScansPerSecond: 8,
                 calculateScanRegion: video => {
@@ -121,12 +122,21 @@ export function QrReader({ onSignal }: { onSignal: (signal: Signal) => Promise<v
             if (!disposed) { setError(`Camera unavailable. Check HTTPS and camera permission. ${err instanceof Error ? err.message : ''}`); setCamera(false); }
         });
         return () => { disposed = true; scanner?.destroy(); };
-    }, [camera]);
+    }, [camera, facing]);
     return <div className="space-y-4">
-        <button className="btn-secondary" onClick={() => setCamera(c => !c)}>{camera ? 'Stop camera.' : 'Scan with camera.'}</button>
-        {camera && <video ref={video} muted playsInline className="w-full rounded-lg bg-gray-100" aria-label="QR scanner camera preview" />}
+        <div className="flex flex-wrap items-end gap-4">
+            <button className="btn-secondary" onClick={() => setCamera(c => !c)}>{camera ? 'Stop camera.' : 'Scan with camera.'}</button>
+            <label className="block">Camera.
+                <select className="block mt-2 w-full" value={facing} onChange={e => setFacing(e.target.value as 'user' | 'environment')}>
+                    <option value="user">Front camera / webcam.</option>
+                    <option value="environment">Rear camera.</option>
+                </select>
+            </label>
+        </div>
+        {camera && <video ref={video} muted playsInline className="w-full max-h-64 object-contain rounded-lg bg-gray-100" aria-label="QR scanner camera preview" />}
         {camera && <p>Keep the whole QR code and its white border visible. If scanning stalls, pause the code on the other device and avoid screen glare.</p>}
         <p role="status">{progress.total ? `Scanned ${progress.received} of ${progress.total} QR frames.` : 'Scan every frame shown on the other device.'}</p>
+        {progress.total > 0 && progress.received === progress.total && <p>Connection information captured. Keep both screens facing the other device’s camera until connected.</p>}
         <label className="block">Import a QR image.
             <input type="file" accept="image/*" className="block mt-2 w-full" onChange={e => {
                 const file = e.target.files?.[0]; e.target.value = '';

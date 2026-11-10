@@ -5,6 +5,16 @@ import { encodeSignal, SignalAssembler, type Signal } from '../signaling';
 
 const signal: Signal = { version: 1, session: '12345678-1234-1234-1234-123456789abc', type: 'offer', sdp: 'v=0\r\na=candidate:local.local 1 udp 123 192.168.1.1 1234 typ host\r\n' };
 describe('QR signaling', () => {
+    it('delivers a completed signal only once while its QR keeps cycling', async () => {
+        const frames = await encodeSignal(signal);
+        const assembler = new SignalAssembler();
+        let deliveries = 0;
+        for (let cycle = 0; cycle < 3; cycle++) {
+            for (const frame of frames) if (await assembler.add(frame)) deliveries++;
+        }
+        expect(deliveries).toBe(1);
+        expect(assembler.progress).toEqual({ received: frames.length, total: frames.length });
+    });
     it('ignores the receive-page QR without affecting pairing progress', async () => {
         const assembler = new SignalAssembler();
         const link = 'https://therighttool.dev/file-transfer?mode=receive';

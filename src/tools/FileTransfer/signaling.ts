@@ -41,6 +41,7 @@ export class SignalAssembler {
     private key = '';
     private parts = new Map<number, string>();
     private count = 0;
+    private completed = false;
     get progress() { return { received: this.parts.size, total: this.count }; }
 
     async add(frame: string): Promise<Signal | null> {
@@ -61,6 +62,7 @@ export class SignalAssembler {
         const key = `${session}:${type}:${count}:${hash}`;
         if (this.key && key !== this.key) throw new Error('QR frames belong to different sessions. Reset scanning to try again.');
         if (this.parts.has(index) && this.parts.get(index) !== payload) throw new Error('Conflicting QR frame.');
+        if (this.completed) return null;
         this.key = key;
         this.count = count;
         this.parts.set(index, payload);
@@ -81,6 +83,7 @@ export class SignalAssembler {
         for (const chunk of chunks) { raw.set(chunk, offset); offset += chunk.length; }
         const signal = validate(JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(raw)));
         if (signal.session !== session || signal.type !== type) throw new Error('Signaling envelope does not match its frames.');
+        this.completed = true;
         return signal;
     }
 }

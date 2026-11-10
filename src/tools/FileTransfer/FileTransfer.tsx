@@ -28,6 +28,8 @@ export default function FileTransfer() {
     const url = useRef<string | null>(null);
     const started = useRef(0);
     const generation = useRef(0);
+    const pairing = useRef(false);
+    const signalApplied = useRef(false);
     const supported = typeof RTCPeerConnection !== 'undefined' && window.isSecureContext;
     const disk = canStreamToDisk();
 
@@ -39,6 +41,7 @@ export default function FileTransfer() {
     }, [connected]);
     function reset() {
         generation.current++;
+        pairing.current = false; signalApplied.current = false;
         connection.current?.close(); connection.current = null;
         if (url.current) URL.revokeObjectURL(url.current);
         url.current = null; started.current = 0;
@@ -77,19 +80,20 @@ export default function FileTransfer() {
             const offer = await peer.offer();
             const codes = await encodeSignal(offer);
             if (token !== generation.current) return;
-            setFrames(codes); setStatus('Scan the first QR with the receiving device to open the receive page. Keep scanning the connection codes, then scan its reply here.');
+            setFrames(codes); setStatus('Open the receive page on the other device, then start both cameras. Keep each screen visible to the other device’s camera until connected.');
         } catch (err) { if (token === generation.current) { connection.current?.close(); setError(err instanceof Error ? err.message : 'Could not create transfer.'); } }
         finally { if (token === generation.current) setBusy(false); }
     }
     async function handleSignal(signal: Signal) {
-        if (busy || connected) return;
+        if (pairing.current || signalApplied.current || busy || connected) return;
+        pairing.current = true;
         setError(''); setBusy(true);
         const token = generation.current;
         try {
             if (role === 'send') {
                 if (!connection.current) throw new Error('Start a new session first.');
                 await connection.current.applyAnswer(signal);
-                if (token === generation.current) { setFrames([]); setStatus('Connecting directly to the receiving device.'); }
+                if (token === generation.current) { signalApplied.current = true; setStatus('Connecting directly to the receiving device. Keep both screens and cameras facing each other.'); }
             } else {
                 if (signal.type !== 'offer') throw new Error('Scan the sender’s offer, not a reply.');
                 connection.current?.close();
@@ -97,11 +101,12 @@ export default function FileTransfer() {
                 const reply = await peer.answer(signal);
                 const codes = await encodeSignal(reply);
                 if (token !== generation.current) return;
-                setFrames(codes); setStatus('Ask the sender to scan this reply QR. Keep this page open.');
+                signalApplied.current = true;
+                setFrames(codes); setStatus('Reply ready. Keep both screens visible to the other device’s camera. Pairing continues automatically.');
             }
         } catch (err) {
             if (token === generation.current) { connection.current?.close(); setError(err instanceof Error ? err.message : 'Pairing failed.'); }
-        } finally { if (token === generation.current) setBusy(false); }
+        } finally { if (token === generation.current) { pairing.current = false; setBusy(false); } }
     }
     async function receiveFile() {
         if (!ready || busy || download) return;
@@ -141,7 +146,7 @@ export default function FileTransfer() {
                         <button className="btn-primary" disabled={!supported || busy} onClick={() => void startSending()}>Create transfer.</button></>}
                 </section> : <section className="card space-y-4">
                     <h2 className="text-xl font-medium">Receive files.</h2>
-                    <p>Open the sender’s QR code, scan it here, and show the reply QR back to the sender.</p>
+                    <p>Start the camera on both devices and face their screens toward each other’s cameras. Connection codes are exchanged automatically.</p>
                     <p>{disk ? 'This browser can stream large files to disk.' : 'This browser uses memory downloads, limited to 100 MiB per file. Use desktop Chrome or Edge for larger files.'}</p>
                     <button className="btn-primary" disabled={!supported} onClick={() => { setRole('receive'); setStatus('Scan the QR shown on the sending device.'); }}>Start receiving.</button>
                 </section>}
@@ -149,9 +154,11 @@ export default function FileTransfer() {
             {role && <h2 className="text-xl font-medium">{role === 'send' ? 'Sending files.' : 'Receiving files.'}</h2>}
             {role && <div role="status" aria-live="polite" className="border border-gray-200 rounded-lg p-4 bg-gray-50">{status}</div>}
             {error && <p role="alert" className="border border-red-200 bg-red-50 text-red-800 rounded-lg p-4">{error}</p>}
-            {role && !connected && !busy && <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {frames.length > 0 && <section className="card space-y-4"><h2 className="text-xl font-medium">{role === 'send' ? '2. Show this offer.' : '2. Show this reply.'}</h2><QrDisplay frames={frames} receiveUrl={role === 'send' ? new URL('/file-transfer?mode=receive', window.location.origin).href : undefined} /></section>}
-                {(role === 'send' || frames.length === 0) && <section className="card space-y-4"><h2 className="text-xl font-medium">{role === 'send' ? '3. Scan the receiver’s reply.' : '1. Scan the sender’s offer.'}</h2><QrReader onSignal={handleSignal} /></section>}
+            {role && !connected && !error && <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <section className="card space-y-4"><h2 className="text-xl font-medium">{role === 'send' ? '2. Show this offer.' : '2. Show this reply.'}</h2>
+                    {frames.length > 0 ? <QrDisplay frames={frames} receiveUrl={role === 'send' ? new URL('/file-transfer?mode=receive', window.location.origin).href : undefined} /> : <p>{role === 'send' ? 'Preparing connection codes.' : 'Your reply appears here automatically after scanning the offer. Keep the camera running.'}</p>}
+                </section>
+                <section className="card space-y-4"><h2 className="text-xl font-medium">{role === 'send' ? '3. Scan the receiver’s reply.' : '1. Scan the sender’s offer.'}</h2><QrReader onSignal={handleSignal} /></section>
             </div>}
             {busy && <p role="status">Preparing. If a save dialog is open, choose a destination or cancel it.</p>}
             {rows.length > 0 && <section className="card space-y-4">

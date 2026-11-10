@@ -68,23 +68,34 @@ async function pair(context, sourceFiles, qrImages) {
     await sender.locator('input[type=file]').setInputFiles(sourceFiles);
     await sender.getByRole('button', { name: 'Create transfer.', exact: true }).click();
     await receiver.getByRole('button', { name: 'Scan with camera.', exact: true }).waitFor();
-    for (const [from, to] of [[sender, receiver], [receiver, sender]]) {
-        if (qrImages === 'webcam-auto') {
-            await from.locator('canvas').waitFor();
-            await from.waitForFunction(() => document.querySelector('canvas')?.style.imageRendering === 'pixelated');
-            await to.getByRole('button', { name: 'Scan with camera.', exact: true }).click();
-            await to.bringToFront();
-            await to.waitForFunction(() => document.querySelector('video')?.srcObject instanceof MediaStream);
-            const deadline = Date.now() + 30000;
-            while (await to.locator('video').count()) {
-                if (Date.now() > deadline) throw new Error('Automatic webcam QR exchange timed out.');
-                // Sample the displayed QR continuously, without pausing it or reading signaling text.
-                const image = await from.locator('canvas').evaluate(canvas => canvas.toDataURL('image/png'));
-                await to.evaluate(image => window.setWebcamImage(image), image);
-                await to.waitForTimeout(150);
-            }
-            continue;
+    if (qrImages === 'webcam-auto') {
+        for (const page of [sender, receiver]) {
+            await page.getByRole('button', { name: 'Scan with camera.', exact: true }).click();
+            await page.waitForFunction(() => document.querySelector('video')?.srcObject instanceof MediaStream);
         }
+        let sawLiveReply = false;
+        const deadline = Date.now() + 45000;
+        while (await sender.locator('video').count() || await receiver.locator('video').count()) {
+            if (Date.now() > deadline) throw new Error('Continuous two-way webcam QR exchange timed out.');
+            for (const [from, to] of [[sender, receiver], [receiver, sender]]) {
+                if (!await from.locator('canvas').count()) continue;
+                const image = await from.locator('canvas').evaluate(canvas => canvas.width ? canvas.toDataURL('image/png') : null);
+                if (!image) continue;
+                if (from === receiver && !sawLiveReply) {
+                    // The receiver must retain its original camera while generating its reply.
+                    assert.ok(await receiver.evaluate(() => window.webcamTracks.length === 1 && window.webcamTracks[0].readyState === 'live'));
+                    assert.ok(await sender.evaluate(() => window.webcamTracks.length === 1 && window.webcamTracks[0].readyState === 'live'));
+                    sawLiveReply = true;
+                }
+                await to.evaluate(image => window.setWebcamImage(image), image);
+            }
+            await sender.waitForTimeout(100);
+        }
+        assert.ok(sawLiveReply, 'Both webcams must remain live through the automatic reply.');
+        await receiver.getByRole('button', { name: 'Receive into memory.', exact: true }).waitFor();
+        return { sender, receiver };
+    }
+    for (const [from, to] of [[sender, receiver], [receiver, sender]]) {
         if (qrImages) {
             await from.locator('canvas').waitFor();
             await from.waitForFunction(() => {
@@ -139,7 +150,7 @@ async function pair(context, sourceFiles, qrImages) {
                     await from.getByRole('button', { name: 'Next.', exact: true }).click();
                     await from.waitForFunction(previous => document.querySelector('canvas').toDataURL() !== previous, previous);
                 } else if (qrImages === 'webcam') {
-                    await to.locator('video').waitFor({ state: 'detached' }).catch(async error => {
+                    await (from === sender ? to.locator('canvas').waitFor() : to.locator('video').waitFor({ state: 'detached' })).catch(async error => {
                         console.log('Webcam diagnostics', await to.evaluate(() => ({ visibility: document.visibilityState, paints: window.webcamPaints, tracks: window.webcamTracks.map(t => t.readyState), paused: document.querySelector('video')?.paused, time: document.querySelector('video')?.currentTime })));
                         if (artifacts) await to.screenshot({ path: join(artifacts, 'webcam-failure.png'), fullPage: true });
                         throw new Error(`${error.message} Webcam status: ${(await to.locator('[role=status], [role=alert]').allTextContents()).join(' ')}`);
