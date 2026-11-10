@@ -1,5 +1,5 @@
-import React from "react";
-import type { ExifData } from "./exifExtractorLogic";
+import React from 'react';
+import type { ExifData } from './exifExtractorLogic';
 
 interface ExifSummaryProps {
     exif: ExifData;
@@ -15,26 +15,26 @@ export default function ExifSummary({ exif, imageFile }: ExifSummaryProps) {
     const data = exif && exif.length > 0 ? exif[0] : {};
 
     // Camera info
-    const make = (data["Make"] as string) || "Unknown";
-    const model = (data["Model"] as string) || "Unknown";
+    const make = (data['Make'] as string) || 'Unknown';
+    const model = (data['Model'] as string) || 'Unknown';
 
     // Exposure settings
-    const exposureTime = data["ExposureTime"] || data["ShutterSpeedValue"] || "-";
-    const fNumber = data["FNumber"] || data["ApertureValue"] || "-";
-    const iso = data["ISO"] || data["ISOSpeedRatings"] || "-";
+    const exposureTime = data['ExposureTime'] || data['ShutterSpeedValue'] || '-';
+    const fNumber = data['FNumber'] || data['ApertureValue'] || '-';
+    const iso = data['ISO'] || data['ISOSpeedRatings'] || '-';
 
     // Location (GPS)
-    const lat = data["GPSLatitude"] as number | undefined;
-    const lon = data["GPSLongitude"] as number | undefined;
-    const location = lat && lon ? `${lat}, ${lon}` : "Not available";
+    const lat = data['GPSLatitude'] as number | undefined;
+    const lon = data['GPSLongitude'] as number | undefined;
+    const location = lat && lon ? `${lat}, ${lon}` : 'Not available';
 
     // Date information
-    const date = data["DateTimeOriginal"] as string | undefined;
+    const date = data['DateTimeOriginal'] as string | undefined;
 
     // Thumbnail (from file, not EXIF).
     const thumbUrl = React.useMemo(
         () => (imageFile ? URL.createObjectURL(imageFile) : null),
-        [imageFile]
+        [imageFile],
     );
     React.useEffect(() => {
         if (thumbUrl) {
@@ -54,13 +54,34 @@ export default function ExifSummary({ exif, imageFile }: ExifSummaryProps) {
                 )}
                 <div className="space-y-2">
                     <div className="text-sm text-gray-900">
-                        {make} {model}
+                        {make}
+                        {' '}
+                        {model}
                     </div>
                     <div className="text-sm text-gray-900">
-                        {exposureTime !== "-" && <>{exposureTime} sec</>}{" "}
-                        {fNumber !== "-" && <>@ f/{fNumber}</>}{" "}
-                        {iso !== "-" && <>ISO {iso}</>}
-                    </div>{" "}
+                        {exposureTime !== '-' && (
+                            <>
+                                {exposureTime}
+                                {' '}
+                                sec
+                            </>
+                        )}
+                        {' '}
+                        {fNumber !== '-' && (
+                            <>
+                                @ f/
+                                {fNumber}
+                            </>
+                        )}
+                        {' '}
+                        {iso !== '-' && (
+                            <>
+                                ISO
+                                {iso}
+                            </>
+                        )}
+                    </div>
+                    {' '}
                     <div className="text-sm text-gray-900">{location}</div>
                     {date && <div className="text-sm text-gray-900">{date}</div>}
                 </div>

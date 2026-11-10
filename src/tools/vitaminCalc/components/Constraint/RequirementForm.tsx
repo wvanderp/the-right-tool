@@ -37,11 +37,14 @@ function RequirementForm({ onAddRequirement, onClose, requirement }: Requirement
                     <label className="block text-gray-700">Supplement</label>
                     <select
                         value={supplementId ?? ''}
-                        onChange={(e) => setSupplementId(e.target.value === '' ? undefined : Number(e.target.value))}
+                        onChange={e =>
+                            setSupplementId(
+                                e.target.value === '' ? undefined : Number(e.target.value),
+                            )}
                         className="w-full p-2 border border-gray-300 rounded"
                     >
                         <option value="">Select Supplement</option>
-                        {supplements.map((supplement) => (
+                        {supplements.map(supplement => (
                             <option key={supplement.id} value={supplement.id}>
                                 {supplement.name}
                             </option>
@@ -53,8 +56,9 @@ function RequirementForm({ onAddRequirement, onClose, requirement }: Requirement
                     <input
                         type="number"
                         value={amount}
-                        onChange={(e) => setAmount(Number(e.target.value))}
-                        className="w-full p-2 border border-gray-300 rounded" />
+                        onChange={e => setAmount(Number(e.target.value))}
+                        className="w-full p-2 border border-gray-300 rounded"
+                    />
                 </div>
                 <button
                     type="submit"

@@ -6,7 +6,7 @@ import {
     defaultMarkdownPrintOptions,
     MarkdownPrintOptions,
     PaperSize,
-    renderMarkdownToHtml
+    renderMarkdownToHtml,
 } from './markdownPrintLogic';
 import { FiPrinter, FiUpload } from 'react-icons/fi';
 
@@ -30,10 +30,13 @@ export default function MarkdownPrint(): React.ReactElement {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const previewHtml = useMemo(() => renderMarkdownToHtml(markdown), [markdown]);
 
-    const updateOption = <Key extends keyof MarkdownPrintOptions>(key: Key, value: MarkdownPrintOptions[Key]) => {
-        setOptions((currentOptions) => ({
+    const updateOption = <Key extends keyof MarkdownPrintOptions>(
+        key: Key,
+        value: MarkdownPrintOptions[Key],
+    ) => {
+        setOptions(currentOptions => ({
             ...currentOptions,
-            [key]: value
+            [key]: value,
         }));
     };
 
@@ -80,8 +83,8 @@ export default function MarkdownPrint(): React.ReactElement {
     return (
         <ToolPage title="Markdown Print Layout">
             <ToolDescription>
-                Render a markdown file as a clean printable document with generous line spacing and a wide right margin
-                for handwritten comments.
+                Render a markdown file as a clean printable document with generous line spacing and
+                a wide right margin for handwritten comments.
             </ToolDescription>
 
             <style>
@@ -175,7 +178,9 @@ export default function MarkdownPrint(): React.ReactElement {
                         </div>
 
                         <label className="block">
-                            <span className="block text-sm font-medium text-gray-700 mb-2">Markdown source</span>
+                            <span className="block text-sm font-medium text-gray-700 mb-2">
+                                Markdown source
+                            </span>
                             <textarea
                                 value={markdown}
                                 onChange={(event) => {
@@ -189,10 +194,13 @@ export default function MarkdownPrint(): React.ReactElement {
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <label className="block">
-                                <span className="block text-sm font-medium text-gray-700 mb-2">Paper</span>
+                                <span className="block text-sm font-medium text-gray-700 mb-2">
+                                    Paper
+                                </span>
                                 <select
                                     value={options.paperSize}
-                                    onChange={(event) => updateOption('paperSize', event.target.value as PaperSize)}
+                                    onChange={event =>
+                                        updateOption('paperSize', event.target.value as PaperSize)}
                                     className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
                                 >
                                     <option value="A4">A4</option>
@@ -202,7 +210,11 @@ export default function MarkdownPrint(): React.ReactElement {
 
                             <label className="block">
                                 <span className="block text-sm font-medium text-gray-700 mb-2">
-                                    Font size: {options.fontSizePt} pt
+                                    Font size:
+                                    {' '}
+                                    {options.fontSizePt}
+                                    {' '}
+                                    pt
                                 </span>
                                 <input
                                     type="range"
@@ -210,14 +222,17 @@ export default function MarkdownPrint(): React.ReactElement {
                                     max="14"
                                     step="1"
                                     value={options.fontSizePt}
-                                    onChange={(event) => updateOption('fontSizePt', Number(event.target.value))}
+                                    onChange={event =>
+                                        updateOption('fontSizePt', Number(event.target.value))}
                                     className="w-full accent-yellow-600"
                                 />
                             </label>
 
                             <label className="block">
                                 <span className="block text-sm font-medium text-gray-700 mb-2">
-                                    Line spacing: {options.lineHeight.toFixed(1)}
+                                    Line spacing:
+                                    {' '}
+                                    {options.lineHeight.toFixed(1)}
                                 </span>
                                 <input
                                     type="range"
@@ -225,14 +240,19 @@ export default function MarkdownPrint(): React.ReactElement {
                                     max="3"
                                     step="0.1"
                                     value={options.lineHeight}
-                                    onChange={(event) => updateOption('lineHeight', Number(event.target.value))}
+                                    onChange={event =>
+                                        updateOption('lineHeight', Number(event.target.value))}
                                     className="w-full accent-yellow-600"
                                 />
                             </label>
 
                             <label className="block">
                                 <span className="block text-sm font-medium text-gray-700 mb-2">
-                                    Right margin: {options.rightMarginMm} mm
+                                    Right margin:
+                                    {' '}
+                                    {options.rightMarginMm}
+                                    {' '}
+                                    mm
                                 </span>
                                 <input
                                     type="range"
@@ -240,7 +260,8 @@ export default function MarkdownPrint(): React.ReactElement {
                                     max="90"
                                     step="1"
                                     value={options.rightMarginMm}
-                                    onChange={(event) => updateOption('rightMarginMm', Number(event.target.value))}
+                                    onChange={event =>
+                                        updateOption('rightMarginMm', Number(event.target.value))}
                                     className="w-full accent-yellow-600"
                                 />
                             </label>
@@ -259,7 +280,9 @@ export default function MarkdownPrint(): React.ReactElement {
                     <section className="space-y-3">
                         <div className="flex items-center justify-between gap-4">
                             <h2 className="text-lg font-semibold text-gray-900">Print preview</h2>
-                            <p className="text-sm text-gray-500">Right margin is reserved for comments.</p>
+                            <p className="text-sm text-gray-500">
+                                Right margin is reserved for comments.
+                            </p>
                         </div>
                         <div className="w-full overflow-auto rounded-lg border border-gray-200 bg-gray-100 p-4">
                             <article
@@ -273,7 +296,7 @@ export default function MarkdownPrint(): React.ReactElement {
                                     paddingRight: `${options.rightMarginMm * 2.4}px`,
                                     fontFamily: 'Georgia, "Times New Roman", serif',
                                     fontSize: `${options.fontSizePt * 1.333}px`,
-                                    lineHeight: options.lineHeight
+                                    lineHeight: options.lineHeight,
                                 }}
                                 dangerouslySetInnerHTML={{ __html: previewHtml }}
                             />

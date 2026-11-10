@@ -23,7 +23,11 @@ function SupplementComponent({ supplement }: SupplementProps) {
                 {supplement.ingredients.map((ingredient, index) => (
                     <li key={index} className="py-2 flex justify-between">
                         <span className="text-gray-900">{ingredient.name}</span>
-                        <span className="text-gray-500">{ingredient.amount} mg</span>
+                        <span className="text-gray-500">
+                            {ingredient.amount}
+                            {' '}
+                            mg
+                        </span>
                     </li>
                 ))}
             </ul>

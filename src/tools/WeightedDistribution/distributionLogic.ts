@@ -4,15 +4,14 @@ export class DistributionCalculator {
     static calculate(config: DistributionConfig): DistributionItem[] {
         const { totalAmount, items } = config;
 
-        const lockedTotal = items.reduce((sum, item) =>
-            item.locked ? sum + item.weight : sum, 0);
+        const lockedTotal = items.reduce((sum, item) => (item.locked ? sum + item.weight : sum), 0);
 
         // Distribution is invalid if locked items exceed 100%
         if (lockedTotal > 100) {
             return items.map(item => ({
                 ...item,
                 value: (item.weight / 100) * totalAmount,
-                isValid: false
+                isValid: false,
             }));
         }
 
@@ -23,7 +22,7 @@ export class DistributionCalculator {
         return items.map(item => ({
             ...item,
             value: Math.round((item.weight / 100) * totalAmount * 100) / 100,
-            isValid: totalPercentage === 100
+            isValid: totalPercentage === 100,
         }));
     }
 
@@ -38,7 +37,7 @@ export class DistributionCalculator {
         if (remainingPercentage <= 0) {
             return items.map((item, index) => ({
                 ...item,
-                weight: item.locked ? item.weight : index === skipIndex ? item.weight : 0
+                weight: item.locked ? item.weight : index === skipIndex ? item.weight : 0,
             }));
         }
 
@@ -52,7 +51,7 @@ export class DistributionCalculator {
                 if (item.locked || index === skipIndex) return item;
                 return {
                     ...item,
-                    weight: Math.round(equalShare * 10) / 10
+                    weight: Math.round(equalShare * 10) / 10,
                 };
             });
         }
@@ -63,7 +62,7 @@ export class DistributionCalculator {
             const scaledWeight = (item.weight / unlockedTotal) * remainingPercentage;
             return {
                 ...item,
-                weight: Math.round(scaledWeight * 10) / 10
+                weight: Math.round(scaledWeight * 10) / 10,
             };
         });
     }

@@ -10,8 +10,8 @@ describe('DistributionCalculator', () => {
                 items: [
                     { name: 'A', weight: 50 },
                     { name: 'B', weight: 30 },
-                    { name: 'C', weight: 20 }
-                ]
+                    { name: 'C', weight: 20 },
+                ],
             };
 
             const result = DistributionCalculator.calculate(config);
@@ -26,8 +26,8 @@ describe('DistributionCalculator', () => {
                 totalAmount: 1000,
                 items: [
                     { name: 'A', weight: 50 },
-                    { name: 'B', weight: 50 }
-                ]
+                    { name: 'B', weight: 50 },
+                ],
             };
 
             const result = DistributionCalculator.calculate(config);
@@ -39,8 +39,8 @@ describe('DistributionCalculator', () => {
                 totalAmount: 1000,
                 items: [
                     { name: 'A', weight: 50 },
-                    { name: 'B', weight: 40 }
-                ]
+                    { name: 'B', weight: 40 },
+                ],
             };
 
             const result = DistributionCalculator.calculate(config);
@@ -53,8 +53,8 @@ describe('DistributionCalculator', () => {
                 items: [
                     { name: 'A', weight: 60, locked: true },
                     { name: 'B', weight: 50, locked: true },
-                    { name: 'C', weight: 0 }
-                ]
+                    { name: 'C', weight: 0 },
+                ],
             };
 
             const result = DistributionCalculator.calculate(config);
@@ -66,7 +66,7 @@ describe('DistributionCalculator', () => {
         it('should normalize weights to 100%', () => {
             const items: DistributionItem[] = [
                 { name: 'A', weight: 5 },
-                { name: 'B', weight: 5 }
+                { name: 'B', weight: 5 },
             ];
 
             const result = DistributionCalculator.normalizeWeights(items);
@@ -77,7 +77,7 @@ describe('DistributionCalculator', () => {
         it('should distribute evenly when all weights are zero', () => {
             const items: DistributionItem[] = [
                 { name: 'A', weight: 0 },
-                { name: 'B', weight: 0 }
+                { name: 'B', weight: 0 },
             ];
 
             const result = DistributionCalculator.normalizeWeights(items);
@@ -89,7 +89,7 @@ describe('DistributionCalculator', () => {
             const items: DistributionItem[] = [
                 { name: 'A', weight: 60, locked: true },
                 { name: 'B', weight: 20 },
-                { name: 'C', weight: 20 }
+                { name: 'C', weight: 20 },
             ];
 
             const result = DistributionCalculator.normalizeWeights(items);
@@ -101,7 +101,7 @@ describe('DistributionCalculator', () => {
             const items: DistributionItem[] = [
                 { name: 'A', weight: 40, locked: true },
                 { name: 'B', weight: 30 },
-                { name: 'C', weight: 30 }
+                { name: 'C', weight: 30 },
             ];
 
             const result = DistributionCalculator.normalizeWeights(items);
@@ -113,7 +113,7 @@ describe('DistributionCalculator', () => {
             const items: DistributionItem[] = [
                 { name: 'A', weight: 30, locked: true },
                 { name: 'B', weight: 20, locked: true },
-                { name: 'C', weight: 100 } // Will be normalized to remaining 50%
+                { name: 'C', weight: 100 }, // Will be normalized to remaining 50%
             ];
 
             const result = DistributionCalculator.normalizeWeights(items);
@@ -126,7 +126,7 @@ describe('DistributionCalculator', () => {
             const items: DistributionItem[] = [
                 { name: 'A', weight: 60, locked: true },
                 { name: 'B', weight: 50, locked: true },
-                { name: 'C', weight: 30 }
+                { name: 'C', weight: 30 },
             ];
 
             const result = DistributionCalculator.normalizeWeights(items);
@@ -140,7 +140,7 @@ describe('DistributionCalculator', () => {
                 { name: 'A', weight: 40, locked: true },
                 { name: 'B', weight: 0 },
                 { name: 'C', weight: 0 },
-                { name: 'D', weight: 0 }
+                { name: 'D', weight: 0 },
             ];
 
             const result = DistributionCalculator.normalizeWeights(items);
@@ -154,7 +154,7 @@ describe('DistributionCalculator', () => {
             const items: DistributionItem[] = [
                 { name: 'A', weight: 90 },
                 { name: 'B', weight: 5 },
-                { name: 'C', weight: 5 }
+                { name: 'C', weight: 5 },
             ];
 
             const result = DistributionCalculator.normalizeWeights(items);
@@ -168,14 +168,14 @@ describe('DistributionCalculator', () => {
                 { name: 'A', weight: 90 },
                 { name: 'B', weight: 5 },
                 { name: 'C', weight: 5 },
-                { name: 'D', weight: 40, locked: true }
+                { name: 'D', weight: 40, locked: true },
             ];
 
             const result = DistributionCalculator.normalizeWeights(items);
             // Remaining 60% should be distributed proportionally
             expect(result[0].weight).toBe(54); // 90% of 60
-            expect(result[1].weight).toBe(3);  // 5% of 60
-            expect(result[2].weight).toBe(3);  // 5% of 60
+            expect(result[1].weight).toBe(3); // 5% of 60
+            expect(result[2].weight).toBe(3); // 5% of 60
             expect(result[3].weight).toBe(40); // locked value unchanged
         });
     });

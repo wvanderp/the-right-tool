@@ -71,8 +71,6 @@
 //     ]
 //   ]
 
-
-
 export default interface Event {
     summary: string;
     description?: string;

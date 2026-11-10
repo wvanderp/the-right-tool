@@ -39,9 +39,16 @@ function ModalForm({ title, onClose, children, error, className }: ModalFormProp
                 if (startedOutsideRef.current) onClose();
             }}
         >
-            <div className={`bg-white p-8 rounded-lg shadow-lg w-full max-w-md max-h-full overflow-y-auto ${className ?? ''}`} onClick={(e) => e.stopPropagation()}>
+            <div
+                className={`bg-white p-8 rounded-lg shadow-lg w-full max-w-md max-h-full overflow-y-auto ${className ?? ''}`}
+                onClick={e => e.stopPropagation()}
+            >
                 <h2 className="text-2xl font-bold mb-4">{title}</h2>
-                {error && <div className="text-red-500 mb-2" role="alert">{error}</div>}
+                {error && (
+                    <div className="text-red-500 mb-2" role="alert">
+                        {error}
+                    </div>
+                )}
                 <div aria-live="polite" aria-atomic="true" className="sr-only" ref={liveRef} />
                 {children}
             </div>

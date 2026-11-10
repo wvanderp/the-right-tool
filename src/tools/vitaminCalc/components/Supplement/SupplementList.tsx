@@ -18,7 +18,8 @@ function SupplementList() {
         const repository = new SupplementRepository();
         if (editingSupplement) {
             repository.updateSupplement(supplement);
-        } else {
+        }
+        else {
             repository.addSupplement(supplement);
         }
         setSupplements(repository.getAllSupplements());
@@ -48,7 +49,8 @@ function SupplementList() {
 
         return supplements.filter((s) => {
             if (s.name && s.name.toLowerCase().includes(q)) return true;
-            if (s.ingredients && s.ingredients.some((ing) => ing.name.toLowerCase().includes(q))) return true;
+            if (s.ingredients && s.ingredients.some(ing => ing.name.toLowerCase().includes(q)))
+                return true;
             return false;
         });
     }, [supplements, searchQuery]);
@@ -64,7 +66,7 @@ function SupplementList() {
                     className="input input-bordered w-full max-w-xs"
                     placeholder="Filter by name or ingredient"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={e => setSearchQuery(e.target.value)}
                 />
                 {searchQuery && (
                     <button
@@ -79,8 +81,11 @@ function SupplementList() {
 
             <div className="flex-1 overflow-auto mt-2">
                 <div className="grid grid-cols-1 gap-6">
-                    {filteredSupplements.map((supplement) => (
-                        <div key={supplement.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl p-6 border border-gray-200 transition-shadow duration-300">
+                    {filteredSupplements.map(supplement => (
+                        <div
+                            key={supplement.id}
+                            className="bg-white rounded-lg shadow-lg hover:shadow-xl p-6 border border-gray-200 transition-shadow duration-300"
+                        >
                             <SupplementComponent supplement={supplement} />
                             <div className="flex justify-end mt-4 pt-4 border-t border-gray-100 space-x-2">
                                 <button
@@ -94,11 +99,20 @@ function SupplementList() {
 
                                 <button
                                     className={`transition-colors duration-200 ${supplement.disabled ? '' : 'text-gray-400 hover:text-yellow-600'}`}
-                                    onClick={() => handleToggleDisabled(supplement.id, !supplement.disabled)}
-                                    title={supplement.disabled ? 'Enable supplement' : 'Disable supplement'}
+                                    onClick={() =>
+                                        handleToggleDisabled(supplement.id, !supplement.disabled)}
+                                    title={
+                                        supplement.disabled
+                                            ? 'Enable supplement'
+                                            : 'Disable supplement'
+                                    }
                                 >
-                                    <span className="sr-only">{supplement.disabled ? 'Enable' : 'Disable'}</span>
-                                    <FaBan className={`h-4 w-4 ${supplement.disabled ? 'text-red-600' : ''}`} />
+                                    <span className="sr-only">
+                                        {supplement.disabled ? 'Enable' : 'Disable'}
+                                    </span>
+                                    <FaBan
+                                        className={`h-4 w-4 ${supplement.disabled ? 'text-red-600' : ''}`}
+                                    />
                                 </button>
 
                                 <button

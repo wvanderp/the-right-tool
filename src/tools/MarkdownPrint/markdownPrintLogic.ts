@@ -15,7 +15,7 @@ export const defaultMarkdownPrintOptions: MarkdownPrintOptions = {
     lineHeight: 2.0,
     topBottomMarginMm: 18,
     leftMarginMm: 20,
-    rightMarginMm: 80
+    rightMarginMm: 80,
 };
 
 function escapeHtml(value: string): string {
@@ -89,7 +89,10 @@ function stripHtmlCommentsOutsideFencedCode(markdown: string): string {
                     break;
                 }
 
-                filteredLine = appendCommentFilteredText(filteredLine, line.slice(position, commentStart));
+                filteredLine = appendCommentFilteredText(
+                    filteredLine,
+                    line.slice(position, commentStart),
+                );
                 const commentEnd = line.indexOf('-->', commentStart + 4);
 
                 if (commentEnd === -1) {
@@ -119,25 +122,37 @@ function renderInlineMarkdown(value: string): string {
     html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
 
-    return html.replace(/@@CODE_SEGMENT_(\d+)@@/g, (_match, index: string) => codeSegments[Number(index)]);
+    return html.replace(
+        /@@CODE_SEGMENT_(\d+)@@/g,
+        (_match, index: string) => codeSegments[Number(index)],
+    );
 }
 
 function renderList(lines: string[], ordered: boolean): string {
     const tagName = ordered ? 'ol' : 'ul';
     const items = lines
-        .map((line) => line.replace(ordered ? /^\s*\d+\.\s+/ : /^\s*[-*+]\s+/, ''))
-        .map((item) => `<li>${renderInlineMarkdown(item)}</li>`)
+        .map(line => line.replace(ordered ? /^\s*\d+\.\s+/ : /^\s*[-*+]\s+/, ''))
+        .map(item => `<li>${renderInlineMarkdown(item)}</li>`)
         .join('');
 
     return `<${tagName}>${items}</${tagName}>`;
 }
 
 function renderTable(lines: string[]): string {
-    const rows = lines.map((line) => line.trim().replace(/^\||\|$/g, '').split('|').map((cell) => cell.trim()));
+    const rows = lines.map(line =>
+        line
+            .trim()
+            .replace(/^\||\|$/g, '')
+            .split('|')
+            .map(cell => cell.trim()),
+    );
     const [headers, , ...bodyRows] = rows;
-    const headerHtml = headers.map((header) => `<th>${renderInlineMarkdown(header)}</th>`).join('');
+    const headerHtml = headers.map(header => `<th>${renderInlineMarkdown(header)}</th>`).join('');
     const bodyHtml = bodyRows
-        .map((row) => `<tr>${row.map((cell) => `<td>${renderInlineMarkdown(cell)}</td>`).join('')}</tr>`)
+        .map(
+            row =>
+                `<tr>${row.map(cell => `<td>${renderInlineMarkdown(cell)}</td>`).join('')}</tr>`,
+        )
         .join('');
 
     return `<table><thead><tr>${headerHtml}</tr></thead><tbody>${bodyHtml}</tbody></table>`;
@@ -145,9 +160,9 @@ function renderTable(lines: string[]): string {
 
 function isTableStart(lines: string[], index: number): boolean {
     return Boolean(
-        lines[index]?.includes('|') &&
-        lines[index + 1] &&
-        /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(lines[index + 1])
+        lines[index]?.includes('|')
+        && lines[index + 1]
+        && /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(lines[index + 1]),
     );
 }
 
@@ -227,7 +242,9 @@ export function renderMarkdownToHtml(markdown: string): string {
                 quoteLines.push(lines[index].replace(/^\s*>\s?/, ''));
                 index += 1;
             }
-            blocks.push(`<blockquote>${quoteLines.map(renderInlineMarkdown).join('<br>')}</blockquote>`);
+            blocks.push(
+                `<blockquote>${quoteLines.map(renderInlineMarkdown).join('<br>')}</blockquote>`,
+            );
             continue;
         }
 
@@ -235,11 +252,11 @@ export function renderMarkdownToHtml(markdown: string): string {
         index += 1;
         while (index < lines.length && lines[index].trim() && !/^(#{1,6})\s+/.test(lines[index])) {
             if (
-                lines[index].trim().startsWith('```') ||
-                /^\s*[-*+]\s+/.test(lines[index]) ||
-                /^\s*\d+\.\s+/.test(lines[index]) ||
-                /^\s*>\s?/.test(lines[index]) ||
-                isTableStart(lines, index)
+                lines[index].trim().startsWith('```')
+                || /^\s*[-*+]\s+/.test(lines[index])
+                || /^\s*\d+\.\s+/.test(lines[index])
+                || /^\s*>\s?/.test(lines[index])
+                || isTableStart(lines, index)
             ) {
                 break;
             }

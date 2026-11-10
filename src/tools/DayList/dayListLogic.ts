@@ -1,5 +1,13 @@
 export type FilterType = 'dayOfWeek' | 'dayOfMonth';
-export type OutputFormat = 'YYYY-MM-DD' | 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'DD-MMM-YYYY' | 'full' | 'long' | 'medium' | 'short';
+export type OutputFormat
+    = | 'YYYY-MM-DD'
+        | 'MM/DD/YYYY'
+        | 'DD/MM/YYYY'
+        | 'DD-MMM-YYYY'
+        | 'full'
+        | 'long'
+        | 'medium'
+        | 'short';
 
 export interface DayListOptions {
     startDate: string;
@@ -27,29 +35,29 @@ export function generateDayList(options: DayListOptions): string {
         dayOfMonthFilter,
         outputFormat,
         separator,
-        locale
+        locale,
     } = options;
 
     // Parse the start and end dates
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
+
     // Validate dates
     if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) {
-        return "Invalid date range";
+        return 'Invalid date range';
     }
 
     // Generate all dates in the range
     const dates: Date[] = [];
     const currentDate = new Date(start);
-    
+
     while (currentDate <= end) {
         dates.push(new Date(currentDate));
         currentDate.setDate(currentDate.getDate() + 1);
     }
 
     // Apply filters
-    const filteredDates = dates.filter(date => {
+    const filteredDates = dates.filter((date) => {
         // No filters, include all dates
         if (filters.length === 0) {
             return true;
@@ -62,7 +70,8 @@ export function generateDayList(options: DayListOptions): string {
             // If filter is empty, include all days
             if (dayOfWeekFilter.length === 0) {
                 include = true;
-            } else {
+            }
+            else {
                 // Check if the day of the week is in the filter
                 include = include && dayOfWeekFilter.includes(date.getDay());
             }
@@ -73,7 +82,8 @@ export function generateDayList(options: DayListOptions): string {
             // If filter is empty, include all days
             if (dayOfMonthFilter.length === 0) {
                 include = true;
-            } else {
+            }
+            else {
                 // Check if the day of the month is in the filter
                 include = include && dayOfMonthFilter.includes(date.getDate());
             }
@@ -123,29 +133,29 @@ function formatDate(date: Date, format: OutputFormat, locale: string): string {
             return `${day}-${month}-${year}`;
         }
         case 'full':
-            return date.toLocaleDateString(locale, { 
+            return date.toLocaleDateString(locale, {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
-                day: 'numeric'
+                day: 'numeric',
             });
         case 'long':
-            return date.toLocaleDateString(locale, { 
+            return date.toLocaleDateString(locale, {
                 year: 'numeric',
                 month: 'long',
-                day: 'numeric'
+                day: 'numeric',
             });
         case 'medium':
-            return date.toLocaleDateString(locale, { 
+            return date.toLocaleDateString(locale, {
                 year: 'numeric',
                 month: 'short',
-                day: 'numeric'
+                day: 'numeric',
             });
         case 'short':
-            return date.toLocaleDateString(locale, { 
+            return date.toLocaleDateString(locale, {
                 year: 'numeric',
                 month: 'numeric',
-                day: 'numeric'
+                day: 'numeric',
             });
         default:
             return date.toISOString().split('T')[0];

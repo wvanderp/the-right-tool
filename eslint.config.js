@@ -1,12 +1,23 @@
-import js from '@eslint/js'
-import tsParser from '@typescript-eslint/parser'
-import tsPlugin from '@typescript-eslint/eslint-plugin'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import globals from 'globals'
+import js from '@eslint/js';
+import tsParser from '@typescript-eslint/parser';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import globals from 'globals';
+import stylistic from '@stylistic/eslint-plugin';
 
 export default [
     { ignores: ['dist'] },
+    {
+        ...stylistic.configs.customize({
+            indent: 4,
+            quotes: 'single',
+            semi: true,
+            jsx: true,
+            commaDangle: 'always-multiline',
+        }),
+        files: ['**/*.{js,mjs,ts,tsx}'],
+    },
     {
         files: ['**/*.{ts,tsx}'],
         languageOptions: {
@@ -25,11 +36,8 @@ export default [
             ...tsPlugin.configs.recommended.rules,
             ...reactHooks.configs.recommended.rules,
             'no-undef': 'off',
-            '@typescript-eslint/no-unused-vars': [
-                'error',
-                { caughtErrors: 'none' },
-            ],
+            '@typescript-eslint/no-unused-vars': ['error', { caughtErrors: 'none' }],
             'react-refresh/only-export-components': 'off',
         },
     },
-]
+];

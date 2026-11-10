@@ -2,30 +2,30 @@ name: Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
 
-    - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v6
 
-    - uses: actions/setup-node@v6
-      with:
-        node-version: 'latest'
-        cache: 'pnpm'
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 'latest'
+          cache: 'pnpm'
 
-    - name: pnpm install
-      run: pnpm install --frozen-lockfile
+      - name: pnpm install
+        run: pnpm install --frozen-lockfile
 
-    - name: pnpm run build
-      run: pnpm run build
+      - name: pnpm run build
+        run: pnpm run build
 
-    - name: pnpm run lint
-      run: pnpm run lint
+      - name: pnpm run lint
+        run: pnpm run lint
 
-    - name: pnpm run test
-      run: pnpm run test
+      - name: pnpm run test
+        run: pnpm run test

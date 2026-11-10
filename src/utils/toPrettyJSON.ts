@@ -1,6 +1,6 @@
 /**
  * Converts any data to a pretty JSON string
- * 
+ *
  * @param data any data to be converted to a pretty JSON
  * @returns a pretty JSON string
  */

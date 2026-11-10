@@ -9,7 +9,7 @@ import {
     rangesToProvenanceChunks,
     splitSuggestionIntoWords,
     updateSuggestionForChanges,
-    updateProvenanceRanges
+    updateProvenanceRanges,
 } from '../predictiveTextLogic';
 
 describe('predictiveTextLogic', () => {
@@ -27,28 +27,33 @@ describe('predictiveTextLogic', () => {
         expect(splitSuggestionIntoWords(' wonderful, bright world.')).toEqual([
             ' wonderful, ',
             'bright ',
-            'world.'
+            'world.',
         ]);
         expect(splitSuggestionIntoWords(' can’t stop')).toEqual([' can’t ', 'stop']);
         expect(splitSuggestionIntoWords('...')).toEqual(['...']);
     });
 
     it('normalizes spacing, fences, line breaks, and the requested word limit', () => {
-        expect(normalizeSuggestion('small green tree grows quickly', 'A', 3))
-            .toBe(' small green tree');
-        expect(normalizeSuggestion('  next word', 'Already ', 2))
-            .toBe('next word');
-        expect(normalizeSuggestion('```\nnext\nline\n```', 'The ', 10))
-            .toBe('next line');
+        expect(normalizeSuggestion('small green tree grows quickly', 'A', 3)).toBe(
+            ' small green tree',
+        );
+        expect(normalizeSuggestion('  next word', 'Already ', 2)).toBe('next word');
+        expect(normalizeSuggestion('```\nnext\nline\n```', 'The ', 10)).toBe('next line');
     });
 
     it('finds the previous word and its surrounding separators', () => {
-        expect(findPreviousWordRange('Hello, world!', { from: 13, to: 13 }))
-            .toEqual({ from: 6, to: 13 });
-        expect(findPreviousWordRange('Hello world', { from: 9, to: 9 }))
-            .toEqual({ from: 5, to: 9 });
-        expect(findPreviousWordRange('Selected text', { from: 0, to: 8 }))
-            .toEqual({ from: 0, to: 8 });
+        expect(findPreviousWordRange('Hello, world!', { from: 13, to: 13 })).toEqual({
+            from: 6,
+            to: 13,
+        });
+        expect(findPreviousWordRange('Hello world', { from: 9, to: 9 })).toEqual({
+            from: 5,
+            to: 9,
+        });
+        expect(findPreviousWordRange('Selected text', { from: 0, to: 8 })).toEqual({
+            from: 0,
+            to: 8,
+        });
         expect(findPreviousWordRange('Hello', { from: 0, to: 0 })).toBeNull();
     });
 
@@ -63,35 +68,33 @@ describe('predictiveTextLogic', () => {
         const suggestion = { position: 6, text: 'world' };
 
         expect(updateSuggestionForChanges(suggestion, [])).toEqual(suggestion);
-        expect(updateSuggestionForChanges(suggestion, [
-            { from: 0, to: 0, insert: 'Say ' }
-        ])).toEqual({
+        expect(
+            updateSuggestionForChanges(suggestion, [{ from: 0, to: 0, insert: 'Say ' }]),
+        ).toEqual({
             position: 10,
-            text: 'world'
+            text: 'world',
         });
-        expect(updateSuggestionForChanges(suggestion, [
-            { from: 6, to: 6, insert: 'wor' }
-        ])).toEqual({
-            position: 9,
-            text: 'ld'
-        });
-        expect(updateSuggestionForChanges(suggestion, [
-            { from: 8, to: 8, insert: ' elsewhere' }
-        ])).toEqual(suggestion);
+        expect(updateSuggestionForChanges(suggestion, [{ from: 6, to: 6, insert: 'wor' }])).toEqual(
+            {
+                position: 9,
+                text: 'ld',
+            },
+        );
+        expect(
+            updateSuggestionForChanges(suggestion, [{ from: 8, to: 8, insert: ' elsewhere' }]),
+        ).toEqual(suggestion);
     });
 
     it('invalidates a prediction only when an edit conflicts with it', () => {
         const suggestion = { position: 6, text: 'world' };
 
-        expect(updateSuggestionForChanges(suggestion, [
-            { from: 6, to: 6, insert: 'wonder' }
-        ])).toBeNull();
-        expect(updateSuggestionForChanges(suggestion, [
-            { from: 6, to: 7, insert: 'W' }
-        ])).toBeNull();
-        expect(updateSuggestionForChanges(suggestion, [
-            { from: 4, to: 8, insert: '' }
-        ])).toBeNull();
+        expect(
+            updateSuggestionForChanges(suggestion, [{ from: 6, to: 6, insert: 'wonder' }]),
+        ).toBeNull();
+        expect(
+            updateSuggestionForChanges(suggestion, [{ from: 6, to: 7, insert: 'W' }]),
+        ).toBeNull();
+        expect(updateSuggestionForChanges(suggestion, [{ from: 4, to: 8, insert: '' }])).toBeNull();
     });
 
     it('tracks AI insertions and later human edits', () => {
@@ -101,12 +104,12 @@ describe('predictiveTextLogic', () => {
             5,
             11,
             [{ fromA: 5, toA: 5, fromB: 5, toB: 11 }],
-            'ai'
+            'ai',
         );
 
         expect(afterAiInsertion).toEqual([
             { from: 0, to: 5, origin: 'human' },
-            { from: 5, to: 11, origin: 'ai' }
+            { from: 5, to: 11, origin: 'ai' },
         ]);
 
         const afterHumanInsertion = updateProvenanceRanges(
@@ -114,45 +117,49 @@ describe('predictiveTextLogic', () => {
             11,
             12,
             [{ fromA: 11, toA: 11, fromB: 11, toB: 12 }],
-            'human'
+            'human',
         );
 
         expect(afterHumanInsertion).toEqual([
             { from: 0, to: 5, origin: 'human' },
             { from: 5, to: 11, origin: 'ai' },
-            { from: 11, to: 12, origin: 'human' }
+            { from: 11, to: 12, origin: 'human' },
         ]);
 
-        expect(updateProvenanceRanges(
-            afterHumanInsertion,
-            12,
-            12,
-            [{ fromA: 7, toA: 9, fromB: 7, toB: 9 }],
-            'human'
-        )).toEqual([
+        expect(
+            updateProvenanceRanges(
+                afterHumanInsertion,
+                12,
+                12,
+                [{ fromA: 7, toA: 9, fromB: 7, toB: 9 }],
+                'human',
+            ),
+        ).toEqual([
             { from: 0, to: 5, origin: 'human' },
             { from: 5, to: 7, origin: 'ai' },
             { from: 7, to: 9, origin: 'human' },
             { from: 9, to: 11, origin: 'ai' },
-            { from: 11, to: 12, origin: 'human' }
+            { from: 11, to: 12, origin: 'human' },
         ]);
     });
 
     it('remaps provenance when text is deleted', () => {
-        expect(updateProvenanceRanges(
-            [
-                { from: 0, to: 5, origin: 'human' },
-                { from: 5, to: 11, origin: 'ai' },
-                { from: 11, to: 12, origin: 'human' }
-            ],
-            12,
-            8,
-            [{ fromA: 4, toA: 8, fromB: 4, toB: 4 }],
-            'human'
-        )).toEqual([
+        expect(
+            updateProvenanceRanges(
+                [
+                    { from: 0, to: 5, origin: 'human' },
+                    { from: 5, to: 11, origin: 'ai' },
+                    { from: 11, to: 12, origin: 'human' },
+                ],
+                12,
+                8,
+                [{ fromA: 4, toA: 8, fromB: 4, toB: 4 }],
+                'human',
+            ),
+        ).toEqual([
             { from: 0, to: 4, origin: 'human' },
             { from: 4, to: 7, origin: 'ai' },
-            { from: 7, to: 8, origin: 'human' }
+            { from: 7, to: 8, origin: 'human' },
         ]);
     });
 
@@ -160,21 +167,21 @@ describe('predictiveTextLogic', () => {
         const chunks = rangesToProvenanceChunks('Hello world!', [
             { from: 0, to: 6, origin: 'human' },
             { from: 6, to: 11, origin: 'ai' },
-            { from: 11, to: 12, origin: 'human' }
+            { from: 11, to: 12, origin: 'human' },
         ]);
 
         expect(chunks).toEqual([
             { origin: 'human', text: 'Hello ' },
             { origin: 'ai', text: 'world' },
-            { origin: 'human', text: '!' }
+            { origin: 'human', text: '!' },
         ]);
         expect(provenanceChunksToDocument(chunks)).toEqual({
             text: 'Hello world!',
             ranges: [
                 { from: 0, to: 6, origin: 'human' },
                 { from: 6, to: 11, origin: 'ai' },
-                { from: 11, to: 12, origin: 'human' }
-            ]
+                { from: 11, to: 12, origin: 'human' },
+            ],
         });
     });
 });

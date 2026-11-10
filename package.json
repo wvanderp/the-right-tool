@@ -20,7 +20,9 @@
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0 & tsc --noEmit",
     "preview": "vite preview",
     "test": "vitest run",
-    "postinstall": "patch-package && node -e \"const fs=require('fs'),p='node_modules/@6over3/zeroperl-ts/dist';fs.existsSync(p+'/cjs/zeroperl.wasm')&&!fs.existsSync(p+'/esm/zeroperl.wasm')&&fs.copyFileSync(p+'/cjs/zeroperl.wasm',p+'/esm/zeroperl.wasm')\""
+    "postinstall": "patch-package && node -e \"const fs=require('fs'),p='node_modules/@6over3/zeroperl-ts/dist';fs.existsSync(p+'/cjs/zeroperl.wasm')&&!fs.existsSync(p+'/esm/zeroperl.wasm')&&fs.copyFileSync(p+'/cjs/zeroperl.wasm',p+'/esm/zeroperl.wasm')\"",
+    "format": "eslint . --fix",
+    "format:check": "eslint . --max-warnings 0"
   },
   "dependencies": {
     "@6over3/zeroperl-ts": "1.0.10",
@@ -42,6 +44,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "5.10.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/jsonpath": "^0.2.4",
     "@types/node": "^26.1.1",

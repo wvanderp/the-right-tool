@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import ConstraintRepository, { Constraint, RequirementConstraint, RequirementRepository } from '../../repository/ConstraintRepository';
+import ConstraintRepository, {
+    Constraint,
+    RequirementConstraint,
+    RequirementRepository,
+} from '../../repository/ConstraintRepository';
 import SupplementRepository, { Supplement } from '../../repository/SupplementRepository';
 import ConstraintComponent from './Constraint';
 import ConstraintForm from './ConstraintForm';
@@ -14,7 +18,9 @@ function ConstraintList() {
     const [showForm, setShowForm] = useState(false);
     const [editingConstraint, setEditingConstraint] = useState<Constraint | undefined>(undefined);
     const [showRequirementForm, setShowRequirementForm] = useState(false);
-    const [editingRequirement, setEditingRequirement] = useState<RequirementConstraint | undefined>(undefined);
+    const [editingRequirement, setEditingRequirement] = useState<RequirementConstraint | undefined>(
+        undefined,
+    );
     const [requirements, setRequirements] = useState<RequirementConstraint[]>(() => {
         const requirementRepository = new RequirementRepository();
         return requirementRepository.getAllRequirements();
@@ -28,7 +34,8 @@ function ConstraintList() {
         const repository = new ConstraintRepository();
         if (editingConstraint) {
             repository.updateConstraint(constraint);
-        } else {
+        }
+        else {
             repository.addConstraint(constraint);
         }
         setConstraints(repository.getAllConstraints());
@@ -50,7 +57,8 @@ function ConstraintList() {
         const requirementRepository = new RequirementRepository();
         if (editingRequirement) {
             requirementRepository.updateRequirement(requirement);
-        } else {
+        }
+        else {
             requirementRepository.addRequirement(requirement);
         }
         setRequirements(requirementRepository.getAllRequirements());
@@ -81,8 +89,11 @@ function ConstraintList() {
             </div>
             <div className="flex-1 overflow-auto mt-6">
                 <div className="grid grid-cols-1 gap-6">
-                    {constraints.map((constraint) => (
-                        <div key={constraint.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl p-6 border border-gray-200 transition-shadow duration-300">
+                    {constraints.map(constraint => (
+                        <div
+                            key={constraint.id}
+                            className="bg-white rounded-lg shadow-lg hover:shadow-xl p-6 border border-gray-200 transition-shadow duration-300"
+                        >
                             <ConstraintComponent constraint={constraint} />
                             <div className="flex justify-end mt-4 pt-4 border-t border-gray-100 gap-2">
                                 <button
@@ -104,16 +115,22 @@ function ConstraintList() {
                             </div>
                         </div>
                     ))}
-                    {requirements.map((requirement) => (
-                        <div key={requirement.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl p-6 border border-gray-200 transition-shadow duration-300">
+                    {requirements.map(requirement => (
+                        <div
+                            key={requirement.id}
+                            className="bg-white rounded-lg shadow-lg hover:shadow-xl p-6 border border-gray-200 transition-shadow duration-300"
+                        >
                             <div className="space-y-2">
                                 <h3 className="text-lg font-medium text-gray-900">
-                                    {supplements.find(s => s.id === requirement.supplementId)?.name || 'Unknown Supplement'}
+                                    {supplements.find(s => s.id === requirement.supplementId)
+                                        ?.name || 'Unknown Supplement'}
                                 </h3>
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center text-sm">
                                         <span className="text-gray-500">Required Amount:</span>
-                                        <span className="font-medium text-gray-900">{requirement.amount}</span>
+                                        <span className="font-medium text-gray-900">
+                                            {requirement.amount}
+                                        </span>
                                     </div>
                                 </div>
                             </div>

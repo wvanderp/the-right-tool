@@ -23,7 +23,8 @@ export default function HandlebarsTemplate(): React.ReactElement {
         setParseErrors([]);
         try {
             JSON.parse(json);
-        } catch (e) {
+        }
+        catch (e) {
             // @ts-expect-error -- We don't know the type of e but if it string like then we can put on the screen
             setParseErrors([...parseErrors, e.message]);
             return;
@@ -32,7 +33,8 @@ export default function HandlebarsTemplate(): React.ReactElement {
         try {
             const helperFactory = new Function('Handlebars', javascript);
             helperFactory(Handlebars);
-        } catch (e) {
+        }
+        catch (e) {
             // @ts-expect-error -- We don't know the type of e but if it string like then we can put on the screen
             setParseErrors([...parseErrors, e.message]);
             return;
@@ -52,21 +54,24 @@ export default function HandlebarsTemplate(): React.ReactElement {
     return (
         <ToolPage title="Handlebars Template Generator">
             <ToolDescription>
-                Generate dynamic text using the Handlebars templating engine. Provide JSON data and a Handlebars template,
-                and optionally add custom JavaScript helpers. Perfect for generating emails, reports, or any text that needs
-                dynamic content based on data.
+                Generate dynamic text using the Handlebars templating engine. Provide JSON data and
+                a Handlebars template, and optionally add custom JavaScript helpers. Perfect for
+                generating emails, reports, or any text that needs dynamic content based on data.
             </ToolDescription>
 
             <div className="space-y-6 max-w-4xl w-full">
                 {/* JSON Input */}
                 <div>
-                    <label htmlFor="json-input" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                        htmlFor="json-input"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                         JSON Data
                     </label>
                     <textarea
                         id="json-input"
                         value={json}
-                        onChange={(e) => setJson(e.target.value)}
+                        onChange={e => setJson(e.target.value)}
                         className="w-full h-32 font-mono text-sm"
                         placeholder='{"name": "John", "age": 30}'
                     />
@@ -74,13 +79,16 @@ export default function HandlebarsTemplate(): React.ReactElement {
 
                 {/* JavaScript Input */}
                 <div>
-                    <label htmlFor="js-input" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                        htmlFor="js-input"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                         JavaScript Helpers (Optional)
                     </label>
                     <textarea
                         id="js-input"
                         value={javascript}
-                        onChange={(e) => setJavascript(e.target.value)}
+                        onChange={e => setJavascript(e.target.value)}
                         className="w-full h-32 font-mono text-sm"
                         placeholder="Handlebars.registerHelper('uppercase', function(str) { return str.toUpperCase(); });"
                     />
@@ -88,23 +96,23 @@ export default function HandlebarsTemplate(): React.ReactElement {
 
                 {/* Template Input */}
                 <div>
-                    <label htmlFor="template-input" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label
+                        htmlFor="template-input"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                    >
                         Handlebars Template
                     </label>
                     <textarea
                         id="template-input"
                         value={template}
-                        onChange={(e) => setTemplate(e.target.value)}
+                        onChange={e => setTemplate(e.target.value)}
                         className="w-full h-32 font-mono text-sm"
                         placeholder="Hello {{name}}, you are {{age}} years old!"
                     />
                 </div>
 
                 {/* Convert Button */}
-                <button
-                    onClick={convert}
-                    className="btn-primary"
-                >
+                <button onClick={convert} className="btn-primary">
                     Generate Output
                 </button>
 
@@ -114,7 +122,9 @@ export default function HandlebarsTemplate(): React.ReactElement {
                         <h3 className="text-sm font-medium text-red-800 mb-2">Errors:</h3>
                         <ul className="list-disc list-inside text-sm text-red-600 space-y-2">
                             {parseErrors.map((error, index) => (
-                                <li key={index} className="font-mono">{error}</li>
+                                <li key={index} className="font-mono">
+                                    {error}
+                                </li>
                             ))}
                         </ul>
                     </div>
@@ -123,7 +133,10 @@ export default function HandlebarsTemplate(): React.ReactElement {
                 {/* Output Display */}
                 {output && (
                     <div>
-                        <label htmlFor="output" className="block text-sm font-medium text-gray-700 mb-2">
+                        <label
+                            htmlFor="output"
+                            className="block text-sm font-medium text-gray-700 mb-2"
+                        >
                             Generated Output
                         </label>
                         <textarea

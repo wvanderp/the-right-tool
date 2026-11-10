@@ -7,7 +7,7 @@ import {
     ProvenanceChunk,
     ProvenanceRange,
     PredictiveTextSettings,
-    rangesToProvenanceChunks
+    rangesToProvenanceChunks,
 } from './predictiveTextLogic';
 
 export const SETTINGS_STORAGE_KEY = 'predictiveTextEditor.settings.v1';
@@ -29,7 +29,8 @@ interface StoredEditorState {
 function getBrowserStorage(): Storage | null {
     try {
         return window.localStorage;
-    } catch {
+    }
+    catch {
         return null;
     }
 }
@@ -50,29 +51,35 @@ export function loadSettings(storage = getBrowserStorage()): PredictiveTextSetti
 
         return {
             apiKey: typeof parsedValue.apiKey === 'string' ? parsedValue.apiKey : '',
-            modelId: typeof parsedValue.modelId === 'string' && parsedValue.modelId.trim()
-                ? parsedValue.modelId.trim()
-                : defaultSettings.modelId,
+            modelId:
+                typeof parsedValue.modelId === 'string' && parsedValue.modelId.trim()
+                    ? parsedValue.modelId.trim()
+                    : defaultSettings.modelId,
             wordCount: clampWordCount(Number(parsedValue.wordCount)),
-            debugView: parsedValue.debugView === true
+            debugView: parsedValue.debugView === true,
         };
-    } catch {
+    }
+    catch {
         return defaultSettings;
     }
 }
 
 export function saveSettings(
     settings: PredictiveTextSettings,
-    storage = getBrowserStorage()
+    storage = getBrowserStorage(),
 ): void {
     try {
-        storage?.setItem(SETTINGS_STORAGE_KEY, JSON.stringify({
-            apiKey: settings.apiKey.trim(),
-            modelId: settings.modelId.trim(),
-            wordCount: clampWordCount(settings.wordCount),
-            debugView: settings.debugView
-        }));
-    } catch {
+        storage?.setItem(
+            SETTINGS_STORAGE_KEY,
+            JSON.stringify({
+                apiKey: settings.apiKey.trim(),
+                modelId: settings.modelId.trim(),
+                wordCount: clampWordCount(settings.wordCount),
+                debugView: settings.debugView,
+            }),
+        );
+    }
+    catch {
         // The editor remains usable when storage is unavailable or full.
     }
 }
@@ -82,27 +89,28 @@ function loadLegacyDocument(storage: Storage): StoredDocument {
         const text = storage.getItem(DRAFT_STORAGE_KEY) ?? '';
         const savedProvenance = storage.getItem(PROVENANCE_STORAGE_KEY);
         const parsedProvenance = savedProvenance
-            ? JSON.parse(savedProvenance) as ProvenanceRange[]
+            ? (JSON.parse(savedProvenance) as ProvenanceRange[])
             : [];
         const provenance = normalizeProvenanceRanges(
             Array.isArray(parsedProvenance) ? parsedProvenance : [],
-            text.length
+            text.length,
         );
 
         return { text, provenance, suggestion: null };
-    } catch {
+    }
+    catch {
         const text = storage.getItem(DRAFT_STORAGE_KEY) ?? '';
         return {
             text,
             provenance: normalizeProvenanceRanges([], text.length),
-            suggestion: null
+            suggestion: null,
         };
     }
 }
 
 function normalizeStoredSuggestion(
     suggestion: unknown,
-    textLength: number
+    textLength: number,
 ): PredictionSuggestion | null {
     if (
         !suggestion
@@ -146,10 +154,11 @@ export function loadDocument(storage = getBrowserStorage()): StoredDocument {
                 provenance: document.ranges,
                 suggestion: Array.isArray(parsedValue)
                     ? null
-                    : normalizeStoredSuggestion(parsedValue.suggestion, document.text.length)
+                    : normalizeStoredSuggestion(parsedValue.suggestion, document.text.length),
             };
         }
-    } catch {
+    }
+    catch {
         // Fall through to the legacy draft migration.
     }
 
@@ -162,19 +171,20 @@ export function saveDocument(
     text: string,
     ranges: ProvenanceRange[],
     suggestion: PredictionSuggestion | null = null,
-    storage = getBrowserStorage()
+    storage = getBrowserStorage(),
 ): void {
     try {
         storage?.setItem(
             DOCUMENT_STORAGE_KEY,
             JSON.stringify({
                 chunks: rangesToProvenanceChunks(text, ranges),
-                suggestion: normalizeStoredSuggestion(suggestion, text.length)
-            } satisfies StoredEditorState)
+                suggestion: normalizeStoredSuggestion(suggestion, text.length),
+            } satisfies StoredEditorState),
         );
         storage?.removeItem(DRAFT_STORAGE_KEY);
         storage?.removeItem(PROVENANCE_STORAGE_KEY);
-    } catch {
+    }
+    catch {
         // The reconstructed document remains available for the current session.
     }
 }
@@ -185,7 +195,8 @@ export function clearPredictiveTextData(storage = getBrowserStorage()): void {
         storage?.removeItem(DRAFT_STORAGE_KEY);
         storage?.removeItem(PROVENANCE_STORAGE_KEY);
         storage?.removeItem(DOCUMENT_STORAGE_KEY);
-    } catch {
+    }
+    catch {
         // There is nothing else to clear when browser storage is unavailable.
     }
 }

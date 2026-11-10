@@ -12,7 +12,11 @@ import jp from 'jsonpath';
  * @param longitudeJsonPath JSONPath to the longitude field
  * @returns GEOJSON data based on the JSON data.
  */
-export default function JSONToGEOJSONConverter(data: unknown, latitudeJsonPath: string, longitudeJsonPath: string): string {
+export default function JSONToGEOJSONConverter(
+    data: unknown,
+    latitudeJsonPath: string,
+    longitudeJsonPath: string,
+): string {
     // check if the data is an array
     if (!Array.isArray(data)) {
         throw new Error('Data should be an array');
@@ -31,32 +35,39 @@ export default function JSONToGEOJSONConverter(data: unknown, latitudeJsonPath: 
         }
 
         const latitude = parseFloat(
-            QueryType === 'string' ? String(item[latitudeJsonPath]) : String(jp.query(item, latitudeJsonPath)[0])
+            QueryType === 'string'
+                ? String(item[latitudeJsonPath])
+                : String(jp.query(item, latitudeJsonPath)[0]),
         );
         const longitude = parseFloat(
-            QueryType === 'string' ? String(item[longitudeJsonPath]) : String(jp.query(item, longitudeJsonPath)[0])
+            QueryType === 'string'
+                ? String(item[longitudeJsonPath])
+                : String(jp.query(item, longitudeJsonPath)[0]),
         );
 
-        const properties = Object.keys(item).reduce((acc, key) => {
-            if (key !== latitudeJsonPath && key !== longitudeJsonPath) {
-                acc[key] = item[key];
-            }
-            return acc;
-        }, {} as Record<string, unknown>);
+        const properties = Object.keys(item).reduce(
+            (acc, key) => {
+                if (key !== latitudeJsonPath && key !== longitudeJsonPath) {
+                    acc[key] = item[key];
+                }
+                return acc;
+            },
+            {} as Record<string, unknown>,
+        );
 
         return {
             type: 'Feature',
             geometry: {
                 type: 'Point',
-                coordinates: [longitude, latitude]
+                coordinates: [longitude, latitude],
             },
-            properties
+            properties,
         };
     });
 
     return toPrettyJSON({
         type: 'FeatureCollection',
-        features
+        features,
     });
 }
 

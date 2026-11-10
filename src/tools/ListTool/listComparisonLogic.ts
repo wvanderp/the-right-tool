@@ -19,9 +19,13 @@ export function parseList(input: string): string[] {
 /**
  * Performs set operations on two lists of strings while preserving duplicates
  */
-export function compareLists(listA: string[], listB: string[], caseSensitive: boolean = false): ListComparisonResult {
+export function compareLists(
+    listA: string[],
+    listB: string[],
+    caseSensitive: boolean = false,
+): ListComparisonResult {
     // Normalize items for comparison if case-insensitive
-    const normalizeItem = (item: string) => caseSensitive ? item : item.toLowerCase();
+    const normalizeItem = (item: string) => (caseSensitive ? item : item.toLowerCase());
 
     // Count occurrences of each item in both lists
     const countA = new Map<string, number>();
@@ -45,7 +49,7 @@ export function compareLists(listA: string[], listB: string[], caseSensitive: bo
         if (!originalCaseB.has(normalizedItem)) {
             originalCaseB.set(normalizedItem, item);
         }
-    }    // Get all unique normalized items from both lists
+    } // Get all unique normalized items from both lists
     const allNormalizedItems = new Set([...countA.keys(), ...countB.keys()]);
 
     const intersection: string[] = [];
@@ -87,7 +91,7 @@ export function compareLists(listA: string[], listB: string[], caseSensitive: bo
         intersection,
         leftDifference,
         rightDifference,
-        symmetricDifference
+        symmetricDifference,
     };
 }
 

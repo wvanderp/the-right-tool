@@ -1,10 +1,4 @@
-import {
-    Annotation,
-    EditorState,
-    Prec,
-    StateEffect,
-    StateField
-} from '@codemirror/state';
+import { Annotation, EditorState, Prec, StateEffect, StateField } from '@codemirror/state';
 import {
     Decoration,
     DecorationSet,
@@ -13,28 +7,17 @@ import {
     keymap,
     placeholder,
     ViewUpdate,
-    WidgetType
+    WidgetType,
 } from '@codemirror/view';
-import {
-    defaultKeymap,
-    history,
-    historyKeymap,
-    invertedEffects
-} from '@codemirror/commands';
-import {
-    forwardRef,
-    useEffect,
-    useImperativeHandle,
-    useLayoutEffect,
-    useRef
-} from 'react';
+import { defaultKeymap, history, historyKeymap, invertedEffects } from '@codemirror/commands';
+import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useRef } from 'react';
 import {
     normalizeProvenanceRanges,
     PredictionSuggestion,
     ProvenanceRange,
     SuggestionTextChange,
     TextOrigin,
-    updateProvenanceRanges
+    updateProvenanceRanges,
 } from './predictiveTextLogic';
 
 export interface EditorSnapshot {
@@ -78,29 +61,29 @@ type PredictiveEditorKeymapCallbacks = Pick<
 >;
 
 export function createPredictiveEditorKeymap(
-    callbacks: PredictiveEditorKeymapCallbacks
+    callbacks: PredictiveEditorKeymapCallbacks,
 ): KeyBinding[] {
     return [
         {
             key: 'Tab',
-            run: () => callbacks.onAcceptFullSuggestion()
+            run: () => callbacks.onAcceptFullSuggestion(),
         },
         {
             key: 'Ctrl-ArrowRight',
-            run: () => callbacks.onAcceptSuggestion()
+            run: () => callbacks.onAcceptSuggestion(),
         },
         {
             key: 'Ctrl-ArrowLeft',
-            run: () => callbacks.onDeletePreviousWord()
+            run: () => callbacks.onDeletePreviousWord(),
         },
         {
             key: 'Escape',
-            run: () => callbacks.onDismissSuggestion()
+            run: () => callbacks.onDismissSuggestion(),
         },
         {
             key: 'Ctrl-Space',
-            run: () => callbacks.onRequestPrediction()
-        }
+            run: () => callbacks.onRequestPrediction(),
+        },
     ];
 }
 
@@ -133,7 +116,7 @@ const setDebugView = StateEffect.define<boolean>();
 const textOrigin = Annotation.define<TextOrigin>();
 
 const provenanceField = StateField.define<ProvenanceRange[]>({
-    create: (state) => normalizeProvenanceRanges([], state.doc.length),
+    create: state => normalizeProvenanceRanges([], state.doc.length),
     update: (ranges, transaction) => {
         for (const effect of transaction.effects) {
             if (effect.is(setProvenance)) {
@@ -161,9 +144,9 @@ const provenanceField = StateField.define<ProvenanceRange[]>({
             transaction.startState.doc.length,
             transaction.state.doc.length,
             changes,
-            transaction.annotation(textOrigin) ?? 'human'
+            transaction.annotation(textOrigin) ?? 'human',
         );
-    }
+    },
 });
 
 const debugViewField = StateField.define<boolean>({
@@ -176,7 +159,7 @@ const debugViewField = StateField.define<boolean>({
         }
 
         return enabled;
-    }
+    },
 });
 
 const debugProvenanceDecorations = EditorView.decorations.compute(
@@ -186,13 +169,17 @@ const debugProvenanceDecorations = EditorView.decorations.compute(
             return Decoration.none;
         }
 
-        return Decoration.set(state.field(provenanceField).map((range) => Decoration.mark({
-            class: range.origin === 'ai' ? 'cm-debug-ai' : 'cm-debug-human',
-            attributes: {
-                'data-text-origin': range.origin
-            }
-        }).range(range.from, range.to)));
-    }
+        return Decoration.set(
+            state.field(provenanceField).map(range =>
+                Decoration.mark({
+                    class: range.origin === 'ai' ? 'cm-debug-ai' : 'cm-debug-human',
+                    attributes: {
+                        'data-text-origin': range.origin,
+                    },
+                }).range(range.from, range.to),
+            ),
+        );
+    },
 );
 
 const provenanceHistory = invertedEffects.of((transaction) => {
@@ -200,9 +187,7 @@ const provenanceHistory = invertedEffects.of((transaction) => {
         return [];
     }
 
-    return [
-        setProvenance.of(transaction.startState.field(provenanceField))
-    ];
+    return [setProvenance.of(transaction.startState.field(provenanceField))];
 });
 
 const ghostSuggestionField = StateField.define<DecorationSet>({
@@ -219,19 +204,22 @@ const ghostSuggestionField = StateField.define<DecorationSet>({
                     continue;
                 }
 
-                const position = Math.min(transaction.state.doc.length, Math.max(0, suggestion.position));
+                const position = Math.min(
+                    transaction.state.doc.length,
+                    Math.max(0, suggestion.position),
+                );
                 nextDecorations = Decoration.set([
                     Decoration.widget({
                         widget: new GhostTextWidget(suggestion.text),
-                        side: 1
-                    }).range(position)
+                        side: 1,
+                    }).range(position),
                 ]);
             }
         }
 
         return nextDecorations;
     },
-    provide: (field) => EditorView.decorations.from(field)
+    provide: field => EditorView.decorations.from(field),
 });
 
 const editorTheme = EditorView.theme({
@@ -240,53 +228,53 @@ const editorTheme = EditorView.theme({
         minHeight: '28rem',
         backgroundColor: 'white',
         color: '#111827',
-        fontSize: '16px'
+        fontSize: '16px',
     },
     '&.cm-focused': {
-        outline: 'none'
+        outline: 'none',
     },
     '.cm-scroller': {
         fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
         lineHeight: '1.7',
-        overflow: 'auto'
+        overflow: 'auto',
     },
     '.cm-content': {
         minHeight: '28rem',
         padding: '16px',
-        caretColor: '#111827'
+        caretColor: '#111827',
     },
     '.cm-line': {
-        padding: '0'
+        padding: '0',
     },
     '.cm-cursor': {
-        borderLeftColor: '#111827'
+        borderLeftColor: '#111827',
     },
     '.cm-selectionBackground, ::selection': {
-        backgroundColor: '#fde68a !important'
+        backgroundColor: '#fde68a !important',
     },
     '.cm-gutters': {
-        display: 'none'
+        display: 'none',
     },
     '.cm-placeholder': {
-        color: '#9ca3af'
+        color: '#9ca3af',
     },
     '.cm-predictive-ghost': {
         color: '#6b7280',
         backgroundColor: '#fffbeb',
         borderBottom: '1px solid #f59e0b',
         borderRadius: '2px',
-        whiteSpace: 'pre-wrap'
+        whiteSpace: 'pre-wrap',
     },
     '.cm-debug-human': {
         backgroundColor: '#eff6ff',
         borderBottom: '2px solid #3b82f6',
-        borderRadius: '2px'
+        borderRadius: '2px',
     },
     '.cm-debug-ai': {
         backgroundColor: '#fef3c7',
         borderBottom: '2px solid #f59e0b',
-        borderRadius: '2px'
-    }
+        borderRadius: '2px',
+    },
 });
 
 const PredictiveEditor = forwardRef<PredictiveEditorHandle, PredictiveEditorProps>(
@@ -301,9 +289,9 @@ const PredictiveEditor = forwardRef<PredictiveEditorHandle, PredictiveEditorProp
             onAcceptFullSuggestion,
             onDeletePreviousWord,
             onDismissSuggestion,
-            onRequestPrediction
+            onRequestPrediction,
         },
-        forwardedRef
+        forwardedRef,
     ) {
         const containerRef = useRef<HTMLDivElement>(null);
         const viewRef = useRef<EditorView | null>(null);
@@ -316,7 +304,7 @@ const PredictiveEditor = forwardRef<PredictiveEditorHandle, PredictiveEditorProp
             onAcceptFullSuggestion,
             onDeletePreviousWord,
             onDismissSuggestion,
-            onRequestPrediction
+            onRequestPrediction,
         });
 
         useEffect(() => {
@@ -326,7 +314,7 @@ const PredictiveEditor = forwardRef<PredictiveEditorHandle, PredictiveEditorProp
                 onAcceptFullSuggestion,
                 onDeletePreviousWord,
                 onDismissSuggestion,
-                onRequestPrediction
+                onRequestPrediction,
             };
         }, [
             onAcceptFullSuggestion,
@@ -334,7 +322,7 @@ const PredictiveEditor = forwardRef<PredictiveEditorHandle, PredictiveEditorProp
             onDeletePreviousWord,
             onDismissSuggestion,
             onRequestPrediction,
-            onStateChange
+            onStateChange,
         ]);
 
         useLayoutEffect(() => {
@@ -345,7 +333,7 @@ const PredictiveEditor = forwardRef<PredictiveEditorHandle, PredictiveEditorProp
             const state = EditorState.create({
                 doc: initialValueRef.current,
                 selection: {
-                    anchor: initialValueRef.current.length
+                    anchor: initialValueRef.current.length,
                 },
                 extensions: [
                     history(),
@@ -358,16 +346,24 @@ const PredictiveEditor = forwardRef<PredictiveEditorHandle, PredictiveEditorProp
                     placeholder('Paste or write plain text here.'),
                     EditorView.contentAttributes.of({
                         'aria-label': 'Text to autocomplete.',
-                        autocapitalize: 'sentences',
-                        spellcheck: 'true'
+                        'autocapitalize': 'sentences',
+                        'spellcheck': 'true',
                     }),
-                    Prec.high(keymap.of(createPredictiveEditorKeymap({
-                        onAcceptSuggestion: () => callbacksRef.current.onAcceptSuggestion(),
-                        onAcceptFullSuggestion: () => callbacksRef.current.onAcceptFullSuggestion(),
-                        onDeletePreviousWord: () => callbacksRef.current.onDeletePreviousWord(),
-                        onDismissSuggestion: () => callbacksRef.current.onDismissSuggestion(),
-                        onRequestPrediction: () => callbacksRef.current.onRequestPrediction()
-                    }))),
+                    Prec.high(
+                        keymap.of(
+                            createPredictiveEditorKeymap({
+                                onAcceptSuggestion: () => callbacksRef.current.onAcceptSuggestion(),
+                                onAcceptFullSuggestion: () =>
+                                    callbacksRef.current.onAcceptFullSuggestion(),
+                                onDeletePreviousWord: () =>
+                                    callbacksRef.current.onDeletePreviousWord(),
+                                onDismissSuggestion: () =>
+                                    callbacksRef.current.onDismissSuggestion(),
+                                onRequestPrediction: () =>
+                                    callbacksRef.current.onRequestPrediction(),
+                            }),
+                        ),
+                    ),
                     keymap.of([...defaultKeymap, ...historyKeymap]),
                     EditorView.updateListener.of((update: ViewUpdate) => {
                         if (!update.docChanged && !update.selectionSet) {
@@ -382,7 +378,7 @@ const PredictiveEditor = forwardRef<PredictiveEditorHandle, PredictiveEditorProp
                                 changes.push({
                                     from: fromA,
                                     to: toA,
-                                    insert: update.state.doc.sliceString(fromB, toB)
+                                    insert: update.state.doc.sliceString(fromB, toB),
                                 });
                             });
                         }
@@ -392,25 +388,25 @@ const PredictiveEditor = forwardRef<PredictiveEditorHandle, PredictiveEditorProp
                             provenance: update.state.field(provenanceField),
                             selection: {
                                 from: selection.from,
-                                to: selection.to
+                                to: selection.to,
                             },
-                            changes
+                            changes,
                         });
                     }),
-                    editorTheme
-                ]
+                    editorTheme,
+                ],
             });
 
             const view = new EditorView({
                 state,
-                parent: containerRef.current
+                parent: containerRef.current,
             });
             viewRef.current = view;
             view.dispatch({
                 effects: [
                     setProvenance.of(initialProvenanceRef.current),
-                    setDebugView.of(initialDebugViewRef.current)
-                ]
+                    setDebugView.of(initialDebugViewRef.current),
+                ],
             });
 
             return () => {
@@ -427,63 +423,67 @@ const PredictiveEditor = forwardRef<PredictiveEditorHandle, PredictiveEditorProp
             }
 
             view.dispatch({
-                effects: setGhostSuggestion.of(suggestion)
+                effects: setGhostSuggestion.of(suggestion),
             });
         }, [suggestion]);
 
         useLayoutEffect(() => {
             viewRef.current?.dispatch({
-                effects: setDebugView.of(debugView)
+                effects: setDebugView.of(debugView),
             });
         }, [debugView]);
 
-        useImperativeHandle(forwardedRef, () => ({
-            focus: () => {
-                viewRef.current?.focus();
-            },
-            replaceRange: (from, to, insert, origin = 'human') => {
-                const view = viewRef.current;
+        useImperativeHandle(
+            forwardedRef,
+            () => ({
+                focus: () => {
+                    viewRef.current?.focus();
+                },
+                replaceRange: (from, to, insert, origin = 'human') => {
+                    const view = viewRef.current;
 
-                if (!view) {
-                    return;
-                }
+                    if (!view) {
+                        return;
+                    }
 
-                view.dispatch({
-                    changes: {
-                        from,
-                        to,
-                        insert
-                    },
-                    selection: {
-                        anchor: from + insert.length
-                    },
-                    annotations: textOrigin.of(origin),
-                    scrollIntoView: true
-                });
-                view.focus();
-            },
-            setText: (text) => {
-                const view = viewRef.current;
+                    view.dispatch({
+                        changes: {
+                            from,
+                            to,
+                            insert,
+                        },
+                        selection: {
+                            anchor: from + insert.length,
+                        },
+                        annotations: textOrigin.of(origin),
+                        scrollIntoView: true,
+                    });
+                    view.focus();
+                },
+                setText: (text) => {
+                    const view = viewRef.current;
 
-                if (!view) {
-                    return;
-                }
+                    if (!view) {
+                        return;
+                    }
 
-                view.dispatch({
-                    changes: {
-                        from: 0,
-                        to: view.state.doc.length,
-                        insert: text
-                    },
-                    selection: {
-                        anchor: text.length
-                    },
-                    annotations: textOrigin.of('human'),
-                    scrollIntoView: true
-                });
-                view.focus();
-            }
-        }), []);
+                    view.dispatch({
+                        changes: {
+                            from: 0,
+                            to: view.state.doc.length,
+                            insert: text,
+                        },
+                        selection: {
+                            anchor: text.length,
+                        },
+                        annotations: textOrigin.of('human'),
+                        scrollIntoView: true,
+                    });
+                    view.focus();
+                },
+            }),
+            [],
+        );
 
         return (
             <div
@@ -491,7 +491,7 @@ const PredictiveEditor = forwardRef<PredictiveEditorHandle, PredictiveEditorProp
                 className="h-full min-h-[28rem] overflow-hidden rounded-lg border border-gray-300 bg-white focus-within:border-yellow-500 focus-within:ring-1 focus-within:ring-yellow-500"
             />
         );
-    }
+    },
 );
 
 export default PredictiveEditor;

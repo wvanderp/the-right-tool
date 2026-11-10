@@ -1,18 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import {
-    FiCheck,
-    FiEye,
-    FiEyeOff,
-    FiExternalLink,
-    FiTrash2,
-    FiX
-} from 'react-icons/fi';
+import { FiCheck, FiEye, FiEyeOff, FiExternalLink, FiTrash2, FiX } from 'react-icons/fi';
 import { OpenRouterError, validateOpenRouterKey } from './openRouterClient';
 import {
     clampWordCount,
     defaultSettings,
     PredictiveTextSettings,
-    recommendedModels
+    recommendedModels,
 } from './predictiveTextLogic';
 
 interface PredictiveTextSettingsDialogProps {
@@ -22,27 +15,27 @@ interface PredictiveTextSettingsDialogProps {
     onClearAll: () => void;
 }
 
-type TestState =
-    | { kind: 'idle'; message: string }
-    | { kind: 'loading'; message: string }
-    | { kind: 'success'; message: string }
-    | { kind: 'error'; message: string };
+type TestState
+    = | { kind: 'idle'; message: string }
+        | { kind: 'loading'; message: string }
+        | { kind: 'success'; message: string }
+        | { kind: 'error'; message: string };
 
 export default function PredictiveTextSettingsDialog({
     settings,
     onClose,
     onSave,
-    onClearAll
+    onClearAll,
 }: PredictiveTextSettingsDialogProps): React.ReactElement {
     const [draftSettings, setDraftSettings] = useState(settings);
     const [showKey, setShowKey] = useState(false);
     const [testState, setTestState] = useState<TestState>({
         kind: 'idle',
-        message: ''
+        message: '',
     });
     const recommendedModelIds = useMemo(
-        () => new Set<string>(recommendedModels.map((model) => model.id)),
-        []
+        () => new Set<string>(recommendedModels.map(model => model.id)),
+        [],
     );
     const usesCustomModel = !recommendedModelIds.has(draftSettings.modelId);
     const canSave = Boolean(draftSettings.apiKey.trim() && draftSettings.modelId.trim());
@@ -53,39 +46,42 @@ export default function PredictiveTextSettingsDialog({
         if (!apiKey) {
             setTestState({
                 kind: 'error',
-                message: 'Enter an OpenRouter API key before testing the connection.'
+                message: 'Enter an OpenRouter API key before testing the connection.',
             });
             return;
         }
 
         setTestState({
             kind: 'loading',
-            message: 'Testing the OpenRouter connection.'
+            message: 'Testing the OpenRouter connection.',
         });
 
         try {
             const keyInformation = await validateOpenRouterKey(apiKey);
-            const remaining = keyInformation.limitRemaining === undefined
-                ? ''
-                : ` The key has $${keyInformation.limitRemaining.toFixed(2)} remaining.`;
+            const remaining
+                = keyInformation.limitRemaining === undefined
+                    ? ''
+                    : ` The key has $${keyInformation.limitRemaining.toFixed(2)} remaining.`;
 
             setTestState({
                 kind: 'success',
-                message: `${keyInformation.label}.${remaining}`
+                message: `${keyInformation.label}.${remaining}`,
             });
-        } catch (error) {
+        }
+        catch (error) {
             setTestState({
                 kind: 'error',
-                message: error instanceof OpenRouterError
-                    ? error.message
-                    : 'The OpenRouter connection could not be tested.'
+                message:
+                    error instanceof OpenRouterError
+                        ? error.message
+                        : 'The OpenRouter connection could not be tested.',
             });
         }
     };
 
     const clearAllData = () => {
         const shouldClear = window.confirm(
-            'Clear the saved API key, settings, and provenance document from this browser?'
+            'Clear the saved API key, settings, and provenance document from this browser?',
         );
 
         if (!shouldClear) {
@@ -95,7 +91,7 @@ export default function PredictiveTextSettingsDialog({
         setDraftSettings(defaultSettings);
         setTestState({
             kind: 'idle',
-            message: ''
+            message: '',
         });
         onClearAll();
     };
@@ -118,7 +114,10 @@ export default function PredictiveTextSettingsDialog({
             >
                 <div className="flex items-start justify-between gap-4">
                     <div>
-                        <h2 id="predictive-settings-title" className="text-2xl font-bold text-gray-900">
+                        <h2
+                            id="predictive-settings-title"
+                            className="text-2xl font-bold text-gray-900"
+                        >
                             Predictive Text Editor settings
                         </h2>
                         <p className="mt-2 text-sm text-gray-600">
@@ -138,7 +137,10 @@ export default function PredictiveTextSettingsDialog({
                 <div className="mt-6 space-y-6">
                     <section className="space-y-3">
                         <div className="flex items-center justify-between gap-4">
-                            <label htmlFor="openrouter-api-key" className="font-medium text-gray-900">
+                            <label
+                                htmlFor="openrouter-api-key"
+                                className="font-medium text-gray-900"
+                            >
                                 OpenRouter API key
                             </label>
                             <a
@@ -158,9 +160,9 @@ export default function PredictiveTextSettingsDialog({
                                     type={showKey ? 'text' : 'password'}
                                     value={draftSettings.apiKey}
                                     onChange={(event) => {
-                                        setDraftSettings((current) => ({
+                                        setDraftSettings(current => ({
                                             ...current,
-                                            apiKey: event.target.value
+                                            apiKey: event.target.value,
                                         }));
                                         setTestState({ kind: 'idle', message: '' });
                                     }}
@@ -171,12 +173,16 @@ export default function PredictiveTextSettingsDialog({
                                 <button
                                     type="button"
                                     className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-gray-500 hover:text-gray-900"
-                                    onClick={() => setShowKey((current) => !current)}
+                                    onClick={() => setShowKey(current => !current)}
                                     aria-label={showKey ? 'Hide API key.' : 'Show API key.'}
                                 >
                                     {showKey
-                                        ? <FiEyeOff className="h-4 w-4" />
-                                        : <FiEye className="h-4 w-4" />}
+                                        ? (
+                                                <FiEyeOff className="h-4 w-4" />
+                                            )
+                                        : (
+                                                <FiEye className="h-4 w-4" />
+                                            )}
                                 </button>
                             </div>
                             <button
@@ -189,7 +195,8 @@ export default function PredictiveTextSettingsDialog({
                             </button>
                         </div>
                         <p className="text-sm text-orange-700">
-                            The key is stored unencrypted in this browser. Use this option only on a trusted device.
+                            The key is stored unencrypted in this browser. Use this option only on a
+                            trusted device.
                         </p>
                         {testState.message && (
                             <p
@@ -210,7 +217,7 @@ export default function PredictiveTextSettingsDialog({
                     <fieldset className="space-y-3">
                         <legend className="font-medium text-gray-900">Prediction model</legend>
                         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                            {recommendedModels.map((model) => (
+                            {recommendedModels.map(model => (
                                 <label
                                     key={model.id}
                                     className={`cursor-pointer rounded-lg border p-3 transition-colors duration-200 ${
@@ -225,10 +232,11 @@ export default function PredictiveTextSettingsDialog({
                                             name="prediction-model"
                                             value={model.id}
                                             checked={draftSettings.modelId === model.id}
-                                            onChange={() => setDraftSettings((current) => ({
-                                                ...current,
-                                                modelId: model.id
-                                            }))}
+                                            onChange={() =>
+                                                setDraftSettings(current => ({
+                                                    ...current,
+                                                    modelId: model.id,
+                                                }))}
                                             className="mt-1 accent-yellow-600"
                                         />
                                         <span>
@@ -256,29 +264,33 @@ export default function PredictiveTextSettingsDialog({
                                     type="radio"
                                     name="prediction-model"
                                     checked={usesCustomModel}
-                                    onChange={() => setDraftSettings((current) => ({
-                                        ...current,
-                                        modelId: ''
-                                    }))}
+                                    onChange={() =>
+                                        setDraftSettings(current => ({
+                                            ...current,
+                                            modelId: '',
+                                        }))}
                                     className="accent-yellow-600"
                                 />
-                                <span className="text-sm font-medium text-gray-900">Custom model ID</span>
+                                <span className="text-sm font-medium text-gray-900">
+                                    Custom model ID
+                                </span>
                             </span>
                             <input
                                 type="text"
                                 value={usesCustomModel ? draftSettings.modelId : ''}
                                 onFocus={() => {
                                     if (!usesCustomModel) {
-                                        setDraftSettings((current) => ({
+                                        setDraftSettings(current => ({
                                             ...current,
-                                            modelId: ''
+                                            modelId: '',
                                         }));
                                     }
                                 }}
-                                onChange={(event) => setDraftSettings((current) => ({
-                                    ...current,
-                                    modelId: event.target.value
-                                }))}
+                                onChange={event =>
+                                    setDraftSettings(current => ({
+                                        ...current,
+                                        modelId: event.target.value,
+                                    }))}
                                 className="mt-3 w-full"
                                 placeholder="provider/model-id"
                                 aria-label="Custom OpenRouter model ID."
@@ -288,7 +300,11 @@ export default function PredictiveTextSettingsDialog({
 
                     <label className="block">
                         <span className="block font-medium text-gray-900">
-                            Prediction length: {clampWordCount(draftSettings.wordCount)} words
+                            Prediction length:
+                            {' '}
+                            {clampWordCount(draftSettings.wordCount)}
+                            {' '}
+                            words
                         </span>
                         <input
                             type="range"
@@ -296,10 +312,11 @@ export default function PredictiveTextSettingsDialog({
                             max="50"
                             step="1"
                             value={clampWordCount(draftSettings.wordCount)}
-                            onChange={(event) => setDraftSettings((current) => ({
-                                ...current,
-                                wordCount: Number(event.target.value)
-                            }))}
+                            onChange={event =>
+                                setDraftSettings(current => ({
+                                    ...current,
+                                    wordCount: Number(event.target.value),
+                                }))}
                             className="mt-3 w-full accent-yellow-600"
                         />
                     </label>
@@ -308,25 +325,28 @@ export default function PredictiveTextSettingsDialog({
                         <input
                             type="checkbox"
                             checked={draftSettings.debugView}
-                            onChange={(event) => setDraftSettings((current) => ({
-                                ...current,
-                                debugView: event.target.checked
-                            }))}
+                            onChange={event =>
+                                setDraftSettings(current => ({
+                                    ...current,
+                                    debugView: event.target.checked,
+                                }))}
                             className="mt-1 h-4 w-4 accent-yellow-600"
                         />
                         <span>
-                            <span className="block font-medium text-gray-900">Enable Debug view</span>
+                            <span className="block font-medium text-gray-900">
+                                Enable Debug view
+                            </span>
                             <span className="mt-1 block text-sm text-gray-600">
-                                Highlight human and AI-generated text and show the complete prompt body sent to
-                                OpenRouter.
+                                Highlight human and AI-generated text and show the complete prompt
+                                body sent to OpenRouter.
                             </span>
                         </span>
                     </label>
 
                     <div className="rounded-lg bg-blue-50 p-4 text-sm text-blue-900">
-                        Each prediction sends up to 8,000 characters before and 4,000 characters after the caret
-                        to OpenRouter and the selected provider. Requests exclude providers marked as collecting
-                        prompt data.
+                        Each prediction sends up to 8,000 characters before and 4,000 characters
+                        after the caret to OpenRouter and the selected provider. Requests exclude
+                        providers marked as collecting prompt data.
                     </div>
                 </div>
 
@@ -347,12 +367,13 @@ export default function PredictiveTextSettingsDialog({
                             type="button"
                             className="btn-primary inline-flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
                             disabled={!canSave}
-                            onClick={() => onSave({
-                                apiKey: draftSettings.apiKey.trim(),
-                                modelId: draftSettings.modelId.trim(),
-                                wordCount: clampWordCount(draftSettings.wordCount),
-                                debugView: draftSettings.debugView
-                            })}
+                            onClick={() =>
+                                onSave({
+                                    apiKey: draftSettings.apiKey.trim(),
+                                    modelId: draftSettings.modelId.trim(),
+                                    wordCount: clampWordCount(draftSettings.wordCount),
+                                    debugView: draftSettings.debugView,
+                                })}
                         >
                             <FiCheck className="h-4 w-4" />
                             Save settings

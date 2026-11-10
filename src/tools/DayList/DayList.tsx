@@ -28,7 +28,7 @@ export default function DayList(): React.ReactElement {
             dayOfMonthInput: '',
             outputFormat: 'YYYY-MM-DD' as OutputFormat,
             separator: '\n',
-            locale: 'en-US'
+            locale: 'en-US',
         };
 
         const rawState = localStorage.getItem('dayListState');
@@ -47,12 +47,15 @@ export default function DayList(): React.ReactElement {
                 dayOfMonthInput:
                     typeof state.dayOfMonthInput === 'string'
                         ? state.dayOfMonthInput
-                        : (state.dayOfMonthFilter ? state.dayOfMonthFilter.join(', ') : defaults.dayOfMonthInput),
+                        : state.dayOfMonthFilter
+                            ? state.dayOfMonthFilter.join(', ')
+                            : defaults.dayOfMonthInput,
                 outputFormat: state.outputFormat || defaults.outputFormat,
                 separator: state.separator || defaults.separator,
-                locale: state.locale || defaults.locale
+                locale: state.locale || defaults.locale,
             };
-        } catch (e) {
+        }
+        catch (e) {
             console.error('Failed to load saved state:', e);
             return defaults;
         }
@@ -79,21 +82,35 @@ export default function DayList(): React.ReactElement {
 
     // Save to localStorage when state changes
     useEffect(() => {
-        localStorage.setItem('dayListState', JSON.stringify({
-            startDate,
-            endDate,
-            filters,
-            dayOfWeekFilter,
-            dayOfMonthFilter,
-            dayOfMonthInput,
-            outputFormat,
-            separator,
-            locale
-        }));
-    }, [startDate, endDate, filters, dayOfWeekFilter, dayOfMonthFilter, dayOfMonthInput, outputFormat, separator, locale]);
+        localStorage.setItem(
+            'dayListState',
+            JSON.stringify({
+                startDate,
+                endDate,
+                filters,
+                dayOfWeekFilter,
+                dayOfMonthFilter,
+                dayOfMonthInput,
+                outputFormat,
+                separator,
+                locale,
+            }),
+        );
+    }, [
+        startDate,
+        endDate,
+        filters,
+        dayOfWeekFilter,
+        dayOfMonthFilter,
+        dayOfMonthInput,
+        outputFormat,
+        separator,
+        locale,
+    ]);
 
     const parseDayOfMonthInput = (input: string): number[] => {
-        return input.split(',')
+        return input
+            .split(',')
             .map(day => parseInt(day.trim(), 10))
             .filter(day => !isNaN(day) && day >= 1 && day <= 31);
     };
@@ -110,14 +127,15 @@ export default function DayList(): React.ReactElement {
             dayOfMonthFilter: parsed,
             outputFormat,
             separator: separator.replace(/\\n/g, '\n'),
-            locale
+            locale,
         };
         const list = generateDayList(options);
         setResult(list);
     };
 
     const copyToClipboard = () => {
-        navigator.clipboard.writeText(result)
+        navigator.clipboard
+            .writeText(result)
             .then(() => {
                 setCopySuccess(true);
                 setTimeout(() => {
@@ -133,7 +151,8 @@ export default function DayList(): React.ReactElement {
     const toggleFilter = (filter: FilterType) => {
         if (filters.includes(filter)) {
             setFilters(filters.filter(f => f !== filter));
-        } else {
+        }
+        else {
             setFilters([...filters, filter]);
         }
     };
@@ -142,7 +161,8 @@ export default function DayList(): React.ReactElement {
     const toggleDayOfWeek = (day: number) => {
         if (dayOfWeekFilter.includes(day)) {
             setDayOfWeekFilter(dayOfWeekFilter.filter(d => d !== day));
-        } else {
+        }
+        else {
             setDayOfWeekFilter([...dayOfWeekFilter, day]);
         }
     };
@@ -172,8 +192,9 @@ export default function DayList(): React.ReactElement {
         <ToolPage title="Day List Generator">
             <ToolDescription>
                 Generate a list of dates based on specific criteria. Need all Saturdays in a year?
-                Every 15th of the month? This tool helps you create custom date lists with flexible filtering
-                and formatting options. Perfect for planning, scheduling, or any task requiring specific date patterns.
+                Every 15th of the month? This tool helps you create custom date lists with flexible
+                filtering and formatting options. Perfect for planning, scheduling, or any task
+                requiring specific date patterns.
             </ToolDescription>
 
             <div className="w-full max-w-4xl space-y-8">
@@ -186,8 +207,8 @@ export default function DayList(): React.ReactElement {
                         <input
                             type="date"
                             value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                            className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 
+                            onChange={e => setStartDate(e.target.value)}
+                            className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2
                             focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-custom"
                         />
                     </div>
@@ -198,8 +219,8 @@ export default function DayList(): React.ReactElement {
                         <input
                             type="date"
                             value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                            className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 
+                            onChange={e => setEndDate(e.target.value)}
+                            className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2
                             focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-custom"
                         />
                     </div>
@@ -218,18 +239,22 @@ export default function DayList(): React.ReactElement {
                     <div className="flex flex-wrap gap-4">
                         <button
                             className={`px-4 py-2 rounded-lg transition-custom
-                            ${filters.includes('dayOfWeek')
-                                    ? 'bg-yellow-600 text-white hover:bg-yellow-700'
-                                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                            ${
+        filters.includes('dayOfWeek')
+            ? 'bg-yellow-600 text-white hover:bg-yellow-700'
+            : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+        }`}
                             onClick={() => toggleFilter('dayOfWeek')}
                         >
                             Day of Week
                         </button>
                         <button
                             className={`px-4 py-2 rounded-lg transition-custom
-                            ${filters.includes('dayOfMonth')
-                                    ? 'bg-yellow-600 text-white hover:bg-yellow-700'
-                                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                            ${
+        filters.includes('dayOfMonth')
+            ? 'bg-yellow-600 text-white hover:bg-yellow-700'
+            : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+        }`}
                             onClick={() => toggleFilter('dayOfMonth')}
                         >
                             Day of Month
@@ -239,16 +264,20 @@ export default function DayList(): React.ReactElement {
                     {/* Day of Week Selection */}
                     {filters.includes('dayOfWeek') && (
                         <div className="p-4 border border-gray-200 rounded-lg bg-white">
-                            <h4 className="text-sm font-medium text-gray-700 mb-4">Select days of the week:</h4>
+                            <h4 className="text-sm font-medium text-gray-700 mb-4">
+                                Select days of the week:
+                            </h4>
                             <div className="flex flex-wrap gap-2">
-                                {[0, 1, 2, 3, 4, 5, 6].map((day) => (
+                                {[0, 1, 2, 3, 4, 5, 6].map(day => (
                                     <button
                                         key={day}
                                         onClick={() => toggleDayOfWeek(day)}
                                         className={`px-3 py-2 rounded-lg transition-custom
-                                        ${dayOfWeekFilter.includes(day)
-                                                ? 'bg-yellow-600 text-white hover:bg-yellow-700'
-                                                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                                        ${
+                                    dayOfWeekFilter.includes(day)
+                                        ? 'bg-yellow-600 text-white hover:bg-yellow-700'
+                                        : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                                    }`}
                                     >
                                         {getDayName(day)}
                                     </button>
@@ -269,7 +298,7 @@ export default function DayList(): React.ReactElement {
                                 onChange={handleDayOfMonthChange}
                                 onBlur={handleDayOfMonthBlur}
                                 placeholder="e.g., 1, 15, 30"
-                                className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 
+                                className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2
                                 focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-custom"
                             />
                         </div>
@@ -287,8 +316,8 @@ export default function DayList(): React.ReactElement {
                             </label>
                             <select
                                 value={outputFormat}
-                                onChange={(e) => setOutputFormat(e.target.value as OutputFormat)}
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 
+                                onChange={e => setOutputFormat(e.target.value as OutputFormat)}
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2
                                 focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-custom"
                             >
                                 <option value="YYYY-MM-DD">YYYY-MM-DD (e.g., 2023-01-01)</option>
@@ -308,8 +337,8 @@ export default function DayList(): React.ReactElement {
                             </label>
                             <select
                                 value={separator}
-                                onChange={(e) => setSeparator(e.target.value)}
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 
+                                onChange={e => setSeparator(e.target.value)}
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2
                                 focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-custom"
                             >
                                 <option value="\n">New Line</option>
@@ -327,8 +356,8 @@ export default function DayList(): React.ReactElement {
                         </label>
                         <select
                             value={locale}
-                            onChange={(e) => setLocale(e.target.value)}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 
+                            onChange={e => setLocale(e.target.value)}
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2
                             focus:ring-yellow-600/20 focus:border-yellow-600 outline-none transition-custom"
                         >
                             <option value="en-US">English (US)</option>
@@ -348,9 +377,11 @@ export default function DayList(): React.ReactElement {
                     onClick={generateList}
                     disabled={!isDateRangeValid()}
                     className={`px-6 py-3 rounded-lg font-medium transition-custom
-                    ${isDateRangeValid()
-                            ? 'bg-yellow-600 text-white hover:bg-yellow-700 active:scale-[0.98]'
-                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                    ${
+        isDateRangeValid()
+            ? 'bg-yellow-600 text-white hover:bg-yellow-700 active:scale-[0.98]'
+            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+        }`}
                 >
                     Generate Date List →
                 </button>
@@ -359,28 +390,34 @@ export default function DayList(): React.ReactElement {
                 {result && (
                     <div className="mt-6">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-sm font-medium text-gray-700">Generated Date List:</h3>
+                            <h3 className="text-sm font-medium text-gray-700">
+                                Generated Date List:
+                            </h3>
                             <button
-                                className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 
+                                className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100
                                 text-gray-700 rounded-md hover:bg-gray-200 transition-colors duration-200"
                                 onClick={copyToClipboard}
                                 title="Copy to clipboard"
                             >
-                                {copySuccess ? (
-                                    <>
-                                        <span>Copied!</span>
-                                        <FiCheck className="h-4 w-4" />
-                                    </>
-                                ) : (
-                                    <>
-                                        <span>Copy</span>
-                                        <FiCopy className="h-4 w-4" />
-                                    </>
-                                )}
+                                {copySuccess
+                                    ? (
+                                            <>
+                                                <span>Copied!</span>
+                                                <FiCheck className="h-4 w-4" />
+                                            </>
+                                        )
+                                    : (
+                                            <>
+                                                <span>Copy</span>
+                                                <FiCopy className="h-4 w-4" />
+                                            </>
+                                        )}
                             </button>
                         </div>
-                        <pre className="p-4 bg-gray-50 border border-gray-200 rounded-lg overflow-auto 
-                        max-h-[400px] font-mono text-sm">
+                        <pre
+                            className="p-4 bg-gray-50 border border-gray-200 rounded-lg overflow-auto
+                        max-h-[400px] font-mono text-sm"
+                        >
                             {result}
                         </pre>
                     </div>

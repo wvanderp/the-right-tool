@@ -25,7 +25,8 @@ export default function JSONToGEOJSON(): React.ReactElement {
         try {
             JSON.parse(json);
             setParseError('');
-        } catch (e) {
+        }
+        catch (e) {
             // @ts-expect-error -- We don't know the type of e but if it string like then we can put on the screen
             setParseError(e.message);
             return;
@@ -36,7 +37,10 @@ export default function JSONToGEOJSON(): React.ReactElement {
             return;
         }
 
-        if (queryIdentifier(latitudeKey) === 'invalid' || queryIdentifier(longitudeKey) === 'invalid') {
+        if (
+            queryIdentifier(latitudeKey) === 'invalid'
+            || queryIdentifier(longitudeKey) === 'invalid'
+        ) {
             setParseError('Invalid Latitude or Longitude key');
             return;
         }
@@ -49,7 +53,8 @@ export default function JSONToGEOJSON(): React.ReactElement {
     };
 
     const copyToClipboard = () => {
-        navigator.clipboard.writeText(geojson)
+        navigator.clipboard
+            .writeText(geojson)
             .then(() => {
                 setCopySuccess(true);
                 // Reset the success message after 2 seconds
@@ -65,44 +70,60 @@ export default function JSONToGEOJSON(): React.ReactElement {
     return (
         <ToolPage title="JSON to GeoJSON Converter">
             <ToolDescription>
-                Transform your JSON data containing coordinates into GeoJSON format — perfect for mapping applications.
-                Simply specify which fields contain your latitude and longitude data, and we'll handle the conversion.
-                You can use simple field names (like "lat") or JSONPath expressions (like "$.coordinates.lat") to access nested data.
+                Transform your JSON data containing coordinates into GeoJSON format — perfect for
+                mapping applications. Simply specify which fields contain your latitude and
+                longitude data, and we'll handle the conversion. You can use simple field names
+                (like "lat") or JSONPath expressions (like "$.coordinates.lat") to access nested
+                data.
             </ToolDescription>
 
             <div className="space-y-8 max-w-4xl w-full">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <label className="block">
-                        <span className="block text-sm font-medium text-gray-700 mb-2">Latitude Field:</span>
+                        <span className="block text-sm font-medium text-gray-700 mb-2">
+                            Latitude Field:
+                        </span>
                         <input
                             type="text"
                             className="w-full"
                             value={latitudeKey}
-                            onChange={(e) => setLatitudeKey(e.target.value)}
+                            onChange={e => setLatitudeKey(e.target.value)}
                             placeholder="e.g. lat or $.coordinates.latitude"
                         />
-                        <p className="mt-2 text-sm text-gray-500">Field type: {queryIdentifier(latitudeKey)}</p>
+                        <p className="mt-2 text-sm text-gray-500">
+                            Field type:
+                            {' '}
+                            {queryIdentifier(latitudeKey)}
+                        </p>
                     </label>
                     <label className="block">
-                        <span className="block text-sm font-medium text-gray-700 mb-2">Longitude Field:</span>
+                        <span className="block text-sm font-medium text-gray-700 mb-2">
+                            Longitude Field:
+                        </span>
                         <input
                             type="text"
                             className="w-full"
                             value={longitudeKey}
-                            onChange={(e) => setLongitudeKey(e.target.value)}
+                            onChange={e => setLongitudeKey(e.target.value)}
                             placeholder="e.g. lng or $.coordinates.longitude"
                         />
-                        <p className="mt-2 text-sm text-gray-500">Field type: {queryIdentifier(longitudeKey)}</p>
+                        <p className="mt-2 text-sm text-gray-500">
+                            Field type:
+                            {' '}
+                            {queryIdentifier(longitudeKey)}
+                        </p>
                     </label>
                 </div>
 
                 <div>
                     <label className="block">
-                        <span className="block text-sm font-medium text-gray-700 mb-2">Your JSON Data:</span>
+                        <span className="block text-sm font-medium text-gray-700 mb-2">
+                            Your JSON Data:
+                        </span>
                         <textarea
                             className="w-full h-48 font-mono text-sm"
                             value={json}
-                            onChange={(e) => setJson(e.target.value)}
+                            onChange={e => setJson(e.target.value)}
                             spellCheck="false"
                             placeholder="Paste your JSON data here..."
                         />
@@ -115,10 +136,7 @@ export default function JSONToGEOJSON(): React.ReactElement {
                     </div>
                 )}
 
-                <button
-                    className="btn-primary"
-                    onClick={convert}
-                >
+                <button className="btn-primary" onClick={convert}>
                     Convert to GeoJSON
                 </button>
 
@@ -131,21 +149,25 @@ export default function JSONToGEOJSON(): React.ReactElement {
                                 onClick={copyToClipboard}
                                 title="Copy to clipboard"
                             >
-                                {copySuccess ? (
-                                    <>
-                                        <span>Copied!</span>
-                                        <FiCheck className="h-4 w-4" />
-                                    </>
-                                ) : (
-                                    <>
-                                        <span>Copy</span>
-                                        <FiCopy className="h-4 w-4" />
-                                    </>
-                                )}
+                                {copySuccess
+                                    ? (
+                                            <>
+                                                <span>Copied!</span>
+                                                <FiCheck className="h-4 w-4" />
+                                            </>
+                                        )
+                                    : (
+                                            <>
+                                                <span>Copy</span>
+                                                <FiCopy className="h-4 w-4" />
+                                            </>
+                                        )}
                             </button>
                         </div>
-                        <pre className="bg-gray-50 border border-gray-200 rounded-lg p-4 
-                        overflow-auto font-mono text-sm">
+                        <pre
+                            className="bg-gray-50 border border-gray-200 rounded-lg p-4
+                        overflow-auto font-mono text-sm"
+                        >
                             {geojson}
                         </pre>
                     </div>

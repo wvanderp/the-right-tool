@@ -37,3 +37,5 @@ pnpm test
 ## License
 
 MIT License - See LICENSE file for details
+
+Code formatting uses ESLint with @stylistic rules based on the older handwritten tools: four-space indentation, semicolons, and single quotes. Run pnpm format to apply fixes or pnpm format:check to check code. In VS Code, install the ESLint extension (dbaeumer.vscode-eslint) to apply fixes on save. EditorConfig provides whitespace defaults for other file types.

@@ -5,9 +5,12 @@ import type Event from '../types/Event';
 describe('GoogleLinkCreator', () => {
     beforeEach(() => {
         // Mock the Intl.DateTimeFormat to return a consistent timezone
-        vi.spyOn(Intl, 'DateTimeFormat').mockImplementation(() => ({
-            resolvedOptions: () => ({ timeZone: 'Europe/Amsterdam' })
-        } as Intl.DateTimeFormat));
+        vi.spyOn(Intl, 'DateTimeFormat').mockImplementation(
+            () =>
+                ({
+                    resolvedOptions: () => ({ timeZone: 'Europe/Amsterdam' }),
+                }) as Intl.DateTimeFormat,
+        );
     });
 
     afterEach(() => {
@@ -32,7 +35,8 @@ describe('GoogleLinkCreator', () => {
             endTime: '2023-12-25T11:00:00.000Z',
         };
 
-        const expectedLink = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Test+Event&dates=20231225T100000Z/20231225T110000Z&ctz=Europe/Amsterdam';
+        const expectedLink
+            = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Test+Event&dates=20231225T100000Z/20231225T110000Z&ctz=Europe/Amsterdam';
 
         expect(generateCalendarLinks([event])[0]).toBe(expectedLink);
     });
@@ -43,10 +47,11 @@ describe('GoogleLinkCreator', () => {
             startTime: '2023-12-26T14:30:00.000Z',
             endTime: '2023-12-26T15:30:00.000Z',
             description: 'Team sync',
-            location: 'Conference Room A'
+            location: 'Conference Room A',
         };
 
-        const expectedLink = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Meeting&dates=20231226T143000Z/20231226T153000Z&details=Team+sync&location=Conference+Room+A&ctz=Europe/Amsterdam';
+        const expectedLink
+            = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=Meeting&dates=20231226T143000Z/20231226T153000Z&details=Team+sync&location=Conference+Room+A&ctz=Europe/Amsterdam';
 
         expect(generateCalendarLinks([event])[0]).toBe(expectedLink);
     });
@@ -57,7 +62,7 @@ describe('GoogleLinkCreator', () => {
             startTime: '2023-12-27T09:00:00.000Z',
             endTime: '2023-12-27T10:00:00.000Z',
             description: 'Testing & debugging session',
-            location: '123 Main St., Suite #100'
+            location: '123 Main St., Suite #100',
         };
 
         const result = generateCalendarLinks([event])[0];
@@ -78,7 +83,7 @@ describe('GoogleLinkCreator', () => {
                 summary: 'Event 2',
                 startTime: '2023-12-29T14:00:00.000Z',
                 endTime: '2023-12-29T15:00:00.000Z',
-            }
+            },
         ];
 
         const links = generateCalendarLinks(events);
@@ -93,7 +98,7 @@ describe('GoogleLinkCreator', () => {
             summary: 'New York Meeting',
             startTime: '2023-12-30T09:00:00.000Z',
             endTime: '2023-12-30T10:00:00.000Z',
-            timezone: 'America/New_York'
+            timezone: 'America/New_York',
         };
 
         const result = generateCalendarLinks([event])[0];
@@ -108,7 +113,7 @@ describe('GoogleLinkCreator', () => {
         const event: Event = {
             summary: 'Local Time Event',
             startTime: '2025-07-14T12:40:00', // No Z suffix - should be treated as local time
-            endTime: '2025-07-14T13:00:00',   // No Z suffix - should be treated as local time
+            endTime: '2025-07-14T13:00:00', // No Z suffix - should be treated as local time
         };
 
         const result = generateCalendarLinks([event])[0];
@@ -124,20 +129,20 @@ describe('GoogleLinkCreator', () => {
                 summary: 'London Meeting',
                 startTime: '2023-12-31T14:00:00.000Z',
                 endTime: '2023-12-31T15:00:00.000Z',
-                timezone: 'Europe/London'
+                timezone: 'Europe/London',
             },
             {
                 summary: 'Tokyo Meeting',
                 startTime: '2024-01-01T01:00:00.000Z',
                 endTime: '2024-01-01T02:00:00.000Z',
-                timezone: 'Asia/Tokyo'
+                timezone: 'Asia/Tokyo',
             },
             {
                 summary: 'Sydney Meeting',
                 startTime: '2024-01-02T03:00:00.000Z',
                 endTime: '2024-01-02T04:00:00.000Z',
-                timezone: 'Australia/Sydney'
-            }
+                timezone: 'Australia/Sydney',
+            },
         ];
 
         const links = generateCalendarLinks(events);
@@ -154,7 +159,7 @@ describe('GoogleLinkCreator', () => {
             endTime: '2024-01-15T17:00:00.000Z',
             description: 'Annual tech conference & networking',
             location: 'Convention Center, Room #203',
-            timezone: 'America/Los_Angeles'
+            timezone: 'America/Los_Angeles',
         };
 
         const result = generateCalendarLinks([event])[0];
@@ -170,7 +175,7 @@ describe('GoogleLinkCreator', () => {
         const event: Event = {
             summary: 'No Timezone Event',
             startTime: '2024-01-20T10:00:00.000Z',
-            endTime: '2024-01-20T11:00:00.000Z'
+            endTime: '2024-01-20T11:00:00.000Z',
         };
 
         const result = generateCalendarLinks([event])[0];
@@ -185,20 +190,20 @@ describe('GoogleLinkCreator', () => {
                 summary: 'UTC Event',
                 startTime: '2024-02-01T12:00:00.000Z',
                 endTime: '2024-02-01T13:00:00.000Z',
-                timezone: 'UTC'
+                timezone: 'UTC',
             },
             {
                 summary: 'GMT Event',
                 startTime: '2024-02-01T12:00:00.000Z',
                 endTime: '2024-02-01T13:00:00.000Z',
-                timezone: 'GMT'
+                timezone: 'GMT',
             },
             {
                 summary: 'Complex Timezone',
                 startTime: '2024-02-01T12:00:00.000Z',
                 endTime: '2024-02-01T13:00:00.000Z',
-                timezone: 'America/Argentina/Buenos_Aires'
-            }
+                timezone: 'America/Argentina/Buenos_Aires',
+            },
         ];
 
         const links = generateCalendarLinks(events);

@@ -1,22 +1,22 @@
 /// <reference types="node" />
 
-import { describe, it, expect } from "vitest";
-import { extractExifDataFromFile } from "../exifExtractorLogic";
-import fs from "fs";
-import path from "path";
+import { describe, it, expect } from 'vitest';
+import { extractExifDataFromFile } from '../exifExtractorLogic';
+import fs from 'fs';
+import path from 'path';
 
-describe("ExifExtractor Logic", () => {
-    it("should correctly extract EXIF data from a sample image", async () => {
+describe('ExifExtractor Logic', () => {
+    it('should correctly extract EXIF data from a sample image', async () => {
         // Create a File object from the test image
         const imagePath = path.join(
             __dirname,
-            "2023-08-04_Saemangeum_temp_phone_mast_with_climber_-_WSJ_2023.jpg"
+            '2023-08-04_Saemangeum_temp_phone_mast_with_climber_-_WSJ_2023.jpg',
         );
         const imageBuffer = fs.readFileSync(imagePath);
         const imageFile = new File(
             [imageBuffer],
-            "2023-08-04_Saemangeum_temp_phone_mast_with_climber_-_WSJ_2023.jpg",
-            { type: "image/jpeg" }
+            '2023-08-04_Saemangeum_temp_phone_mast_with_climber_-_WSJ_2023.jpg',
+            { type: 'image/jpeg' },
         );
 
         // Extract EXIF data from the image
@@ -34,9 +34,9 @@ describe("ExifExtractor Logic", () => {
 
         // Check for some common EXIF properties that should exist
         const exifData = data![0];
-        expect(exifData).toHaveProperty("FileName");
+        expect(exifData).toHaveProperty('FileName');
         expect(exifData.FileName).toBe(
-            "2023-08-04_Saemangeum_temp_phone_mast_with_climber_-_WSJ_2023.jpg"
+            '2023-08-04_Saemangeum_temp_phone_mast_with_climber_-_WSJ_2023.jpg',
         );
 
         // Take a snapshot of the entire EXIF data structure
@@ -52,10 +52,10 @@ describe("ExifExtractor Logic", () => {
         expect(stableData).toMatchSnapshot();
     });
 
-    it("should handle errors when file is not an image", async () => {
+    it('should handle errors when file is not an image', async () => {
         // Create a non-image file
-        const textFile = new File(["This is not an image"], "test.txt", {
-            type: "text/plain",
+        const textFile = new File(['This is not an image'], 'test.txt', {
+            type: 'text/plain',
         });
 
         // Try to extract EXIF data
@@ -64,9 +64,8 @@ describe("ExifExtractor Logic", () => {
         // Should return file-level metadata for a text file
         expect(Array.isArray(data)).toBeTruthy();
         expect(data).toHaveLength(1);
-        expect(data?.[0].FileType).toBe("TXT");
-        expect(data?.[0].FileName).toBe("test.txt");
+        expect(data?.[0].FileType).toBe('TXT');
+        expect(data?.[0].FileName).toBe('test.txt');
         // Error may be null or a warning, depending on exiftool's output
     });
 });
-

@@ -25,9 +25,10 @@ interface NumberFieldProps {
     autoFocus?: boolean;
 }
 
-export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(function NumberField({
-    value, onChange, className, placeholder, disabled, onKeyDown, autoFocus
-}, ref) {
+export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(function NumberField(
+    { value, onChange, className, placeholder, disabled, onKeyDown, autoFocus },
+    ref,
+) {
     const [inputValue, setInputValue] = useState(value?.toString() ?? '');
 
     const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
@@ -54,6 +55,7 @@ export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(functi
             autoFocus={autoFocus}
             className={className}
             placeholder={placeholder}
-            disabled={disabled} />
+            disabled={disabled}
+        />
     );
 });

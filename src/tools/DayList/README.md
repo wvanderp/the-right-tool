@@ -3,6 +3,7 @@
 Sometimes you need a list of specific days matching certain patterns. This tool helps you generate that list by filtering dates within a range based on criteria like day of the week or day of the month.
 
 For example, you can generate:
+
 - All Saturdays in a year
 - Every 15th of the month in a year
 - All Sundays that fall on the 1st of a month
@@ -36,6 +37,7 @@ The implementation focuses on:
 Future enhancements could include:
 
 ### Additional Filters
+
 - Day numbers of the year (e.g., 1st day, 100th day)
 - Week numbers of the year
 - Week numbers of the month
@@ -44,6 +46,7 @@ Future enhancements could include:
 - Holidays (would require holiday calendar integration)
 
 ### Output Enhancements
+
 - More date format options
 - Save output as file (CSV, TXT)
 - Calendar visualization
@@ -51,5 +54,6 @@ Future enhancements could include:
 - Date range templates (next month, this quarter, etc.)
 
 ### Technical Improvements
+
 - More comprehensive test coverage
 - Performance optimizations for very large date ranges

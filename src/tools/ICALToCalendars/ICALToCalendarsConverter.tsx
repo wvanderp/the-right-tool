@@ -18,7 +18,8 @@ export default function ICALToCalendars(): React.ReactElement {
                 const content = e.target?.result as string;
                 const parsedEvents = ICALParser(content);
                 setEvents(parsedEvents);
-            } catch (err) {
+            }
+            catch (err) {
                 setError('Failed to parse ICS file. Please make sure it\'s a valid calendar file.');
                 console.error(err);
             }
@@ -59,7 +60,8 @@ export default function ICALToCalendars(): React.ReactElement {
             const file = files[0];
             if (file.name.toLowerCase().endsWith('.ics')) {
                 processFile(file);
-            } else {
+            }
+            else {
                 setError('Please select a valid ICS file.');
             }
         }
@@ -69,7 +71,8 @@ export default function ICALToCalendars(): React.ReactElement {
         try {
             const date = new Date(dateTimeStr);
             return date.toLocaleString();
-        } catch {
+        }
+        catch {
             return dateTimeStr;
         }
     }
@@ -77,8 +80,9 @@ export default function ICALToCalendars(): React.ReactElement {
     return (
         <ToolPage title="Calendar Event Converter">
             <ToolDescription>
-                Convert your calendar events from ICS files into Google Calendar events with one click.
-                Perfect for importing events from email invites, conference schedules, or any calendar that exports to ICS format.
+                Convert your calendar events from ICS files into Google Calendar events with one
+                click. Perfect for importing events from email invites, conference schedules, or any
+                calendar that exports to ICS format.
             </ToolDescription>
 
             <div className="w-full max-w-2xl space-y-6">
@@ -91,24 +95,45 @@ export default function ICALToCalendars(): React.ReactElement {
                         onDragLeave={handleDragLeave}
                         onDragOver={handleDragOver}
                         onDrop={handleDrop}
-                        onClick={() => (document.querySelector('input[type="file"]') as HTMLInputElement)?.click()}
+                        onClick={() =>
+                            (
+                                document.querySelector('input[type="file"]') as HTMLInputElement
+                            )?.click()}
                     />
                     <label
                         className={`flex flex-col items-center justify-center w-full h-32 
                             border-2 border-dashed rounded-lg cursor-pointer transition-custom
-                            ${isDragActive
-                                ? 'border-yellow-600 bg-yellow-50'
-                                : 'border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-gray-300'
-                            }`}
+                            ${
+        isDragActive
+            ? 'border-yellow-600 bg-yellow-50'
+            : 'border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-gray-300'
+        }`}
                     >
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <svg className="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                            <svg
+                                className="w-8 h-8 mb-4 text-gray-500"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 20 16"
+                            >
+                                <path
+                                    stroke="currentColor"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                                />
                             </svg>
                             <p className="mb-2 text-sm text-gray-600">
-                                <span className="font-medium">Drop your ICS file here</span> or click to browse
+                                <span className="font-medium">Drop your ICS file here</span>
+                                {' '}
+                                or
+                                click to browse
                             </p>
-                            <p className="text-xs text-gray-500">Supports any standard .ics calendar file</p>
+                            <p className="text-xs text-gray-500">
+                                Supports any standard .ics calendar file
+                            </p>
                         </div>
                         <input
                             type="file"
@@ -127,25 +152,44 @@ export default function ICALToCalendars(): React.ReactElement {
 
                 {events.length > 0 && (
                     <div className="space-y-4">
-                        <h2 className="text-xl font-medium text-gray-900">Found {events.length} Event{events.length > 1 ? 's' : ''}</h2>
+                        <h2 className="text-xl font-medium text-gray-900">
+                            Found
+                            {' '}
+                            {events.length}
+                            {' '}
+                            Event
+                            {events.length > 1 ? 's' : ''}
+                        </h2>
                         <div className="space-y-4">
                             {events.map((event, index) => (
-                                <div
-                                    key={index}
-                                    className="card hover:border-yellow-600/20"
-                                >
+                                <div key={index} className="card hover:border-yellow-600/20">
                                     <div className="flex flex-col space-y-4">
-                                        <h3 className="text-lg font-medium text-gray-900">{event.summary}</h3>
+                                        <h3 className="text-lg font-medium text-gray-900">
+                                            {event.summary}
+                                        </h3>
                                         <div className="text-sm text-gray-600 space-y-2">
-                                            <div>Starts: {formatDateTime(event.startTime)}</div>
-                                            <div>Ends: {formatDateTime(event.endTime)}</div>
+                                            <div>
+                                                Starts:
+                                                {formatDateTime(event.startTime)}
+                                            </div>
+                                            <div>
+                                                Ends:
+                                                {formatDateTime(event.endTime)}
+                                            </div>
                                             {event.location && (
-                                                <div>Location: {event.location}</div>
+                                                <div>
+                                                    Location:
+                                                    {event.location}
+                                                </div>
                                             )}
                                             {event.description && (
                                                 <div className="mt-3">
-                                                    <div className="font-medium text-gray-700 mb-2">Details:</div>
-                                                    <div className="whitespace-pre-wrap">{event.description}</div>
+                                                    <div className="font-medium text-gray-700 mb-2">
+                                                        Details:
+                                                    </div>
+                                                    <div className="whitespace-pre-wrap">
+                                                        {event.description}
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>

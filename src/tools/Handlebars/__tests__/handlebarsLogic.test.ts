@@ -36,7 +36,7 @@ describe('Handlebars Template Logic', () => {
         const template = 'Hello {{user.name}}, you have {{messages.length}} messages.';
         const data = {
             user: { name: 'John' },
-            messages: ['msg1', 'msg2', 'msg3']
+            messages: ['msg1', 'msg2', 'msg3'],
         };
 
         const templateFunction = Handlebars.compile(template);

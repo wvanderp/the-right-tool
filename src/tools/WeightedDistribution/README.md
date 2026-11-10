@@ -74,20 +74,20 @@ The tool consists of two main parts:
 
 ```typescript
 interface DistributionItem {
-    name: string;
-    weight: number;    // 0-100
-    locked?: boolean;
-    value?: number;    // Calculated amount
+  name: string;
+  weight: number; // 0-100
+  locked?: boolean;
+  value?: number; // Calculated amount
 }
 
 // Example usage
 const config = {
-    totalAmount: 1000,
-    items: [
-        { name: 'Rent', weight: 50, locked: true },   // Always 500€
-        { name: 'Food', weight: 30 },                 // 300€
-        { name: 'Savings', weight: 20 }               // 200€
-    ]
+  totalAmount: 1000,
+  items: [
+    { name: 'Rent', weight: 50, locked: true }, // Always 500€
+    { name: 'Food', weight: 30 }, // 300€
+    { name: 'Savings', weight: 20 }, // 200€
+  ],
 };
 ```
 

@@ -12,7 +12,7 @@ describe('dayListLogic', () => {
                 dayOfMonthFilter: [],
                 outputFormat: 'YYYY-MM-DD',
                 separator: '\n',
-                locale: 'en-US'
+                locale: 'en-US',
             };
 
             const result = generateDayList(options);
@@ -36,7 +36,7 @@ describe('dayListLogic', () => {
                 dayOfMonthFilter: [],
                 outputFormat: 'YYYY-MM-DD',
                 separator: '\n',
-                locale: 'en-US'
+                locale: 'en-US',
             };
 
             const result = generateDayList(options);
@@ -52,7 +52,7 @@ describe('dayListLogic', () => {
                 dayOfMonthFilter: [1, 15, 30],
                 outputFormat: 'YYYY-MM-DD',
                 separator: '\n',
-                locale: 'en-US'
+                locale: 'en-US',
             };
 
             const result = generateDayList(options);
@@ -68,7 +68,7 @@ describe('dayListLogic', () => {
                 dayOfMonthFilter: [],
                 outputFormat: 'MM/DD/YYYY',
                 separator: '\n',
-                locale: 'en-US'
+                locale: 'en-US',
             };
 
             const result = generateDayList(options);
@@ -84,7 +84,7 @@ describe('dayListLogic', () => {
                 dayOfMonthFilter: [],
                 outputFormat: 'YYYY-MM-DD',
                 separator: ', ',
-                locale: 'en-US'
+                locale: 'en-US',
             };
 
             const result = generateDayList(options);
@@ -103,7 +103,7 @@ describe('dayListLogic', () => {
                 dayOfMonthFilter: [15],
                 outputFormat: 'YYYY-MM-DD',
                 separator: '\n',
-                locale: 'en-US'
+                locale: 'en-US',
             };
 
             const result = generateDayList(options);
@@ -119,7 +119,7 @@ describe('dayListLogic', () => {
                 dayOfMonthFilter: [],
                 outputFormat: 'full',
                 separator: '\n',
-                locale: 'en-US'
+                locale: 'en-US',
             };
 
             const result = generateDayList(options);
@@ -138,7 +138,7 @@ describe('dayListLogic', () => {
                 dayOfMonthFilter: [],
                 outputFormat: 'YYYY-MM-DD',
                 separator: '\n',
-                locale: 'en-US'
+                locale: 'en-US',
             };
 
             const result = generateDayList(options);

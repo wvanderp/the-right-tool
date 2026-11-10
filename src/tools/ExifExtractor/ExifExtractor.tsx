@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import ToolPage from "../../components/ToolPage";
-import ToolDescription from "../../components/ToolDescription";
-import { extractExifDataFromFile, ExifData } from "./exifExtractorLogic";
+import React, { useState } from 'react';
+import ToolPage from '../../components/ToolPage';
+import ToolDescription from '../../components/ToolDescription';
+import { extractExifDataFromFile, ExifData } from './exifExtractorLogic';
 
-import ExifSummary from "./ExifSummary";
-import HandlebarsOutput from "./HandlebarsOutput";
+import ExifSummary from './ExifSummary';
+import HandlebarsOutput from './HandlebarsOutput';
 
 export default function ExifExtractor() {
     const [result, setResult] = useState<ExifData | null>(null);
@@ -22,7 +22,8 @@ export default function ExifExtractor() {
             const { data, error } = await extractExifDataFromFile(file);
             if (error) {
                 setError(error);
-            } else {
+            }
+            else {
                 setResult(data);
             }
         }
@@ -36,7 +37,7 @@ export default function ExifExtractor() {
                     setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
                 })
                 .catch((err) => {
-                    console.error("Failed to copy: ", err);
+                    console.error('Failed to copy: ', err);
                 });
         }
     };
@@ -44,11 +45,10 @@ export default function ExifExtractor() {
     return (
         <ToolPage title="EXIF Extractor">
             <ToolDescription>
-                Select an image file to instantly extract and view its embedded EXIF
-                metadata directly in your browser. This tool works entirely locally and
-                does not upload your files. Supported formats include JPEG, TIFF, and
-                some RAW images. Use this to inspect camera settings, capture dates, GPS
-                coordinates, and more.
+                Select an image file to instantly extract and view its embedded EXIF metadata
+                directly in your browser. This tool works entirely locally and does not upload your
+                files. Supported formats include JPEG, TIFF, and some RAW images. Use this to
+                inspect camera settings, capture dates, GPS coordinates, and more.
             </ToolDescription>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -83,10 +83,7 @@ export default function ExifExtractor() {
                     {/* Summary appears right under file input on the same column */}
                     {result && (
                         <>
-                            <ExifSummary
-                                exif={result}
-                                imageFile={selectedFile ?? undefined}
-                            />
+                            <ExifSummary exif={result} imageFile={selectedFile ?? undefined} />
                             {/* Handlebars custom output tool */}
                             <div className="mt-4">
                                 <HandlebarsOutput exif={result} />
@@ -106,13 +103,11 @@ export default function ExifExtractor() {
                                 >
                                     Raw EXIF Data
                                 </label>
-                                <button
-                                    onClick={handleCopyJson}
-                                    className="btn-secondary text-sm"
-                                >
-                                    {isCopied ? "Copied!" : "Copy JSON"}
+                                <button onClick={handleCopyJson} className="btn-secondary text-sm">
+                                    {isCopied ? 'Copied!' : 'Copy JSON'}
                                 </button>
-                            </div>{" "}
+                            </div>
+                            {' '}
                             <textarea
                                 id="exif-output"
                                 value={JSON.stringify(result, null, 2)}

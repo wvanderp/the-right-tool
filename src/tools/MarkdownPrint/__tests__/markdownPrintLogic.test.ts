@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { buildPrintableDocument, defaultMarkdownPrintOptions, renderMarkdownToHtml } from '../markdownPrintLogic';
+import {
+    buildPrintableDocument,
+    defaultMarkdownPrintOptions,
+    renderMarkdownToHtml,
+} from '../markdownPrintLogic';
 
 describe('markdownPrintLogic', () => {
     describe('renderMarkdownToHtml', () => {
@@ -17,7 +21,9 @@ Paragraph with **bold** text.
         });
 
         it('escapes unsafe html and blocks javascript links', () => {
-            const html = renderMarkdownToHtml('[Bad](javascript:alert(1)) <script>alert(1)</script>');
+            const html = renderMarkdownToHtml(
+                '[Bad](javascript:alert(1)) <script>alert(1)</script>',
+            );
 
             expect(html).toContain('<a href="#">Bad</a>');
             expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
@@ -28,7 +34,9 @@ Paragraph with **bold** text.
         it('preserves fenced code content as escaped text', () => {
             const html = renderMarkdownToHtml('```\nconst value = "<tag>";\n```');
 
-            expect(html).toContain('<pre><code>const value = &quot;&lt;tag&gt;&quot;;</code></pre>');
+            expect(html).toContain(
+                '<pre><code>const value = &quot;&lt;tag&gt;&quot;;</code></pre>',
+            );
         });
 
         it('filters HTML comments outside fenced code blocks', () => {
@@ -63,7 +71,7 @@ multi-line note
                 ...defaultMarkdownPrintOptions,
                 paperSize: 'Letter',
                 lineHeight: 2.1,
-                rightMarginMm: 70
+                rightMarginMm: 70,
             });
 
             expect(documentHtml).toContain('size: Letter;');

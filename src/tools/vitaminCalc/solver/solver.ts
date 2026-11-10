@@ -4,30 +4,40 @@ export type Constraints = {
     [key: string]: {
         target: number;
         max: number;
-    }
-}
+    };
+};
 
 export type Option = Supplement;
 
-export type Options = Option[]
+export type Options = Option[];
 
 export type SolverResult = {
     supplements: [number, Option][];
     distance: number;
     numberOfSupplements: number;
     constraints: Constraints; // Add this line
-}
+};
 
 export type RequiredSupplement = {
     supplement: Option;
     amount: number;
-}
+};
 
-export function solve(constraints: Constraints, options: Options, requiredSupplements: RequiredSupplement[] = []): SolverResult[] {
-    console.info('solve: start', { constraintsSummary: Object.keys(constraints).length, optionsCount: options.length, requiredCount: requiredSupplements.length });
+export function solve(
+    constraints: Constraints,
+    options: Options,
+    requiredSupplements: RequiredSupplement[] = [],
+): SolverResult[] {
+    console.info('solve: start', {
+        constraintsSummary: Object.keys(constraints).length,
+        optionsCount: options.length,
+        requiredCount: requiredSupplements.length,
+    });
 
     const enabledOptions = getEnabledOptions(options);
-    const maxCounts = enabledOptions.map(option => maximumNumberOfSupplement(option, constraints));
+    const maxCounts = enabledOptions.map(option =>
+        maximumNumberOfSupplement(option, constraints),
+    );
 
     console.info('solve: enabled options', { enabledCount: enabledOptions.length, maxCounts });
 
@@ -36,17 +46,20 @@ export function solve(constraints: Constraints, options: Options, requiredSupple
         maxCounts,
         constraints,
         requiredSupplements,
-        options
+        options,
     );
 
     console.info('solve: valid combinations found', validCombinations.length);
 
     const results = validCombinations.map(combination =>
-        createSolverResult(combination, enabledOptions, constraints)
+        createSolverResult(combination, enabledOptions, constraints),
     );
 
     const sorted = sortResults(results);
-    console.info('solve: returning results', { resultsCount: sorted.length, bestDistance: sorted[0]?.distance ?? null });
+    console.info('solve: returning results', {
+        resultsCount: sorted.length,
+        bestDistance: sorted[0]?.distance ?? null,
+    });
 
     return sorted;
 }
@@ -66,7 +79,7 @@ function generateValidCombinations(
     maxCounts: number[],
     constraints: Constraints,
     requiredSupplements: RequiredSupplement[],
-    allOptions: Options
+    allOptions: Options,
 ): number[][] {
     const validCombinations: number[][] = [];
     const totalSupplements = enabledOptions.length;
@@ -74,14 +87,26 @@ function generateValidCombinations(
 
     try {
         const estimatedCombinations = maxCounts.reduce((p, c) => p * (c + 1), 1);
-        console.info('generateValidCombinations: start', { totalSupplements, estimatedCombinations });
-    } catch (e) {
+        console.info('generateValidCombinations: start', {
+            totalSupplements,
+            estimatedCombinations,
+        });
+    }
+    catch (e) {
         console.info('generateValidCombinations: start', { totalSupplements });
     }
 
     function generateCombinations(index: number): void {
         if (index === totalSupplements) {
-            if (isValidCombination(currentCombination, enabledOptions, constraints, requiredSupplements, allOptions)) {
+            if (
+                isValidCombination(
+                    currentCombination,
+                    enabledOptions,
+                    constraints,
+                    requiredSupplements,
+                    allOptions,
+                )
+            ) {
                 validCombinations.push([...currentCombination]);
             }
             return;
@@ -106,7 +131,7 @@ function isValidCombination(
     enabledOptions: Options,
     constraints: Constraints,
     requiredSupplements: RequiredSupplement[],
-    allOptions: Options
+    allOptions: Options,
 ): boolean {
     // Check required supplements
     if (!meetsRequiredSupplements(combination, enabledOptions, requiredSupplements, allOptions)) {
@@ -114,7 +139,10 @@ function isValidCombination(
     }
 
     // Calculate amounts and check constraints
-    const supplements: [number, Option][] = combination.map((count, index) => [count, enabledOptions[index]]);
+    const supplements: [number, Option][] = combination.map((count, index) => [
+        count,
+        enabledOptions[index],
+    ]);
     const amounts = calculateAmounts(supplements);
 
     return !AmountsExceedConstraints(amounts, constraints);
@@ -127,13 +155,17 @@ function meetsRequiredSupplements(
     combination: number[],
     enabledOptions: Options,
     requiredSupplements: RequiredSupplement[],
-    allOptions: Options
+    allOptions: Options,
 ): boolean {
     for (const required of requiredSupplements) {
         const enabledIndex = enabledOptions.indexOf(required.supplement);
         const allOptionsIndex = allOptions.indexOf(required.supplement);
 
-        if (enabledIndex === -1 || allOptionsIndex === -1 || combination[enabledIndex] < required.amount) {
+        if (
+            enabledIndex === -1
+            || allOptionsIndex === -1
+            || combination[enabledIndex] < required.amount
+        ) {
             return false;
         }
     }
@@ -146,9 +178,12 @@ function meetsRequiredSupplements(
 function createSolverResult(
     combination: number[],
     enabledOptions: Options,
-    constraints: Constraints
+    constraints: Constraints,
 ): SolverResult {
-    const supplements: [number, Option][] = combination.map((count, index) => [count, enabledOptions[index]]);
+    const supplements: [number, Option][] = combination.map((count, index) => [
+        count,
+        enabledOptions[index],
+    ]);
     const amounts = calculateAmounts(supplements);
     const distance = calculateDistance(amounts, constraints);
     const numberOfSupplements = combination.reduce((sum, count) => sum + count, 0);
@@ -157,7 +192,7 @@ function createSolverResult(
         supplements,
         distance,
         numberOfSupplements,
-        constraints
+        constraints,
     };
 
     console.info('createSolverResult', { numberOfSupplements, distance });
@@ -237,7 +272,9 @@ export function calculateAmounts(supplements: [number, Options[0]][]): Record<st
     const result: Record<string, number> = {};
 
     // Log non-empty supplement entries concisely
-    const nonZeroSupplements = supplements.filter(s => s[0] !== 0).map(s => ({ count: s[0], name: s[1].name }));
+    const nonZeroSupplements = supplements
+        .filter(s => s[0] !== 0)
+        .map(s => ({ count: s[0], name: s[1].name }));
     if (nonZeroSupplements.length > 0) {
         console.info('calculateAmounts: non-zero supplements', nonZeroSupplements);
     }
@@ -254,7 +291,10 @@ export function calculateAmounts(supplements: [number, Options[0]][]): Record<st
     return result;
 }
 
-export function AmountsExceedConstraints(amounts: Record<string, number>, constraints: Constraints): boolean {
+export function AmountsExceedConstraints(
+    amounts: Record<string, number>,
+    constraints: Constraints,
+): boolean {
     for (const [key, value] of Object.entries(amounts)) {
         const constraint = constraints[key];
         if (constraint) {
@@ -284,8 +324,8 @@ export function maximumNumberOfSupplement(supplement: Option, constraints: Const
 /**
  * generates all possible combinations of supplements
  * so all numbers count down from maxCounts to 0
- * @param maxCounts 
- * @returns 
+ * @param maxCounts
+ * @returns
  */
 export function generateAllCombinations(maxCounts: number[]): number[][] {
     // calculate the number of possible combinations
@@ -311,7 +351,8 @@ export function generateAllCombinations(maxCounts: number[]): number[][] {
 
     if (maxCounts.length > 0) {
         helper(0, []);
-    } else {
+    }
+    else {
         return [];
     }
 

@@ -28,7 +28,7 @@ The EXIF Extractor tool allows you to extract EXIF metadata from image files dir
 ## Example
 
 ```tsx
-import ExifExtractor from "../tools/ExifExtractor/ExifExtractor";
+import ExifExtractor from '../tools/ExifExtractor/ExifExtractor';
 
 function App() {
   return <ExifExtractor />;

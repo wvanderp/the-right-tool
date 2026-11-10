@@ -59,30 +59,30 @@ export const recommendedModels = [
     {
         id: DEFAULT_MODEL_ID,
         name: 'OpenAI GPT Mini Latest',
-        description: 'Fast and capable for frequent short completions.'
+        description: 'Fast and capable for frequent short completions.',
     },
     {
         id: '~anthropic/claude-haiku-latest',
         name: 'Anthropic Claude Haiku Latest',
-        description: 'A fast model with strong prose completion.'
+        description: 'A fast model with strong prose completion.',
     },
     {
         id: '~google/gemini-flash-latest',
         name: 'Google Gemini Flash Latest',
-        description: 'A fast model with a large context window.'
+        description: 'A fast model with a large context window.',
     },
     {
         id: 'openrouter/free',
         name: 'OpenRouter Free Models Router',
-        description: 'Uses a currently available free model with variable results.'
-    }
+        description: 'Uses a currently available free model with variable results.',
+    },
 ] as const;
 
 export const defaultSettings: PredictiveTextSettings = {
     apiKey: '',
     modelId: DEFAULT_MODEL_ID,
     wordCount: DEFAULT_WORD_COUNT,
-    debugView: false
+    debugView: false,
 };
 
 const wordPattern = /[\p{L}\p{N}\p{M}_]+(?:[-'’][\p{L}\p{N}\p{M}_]+)*/gu;
@@ -94,10 +94,11 @@ function avoidSplitSurrogate(value: string, position: number, moveForward: boole
 
     const previousCodeUnit = value.charCodeAt(position - 1);
     const nextCodeUnit = value.charCodeAt(position);
-    const splitsPair = previousCodeUnit >= 0xD800
-        && previousCodeUnit <= 0xDBFF
-        && nextCodeUnit >= 0xDC00
-        && nextCodeUnit <= 0xDFFF;
+    const splitsPair
+        = previousCodeUnit >= 0xd800
+            && previousCodeUnit <= 0xdbff
+            && nextCodeUnit >= 0xdc00
+            && nextCodeUnit <= 0xdfff;
 
     if (!splitsPair) {
         return position;
@@ -118,7 +119,7 @@ export function getPredictionContext(
     text: string,
     caret: number,
     beforeLimit = CONTEXT_BEFORE_LIMIT,
-    afterLimit = CONTEXT_AFTER_LIMIT
+    afterLimit = CONTEXT_AFTER_LIMIT,
 ): PredictionContext {
     const safeCaret = Math.min(text.length, Math.max(0, caret));
     const requestedStart = Math.max(0, safeCaret - beforeLimit);
@@ -130,7 +131,7 @@ export function getPredictionContext(
         before: text.slice(start, safeCaret),
         after: text.slice(safeCaret, end),
         beforeTruncated: start > 0,
-        afterTruncated: end < text.length
+        afterTruncated: end < text.length,
     };
 }
 
@@ -152,7 +153,7 @@ export function splitSuggestionIntoWords(suggestion: string): string[] {
 export function normalizeSuggestion(
     rawSuggestion: string,
     contextBefore: string,
-    wordCount: number
+    wordCount: number,
 ): string {
     let suggestion = rawSuggestion.replace(/\r\n?/g, '\n').trimEnd();
 
@@ -167,7 +168,8 @@ export function normalizeSuggestion(
 
     if (/\s$/.test(contextBefore)) {
         suggestion = suggestion.replace(/^\s+/, '');
-    } else if (
+    }
+    else if (
         contextBefore
         && /[\p{L}\p{N}\p{M}_]$/u.test(contextBefore)
         && /^[\p{L}\p{N}\p{M}_]/u.test(suggestion)
@@ -183,7 +185,7 @@ export function normalizeSuggestion(
 
 export function findPreviousWordRange(
     text: string,
-    selection: TextSelection
+    selection: TextSelection,
 ): TextSelection | null {
     if (selection.from !== selection.to) {
         return selection;
@@ -200,7 +202,7 @@ export function findPreviousWordRange(
     if (!lastMatch || lastMatch.index === undefined) {
         return {
             from: 0,
-            to: selection.from
+            to: selection.from,
         };
     }
 
@@ -212,13 +214,13 @@ export function findPreviousWordRange(
 
     return {
         from,
-        to: selection.from
+        to: selection.from,
     };
 }
 
 export function updateSuggestionForChanges(
     suggestion: PredictionSuggestion,
-    changes: SuggestionTextChange[]
+    changes: SuggestionTextChange[],
 ): PredictionSuggestion | null {
     let offsetBeforeSuggestion = 0;
     let consumedText = '';
@@ -252,7 +254,7 @@ export function updateSuggestionForChanges(
 
     return {
         position: suggestion.position + offsetBeforeSuggestion + consumedText.length,
-        text: remainingText
+        text: remainingText,
     };
 }
 
@@ -268,7 +270,8 @@ function mergeAdjacentProvenance(ranges: ProvenanceRange[]): ProvenanceRange[] {
 
         if (previousRange?.origin === range.origin && previousRange.to === range.from) {
             previousRange.to = range.to;
-        } else {
+        }
+        else {
             mergedRanges.push({ ...range });
         }
     }
@@ -278,7 +281,7 @@ function mergeAdjacentProvenance(ranges: ProvenanceRange[]): ProvenanceRange[] {
 
 export function normalizeProvenanceRanges(
     ranges: ProvenanceRange[],
-    textLength: number
+    textLength: number,
 ): ProvenanceRange[] {
     if (textLength <= 0) {
         return [];
@@ -295,7 +298,7 @@ export function normalizeProvenanceRanges(
             normalizedRanges.push({
                 from: cursor,
                 to: from,
-                origin: 'human'
+                origin: 'human',
             });
         }
 
@@ -303,7 +306,7 @@ export function normalizeProvenanceRanges(
             normalizedRanges.push({
                 from,
                 to,
-                origin: range.origin === 'ai' ? 'ai' : 'human'
+                origin: range.origin === 'ai' ? 'ai' : 'human',
             });
             cursor = to;
         }
@@ -313,7 +316,7 @@ export function normalizeProvenanceRanges(
         normalizedRanges.push({
             from: cursor,
             to: textLength,
-            origin: 'human'
+            origin: 'human',
         });
     }
 
@@ -325,7 +328,7 @@ export function updateProvenanceRanges(
     oldTextLength: number,
     newTextLength: number,
     changes: TextChange[],
-    insertedOrigin: TextOrigin
+    insertedOrigin: TextOrigin,
 ): ProvenanceRange[] {
     const currentRanges = normalizeProvenanceRanges(ranges, oldTextLength);
     const nextRanges: ProvenanceRange[] = [];
@@ -341,7 +344,7 @@ export function updateProvenanceRanges(
                 nextRanges.push({
                     from: intersectionFrom + offset,
                     to: intersectionTo + offset,
-                    origin: range.origin
+                    origin: range.origin,
                 });
             }
         }
@@ -354,7 +357,7 @@ export function updateProvenanceRanges(
             nextRanges.push({
                 from: change.fromB,
                 to: change.toB,
-                origin: insertedOrigin
+                origin: insertedOrigin,
             });
         }
 
@@ -366,32 +369,33 @@ export function updateProvenanceRanges(
 
     return normalizeProvenanceRanges(
         mergeAdjacentProvenance(nextRanges.sort((left, right) => left.from - right.from)),
-        newTextLength
+        newTextLength,
     );
 }
 
 export function rangesToProvenanceChunks(
     text: string,
-    ranges: ProvenanceRange[]
+    ranges: ProvenanceRange[],
 ): ProvenanceChunk[] {
     return normalizeProvenanceRanges(ranges, text.length)
-        .map((range) => ({
+        .map(range => ({
             origin: range.origin,
-            text: text.slice(range.from, range.to)
+            text: text.slice(range.from, range.to),
         }))
-        .filter((chunk) => chunk.text.length > 0);
+        .filter(chunk => chunk.text.length > 0);
 }
 
 export function provenanceChunksToDocument(chunks: ProvenanceChunk[]): {
     text: string;
     ranges: ProvenanceRange[];
 } {
-    const validChunks = chunks.filter((chunk) => (
-        (chunk.origin === 'human' || chunk.origin === 'ai')
-        && typeof chunk.text === 'string'
-        && chunk.text.length > 0
-    ));
-    const text = validChunks.map((chunk) => chunk.text).join('');
+    const validChunks = chunks.filter(
+        chunk =>
+            (chunk.origin === 'human' || chunk.origin === 'ai')
+            && typeof chunk.text === 'string'
+            && chunk.text.length > 0,
+    );
+    const text = validChunks.map(chunk => chunk.text).join('');
     const ranges: ProvenanceRange[] = [];
     let position = 0;
 
@@ -401,11 +405,12 @@ export function provenanceChunksToDocument(chunks: ProvenanceChunk[]): {
 
         if (previousRange?.origin === chunk.origin && previousRange.to === position) {
             previousRange.to = nextPosition;
-        } else {
+        }
+        else {
             ranges.push({
                 from: position,
                 to: nextPosition,
-                origin: chunk.origin
+                origin: chunk.origin,
             });
         }
 

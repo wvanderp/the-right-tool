@@ -88,7 +88,7 @@
 6. Register the tool in `src/main.tsx` with a dynamic import:
 
    ```tsx
-   const MyNewTool = React.lazy(() => import("./tools/MyNewTool/MyNewTool"));
+   const MyNewTool = React.lazy(() => import('./tools/MyNewTool/MyNewTool'));
    ```
 
 7. Add the tool to the `tools` array in `src/main.tsx`.

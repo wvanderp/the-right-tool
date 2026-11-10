@@ -9,9 +9,9 @@ describe('createPredictiveEditorKeymap', () => {
             onAcceptFullSuggestion,
             onDeletePreviousWord: () => false,
             onDismissSuggestion: () => false,
-            onRequestPrediction: () => false
+            onRequestPrediction: () => false,
         });
-        const tabBinding = bindings.find((binding) => binding.key === 'Tab');
+        const tabBinding = bindings.find(binding => binding.key === 'Tab');
 
         expect(tabBinding).toBeDefined();
         expect(tabBinding?.run?.({} as never)).toBe(true);

@@ -1,5 +1,5 @@
 {
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
   "files.associations": {
     "*.css": "tailwindcss",
     "*.instructions.md": "markdown"
@@ -18,5 +18,8 @@
     "VCALENDAR",
     "vevent",
     "vevents"
-  ]
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
 }

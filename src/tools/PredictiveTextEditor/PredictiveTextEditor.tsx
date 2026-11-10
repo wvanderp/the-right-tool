@@ -1,28 +1,12 @@
-import React, {
-    useCallback,
-    useEffect,
-    useRef,
-    useState
-} from 'react';
-import {
-    FiArrowLeft,
-    FiArrowRight,
-    FiCopy,
-    FiLoader,
-    FiSettings,
-    FiTrash2
-} from 'react-icons/fi';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { FiArrowLeft, FiArrowRight, FiCopy, FiLoader, FiSettings, FiTrash2 } from 'react-icons/fi';
 import ToolDescription from '../../components/ToolDescription';
 import ToolPage from '../../components/ToolPage';
-import {
-    buildOpenRouterRequestBody,
-    OpenRouterError,
-    requestPrediction
-} from './openRouterClient';
+import { buildOpenRouterRequestBody, OpenRouterError, requestPrediction } from './openRouterClient';
 import PredictiveEditor, {
     EditorSnapshot,
     GhostSuggestion,
-    PredictiveEditorHandle
+    PredictiveEditorHandle,
 } from './PredictiveEditor';
 import PredictiveTextSettingsDialog from './PredictiveTextSettingsDialog';
 import {
@@ -32,14 +16,14 @@ import {
     normalizeSuggestion,
     PredictiveTextSettings,
     splitSuggestionIntoWords,
-    updateSuggestionForChanges
+    updateSuggestionForChanges,
 } from './predictiveTextLogic';
 import {
     clearPredictiveTextData,
     loadDocument,
     loadSettings,
     saveDocument,
-    saveSettings
+    saveSettings,
 } from './predictiveTextStorage';
 
 type EditorStatus = {
@@ -52,21 +36,26 @@ export default function PredictiveTextEditor(): React.ReactElement {
     const [savedDocument] = useState(() => loadDocument());
     const [documentState, setDocumentState] = useState(() => ({
         text: savedDocument.text,
-        provenance: savedDocument.provenance
+        provenance: savedDocument.provenance,
     }));
     const documentText = documentState.text;
     const provenance = documentState.provenance;
     const [selection, setSelection] = useState(() => ({
         from: documentText.length,
-        to: documentText.length
+        to: documentText.length,
     }));
     const [suggestion, setSuggestion] = useState<GhostSuggestion | null>(
-        () => savedDocument.suggestion
+        () => savedDocument.suggestion,
     );
     const [lastPromptBody, setLastPromptBody] = useState<string | null>(null);
-    const [status, setStatus] = useState<EditorStatus>(() => settings.apiKey
-        ? { kind: 'idle', message: 'Ready to predict.' }
-        : { kind: 'info', message: 'Add an OpenRouter API key in settings to start predicting.' });
+    const [status, setStatus] = useState<EditorStatus>(() =>
+        settings.apiKey
+            ? { kind: 'idle', message: 'Ready to predict.' }
+            : {
+                    kind: 'info',
+                    message: 'Add an OpenRouter API key in settings to start predicting.',
+                },
+    );
     const [settingsOpen, setSettingsOpen] = useState(!settings.apiKey);
     const editorRef = useRef<PredictiveEditorHandle>(null);
     const requestControllerRef = useRef<AbortController | null>(null);
@@ -86,20 +75,25 @@ export default function PredictiveTextEditor(): React.ReactElement {
         };
     }, [documentText, provenance, suggestion]);
 
-    useEffect(() => () => {
-        requestControllerRef.current?.abort();
-    }, []);
+    useEffect(
+        () => () => {
+            requestControllerRef.current?.abort();
+        },
+        [],
+    );
 
     const handleEditorStateChange = useCallback((snapshot: EditorSnapshot) => {
         if (snapshot.changes.length > 0) {
             requestControllerRef.current?.abort();
-            setSuggestion((currentSuggestion) => currentSuggestion
-                ? updateSuggestionForChanges(currentSuggestion, snapshot.changes)
-                : null);
+            setSuggestion(currentSuggestion =>
+                currentSuggestion
+                    ? updateSuggestionForChanges(currentSuggestion, snapshot.changes)
+                    : null,
+            );
         }
         setDocumentState({
             text: snapshot.text,
-            provenance: snapshot.provenance
+            provenance: snapshot.provenance,
         });
         setSelection(snapshot.selection);
     }, []);
@@ -108,7 +102,7 @@ export default function PredictiveTextEditor(): React.ReactElement {
         if (!settings.apiKey) {
             setStatus({
                 kind: 'info',
-                message: 'Add an OpenRouter API key before requesting a prediction.'
+                message: 'Add an OpenRouter API key before requesting a prediction.',
             });
             setSettingsOpen(true);
             return true;
@@ -117,7 +111,7 @@ export default function PredictiveTextEditor(): React.ReactElement {
         if (selection.from !== selection.to) {
             setStatus({
                 kind: 'info',
-                message: 'Place the caret at one position before requesting a prediction.'
+                message: 'Place the caret at one position before requesting a prediction.',
             });
             return true;
         }
@@ -125,7 +119,7 @@ export default function PredictiveTextEditor(): React.ReactElement {
         if (!documentText.trim()) {
             setStatus({
                 kind: 'info',
-                message: 'Paste or write some text before requesting a prediction.'
+                message: 'Paste or write some text before requesting a prediction.',
             });
             return true;
         }
@@ -136,14 +130,14 @@ export default function PredictiveTextEditor(): React.ReactElement {
         setSuggestion(null);
         setStatus({
             kind: 'loading',
-            message: 'Generating a contextual prediction.'
+            message: 'Generating a contextual prediction.',
         });
 
         const context = getPredictionContext(documentText, selection.from);
         const requestBody = buildOpenRouterRequestBody({
             modelId: settings.modelId,
             wordCount: settings.wordCount,
-            context
+            context,
         });
         setLastPromptBody(JSON.stringify(requestBody, null, 2));
 
@@ -153,7 +147,7 @@ export default function PredictiveTextEditor(): React.ReactElement {
                 modelId: settings.modelId,
                 wordCount: settings.wordCount,
                 context,
-                signal: controller.signal
+                signal: controller.signal,
             });
 
             if (requestControllerRef.current !== controller) {
@@ -163,49 +157,57 @@ export default function PredictiveTextEditor(): React.ReactElement {
             const normalizedSuggestion = normalizeSuggestion(
                 response.text,
                 context.before,
-                settings.wordCount
+                settings.wordCount,
             );
 
             if (!normalizedSuggestion) {
                 setStatus({
                     kind: 'info',
-                    message: 'The model did not return a usable continuation. Press Ctrl+Space to try again.'
+                    message:
+                        'The model did not return a usable continuation. Press Ctrl+Space to try again.',
                 });
                 return true;
             }
 
             setSuggestion({
                 position: selection.from,
-                text: normalizedSuggestion
+                text: normalizedSuggestion,
             });
 
             const tokenParts = [
-                response.promptTokens === undefined ? null : `${response.promptTokens} input tokens`,
-                response.completionTokens === undefined ? null : `${response.completionTokens} output tokens`
+                response.promptTokens === undefined
+                    ? null
+                    : `${response.promptTokens} input tokens`,
+                response.completionTokens === undefined
+                    ? null
+                    : `${response.completionTokens} output tokens`,
             ].filter(Boolean);
 
             setStatus({
                 kind: 'success',
-                message: `Prediction ready from ${response.model}.${tokenParts.length ? ` ${tokenParts.join(' and ')}.` : ''}`
+                message: `Prediction ready from ${response.model}.${tokenParts.length ? ` ${tokenParts.join(' and ')}.` : ''}`,
             });
-        } catch (error) {
+        }
+        catch (error) {
             if (error instanceof DOMException && error.name === 'AbortError') {
                 return true;
             }
 
-            const retryMessage = error instanceof OpenRouterError && error.retryAfterSeconds
-                ? ` Try again in ${error.retryAfterSeconds} seconds.`
-                : '';
+            const retryMessage
+                = error instanceof OpenRouterError && error.retryAfterSeconds
+                    ? ` Try again in ${error.retryAfterSeconds} seconds.`
+                    : '';
 
             setStatus({
                 kind: 'error',
-                message: `${error instanceof Error ? error.message : 'The prediction request failed.'}${retryMessage}`
+                message: `${error instanceof Error ? error.message : 'The prediction request failed.'}${retryMessage}`,
             });
 
             if (error instanceof OpenRouterError && error.status === 401) {
                 setSettingsOpen(true);
             }
-        } finally {
+        }
+        finally {
             if (requestControllerRef.current === controller) {
                 requestControllerRef.current = null;
             }
@@ -232,12 +234,14 @@ export default function PredictiveTextEditor(): React.ReactElement {
 
         const remainingSuggestion = suggestion.text.slice(nextWord.length);
         editorRef.current?.replaceRange(selection.from, selection.to, nextWord, 'ai');
-        setSuggestion(remainingSuggestion
-            ? {
-                position: selection.from + nextWord.length,
-                text: remainingSuggestion
-            }
-            : null);
+        setSuggestion(
+            remainingSuggestion
+                ? {
+                        position: selection.from + nextWord.length,
+                        text: remainingSuggestion,
+                    }
+                : null,
+        );
 
         return true;
     }, [selection, suggestion]);
@@ -251,12 +255,7 @@ export default function PredictiveTextEditor(): React.ReactElement {
             return false;
         }
 
-        editorRef.current?.replaceRange(
-            selection.from,
-            selection.to,
-            suggestion.text,
-            'ai'
-        );
+        editorRef.current?.replaceRange(selection.from, selection.to, suggestion.text, 'ai');
         setSuggestion(null);
         return true;
     }, [selection, suggestion]);
@@ -288,7 +287,7 @@ export default function PredictiveTextEditor(): React.ReactElement {
         setSettingsOpen(false);
         setStatus({
             kind: 'idle',
-            message: 'Settings saved. Predictions are ready.'
+            message: 'Settings saved. Predictions are ready.',
         });
         window.setTimeout(() => editorRef.current?.focus(), 0);
     };
@@ -299,14 +298,15 @@ export default function PredictiveTextEditor(): React.ReactElement {
         setSettings(defaultSettings);
         setDocumentState({
             text: '',
-            provenance: []
+            provenance: [],
         });
         setSelection({ from: 0, to: 0 });
         setSuggestion(null);
         editorRef.current?.setText('');
         setStatus({
             kind: 'info',
-            message: 'The saved key, settings, and provenance document were cleared from this browser.'
+            message:
+                'The saved key, settings, and provenance document were cleared from this browser.',
         });
     };
 
@@ -315,12 +315,13 @@ export default function PredictiveTextEditor(): React.ReactElement {
             await navigator.clipboard.writeText(documentText);
             setStatus({
                 kind: 'success',
-                message: 'The editor text was copied to the clipboard.'
+                message: 'The editor text was copied to the clipboard.',
             });
-        } catch {
+        }
+        catch {
             setStatus({
                 kind: 'error',
-                message: 'The browser did not allow clipboard access.'
+                message: 'The browser did not allow clipboard access.',
             });
         }
     };
@@ -331,7 +332,7 @@ export default function PredictiveTextEditor(): React.ReactElement {
         editorRef.current?.setText('');
         setStatus({
             kind: 'info',
-            message: 'The editor was cleared. Use undo to restore the text during this session.'
+            message: 'The editor was cleared. Use undo to restore the text during this session.',
         });
     };
 
@@ -340,15 +341,15 @@ export default function PredictiveTextEditor(): React.ReactElement {
         loading: 'bg-blue-50 text-blue-800',
         success: 'bg-green-50 text-green-800',
         info: 'bg-blue-50 text-blue-800',
-        error: 'bg-red-50 text-red-800'
+        error: 'bg-red-50 text-red-800',
     };
 
     return (
         <ToolPage title="Predictive Text Editor">
             <ToolDescription>
-                Write or paste plain text and get a contextual continuation from your chosen OpenRouter model.
-                Accept the complete suggestion with Tab or take it one word at a time while keeping your
-                provenance document and API key on this device.
+                Write or paste plain text and get a contextual continuation from your chosen
+                OpenRouter model. Accept the complete suggestion with Tab or take it one word at a
+                time while keeping your provenance document and API key on this device.
             </ToolDescription>
 
             <div className="flex w-full flex-col gap-4">
@@ -425,7 +426,10 @@ export default function PredictiveTextEditor(): React.ReactElement {
                 </section>
 
                 {settings.debugView && (
-                    <section className="rounded-lg border border-gray-300 bg-gray-50 p-4" aria-label="Debug view.">
+                    <section
+                        className="rounded-lg border border-gray-300 bg-gray-50 p-4"
+                        aria-label="Debug view."
+                    >
                         <div className="flex flex-wrap items-start justify-between gap-4">
                             <div>
                                 <h2 className="text-lg font-semibold text-gray-900">Debug view</h2>
@@ -455,20 +459,24 @@ export default function PredictiveTextEditor(): React.ReactElement {
                         </div>
 
                         <div className="mt-4">
-                            <h3 className="font-medium text-gray-900">Latest OpenRouter request body</h3>
+                            <h3 className="font-medium text-gray-900">
+                                Latest OpenRouter request body
+                            </h3>
                             <p className="mt-1 text-sm text-gray-600">
-                                This is the exact JSON body used for the latest prediction. Authentication headers
-                                and the API key are not included.
+                                This is the exact JSON body used for the latest prediction.
+                                Authentication headers and the API key are not included.
                             </p>
-                            {lastPromptBody ? (
-                                <pre className="mt-3 max-h-96 overflow-auto border border-gray-200 bg-white p-4 text-xs text-gray-800">
-                                    <code>{lastPromptBody}</code>
-                                </pre>
-                            ) : (
-                                <p className="mt-3 rounded-md bg-white p-4 text-sm text-gray-600">
-                                    Press Ctrl+Space to make a prediction and inspect its prompt.
-                                </p>
-                            )}
+                            {lastPromptBody
+                                ? (
+                                        <pre className="mt-3 max-h-96 overflow-auto border border-gray-200 bg-white p-4 text-xs text-gray-800">
+                                            <code>{lastPromptBody}</code>
+                                        </pre>
+                                    )
+                                : (
+                                        <p className="mt-3 rounded-md bg-white p-4 text-sm text-gray-600">
+                                            Press Ctrl+Space to make a prediction and inspect its prompt.
+                                        </p>
+                                    )}
                         </div>
                     </section>
                 )}
@@ -478,18 +486,24 @@ export default function PredictiveTextEditor(): React.ReactElement {
                     role="status"
                     aria-live="polite"
                 >
-                    {status.kind === 'loading' && <FiLoader className="h-4 w-4 shrink-0 animate-spin" />}
+                    {status.kind === 'loading' && (
+                        <FiLoader className="h-4 w-4 shrink-0 animate-spin" />
+                    )}
                     <p>{status.message}</p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-3 text-sm text-gray-600 md:grid-cols-2">
                     <p>
-                        <strong className="text-gray-800">On demand.</strong> Press Ctrl+Space to generate text at
-                        the current caret using context on both sides.
+                        <strong className="text-gray-800">On demand.</strong>
+                        {' '}
+                        Press Ctrl+Space to
+                        generate text at the current caret using context on both sides.
                     </p>
                     <p>
-                        <strong className="text-gray-800">Private by default.</strong> Requests exclude providers
-                        marked as collecting prompt data.
+                        <strong className="text-gray-800">Private by default.</strong>
+                        {' '}
+                        Requests
+                        exclude providers marked as collecting prompt data.
                     </p>
                 </div>
             </div>
